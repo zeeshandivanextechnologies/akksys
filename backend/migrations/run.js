@@ -1,25 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import pg from 'pg';
 import dotenv from 'dotenv';
+import { pool } from '../config/db.js';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const pool = new pg.Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT) || 5432,
-  database: process.env.DB_NAME || 'akksys',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '',
-});
-
-async function runMigrations() {
+export async function runMigrations(closePoolAfter = false) {
   try {
-    console.log('Connecting to database...');
+    console.log('Running database migrations...');
     const client = await pool.connect();
     
     const migrations = ['001_initial.sql', '002_add_2fa_columns.sql', '003_add_notification_columns.sql', '004_landing_content.sql'];
@@ -41,8 +33,12 @@ async function runMigrations() {
   } catch (err) {
     console.error('Migration failed:', err);
   } finally {
-    await pool.end();
+    if (closePoolAfter) {
+      await pool.end();
+    }
   }
 }
 
-runMigrations();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  runMigrations(true);
+}

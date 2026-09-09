@@ -1,12 +1,13 @@
 import { db } from '../config/db.js';
 import { hashPassword } from '../utils/hashPassword.js';
 
-const seed = async () => {
+export const seed = async (shouldExit = false) => {
   try {
     const existingUser = await db.query('SELECT id FROM users WHERE email = $1', ['admin@akksys.in']);
     if (existingUser.rows.length > 0) {
       console.log('Admin user already exists');
-      process.exit(0);
+      if (shouldExit) process.exit(0);
+      return;
     }
 
     const passwordHash = await hashPassword('admin123');
@@ -22,11 +23,14 @@ const seed = async () => {
     );
 
     console.log('Admin user created: admin@akksys.in / admin123');
-    process.exit(0);
+    if (shouldExit) process.exit(0);
   } catch (err) {
     console.error('Seed failed:', err.message);
-    process.exit(1);
+    if (shouldExit) process.exit(1);
   }
 };
 
-seed();
+import { fileURLToPath } from 'url';
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  seed(true);
+}

@@ -60,10 +60,18 @@ app.use('/api/user', userRoutes);
 
 app.use(errorHandler);
 
+import { runMigrations } from './migrations/run.js';
+import { seed } from './seeds/seed.js';
+
 const start = async () => {
   try {
     await db.query('SELECT NOW()');
     console.log('PostgreSQL connected');
+
+    // Auto-run DB migrations & seed on server start
+    await runMigrations(false);
+    await seed(false);
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
