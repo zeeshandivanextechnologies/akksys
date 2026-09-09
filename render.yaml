@@ -31,8 +31,15 @@ services:
     staticPublishPath: frontend/dist
     routes:
       - type: rewrite
+        source: /api/*
+        destination: https://akksys-backend.onrender.com/api/*
+      - type: rewrite
+        source: /uploads/*
+        destination: https://akksys-backend.onrender.com/uploads/*
+      - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        sync: false # Set to backend URL (e.g. https://akksys-backend.onrender.com/api)
+        value: https://akksys-backend.onrender.com/api
+ # Set to backend URL (e.g. https://akksys-backend.onrender.com/api)
