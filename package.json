@@ -1,0 +1,10 @@
+{
+  "name": "akksys-root",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "cd backend && npm install",
+    "start": "node backend/server.js"
+  }
+}
