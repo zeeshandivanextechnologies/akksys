@@ -1,0 +1,38 @@
+services:
+  # -------------------------------------------------------------
+  # 1. Backend Web Service (Node.js API)
+  # -------------------------------------------------------------
+  - type: web
+    name: akksys-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false # User can link Render PostgreSQL or external DB URL
+      - key: JWT_SECRET
+        generateValue: true # Render auto-generates secure random secret
+      - key: FRONTEND_URL
+        sync: false # Set to frontend URL after creation (e.g. https://akksys-frontend.onrender.com)
+
+  # -------------------------------------------------------------
+  # 2. Frontend Static Site (React / Vite App)
+  # -------------------------------------------------------------
+  - type: web
+    name: akksys-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false # Set to backend URL (e.g. https://akksys-backend.onrender.com/api)
