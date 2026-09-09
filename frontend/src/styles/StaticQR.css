@@ -1,0 +1,313 @@
+/* ============================================
+   Static QR Codes - Module CSS
+   Uses DynamicQR.css pattern with sq- prefix
+   ============================================ */
+
+/* Type Badge */
+.sq-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+    padding: 4px 6px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+
+}
+
+.sq-type-badge svg {
+  font-size: 12px;
+}
+.sq-type-wifi {
+  background: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+  border-color: rgba(0, 123, 255, 0.2);
+}
+
+.sq-type-vcard {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border-color: rgba(40, 167, 69, 0.2);
+}
+
+.sq-type-url {
+  background: rgba(105, 67, 200, 0.1);
+  color: #6943c8;
+  border-color: rgba(105, 67, 200, 0.2);
+}
+
+.sq-type-email {
+  background: rgba(253, 126, 20, 0.1);
+  color: #fd7e14;
+  border-color: rgba(253, 126, 20, 0.2);
+}
+
+.sq-type-phone {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border-color: rgba(220, 53, 69, 0.2);
+}
+
+/* Dropdown Danger */
+.sq-dropdown-danger {
+  color: #dc3545 !important;
+}
+
+.sq-dropdown-danger:hover {
+  background: var(--ov-new-bg) !important;
+  color: #dc3545 !important;
+}
+
+/* ============================================
+   Create Static QR - Type Options
+   ============================================ */
+.sq-type-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.sq-type-option {
+  position: relative;
+  padding: 12px 12px;
+background: var(--ov-new-bg);
+    border: 1px solid var(--ov-hover-border);
+    color: var(--admin-primary);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.sq-type-option:hover {
+ border-color: var(--ov-hover-border);
+    color: var(--ov-heading-text);
+    background-color: var(--admin-primary);
+}
+
+.sq-type-option.active {
+  background: var(--admin-primary);
+    border-color: var(--ov-hover-border);
+    color: #fff;
+}
+
+.sq-type-icon {
+  display: block;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ov-heading-text);
+  margin-bottom: 5px;
+}
+
+.sq-type-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ov-heading-text);
+  margin-bottom: 2px;
+}
+
+.sq-type-desc {
+  display: block;
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--ov-subheading-text);
+}
+
+.sq-type-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+      background: #100e14;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+}
+
+/* ============================================
+   Preview Box (Create Page)
+   ============================================ */
+.sq-preview-box {
+  background: var(--ov-new-bg);
+  border: 1px solid var(--ov-new-border);
+  border-radius: 12px;
+  padding: 16px 24px;
+  text-align: center;
+}
+
+.sq-preview-qr {
+  display: inline-block;
+  position: relative;
+}
+
+.sq-preview-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  background: var(--admin-primary);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.sq-preview-info {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.sq-preview-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ov-heading-text);
+}
+
+.sq-preview-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--ov-subheading-text);
+  margin-top: 4px;
+}
+
+/* ============================================
+   View QR Modal - Details
+   ============================================ */
+.sq-view-section {
+  padding: 0;
+}
+
+.sq-view-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sq-view-info {
+  margin-bottom: 10px;
+}
+
+.sq-view-details {
+  background: var(--ov-new-bg);
+  border: 1px solid var(--ov-new-border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.sq-view-subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ov-heading-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.sq-view-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--ov-new-border);
+}
+
+.sq-view-row:last-child {
+  border-bottom: none;
+}
+
+.sq-view-label {
+  font-size: 14px;
+  color: var(--ov-subheading-text);
+  font-weight: 400;
+}
+
+.sq-view-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ov-heading-text);
+}
+
+/* ============================================
+   Edit QR Modal - Type Options
+   ============================================ */
+.sq-edit-type-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sq-edit-type-btn {
+  padding: 8px 14px;
+ background: var(--ov-new-bg);
+    border: 1px solid var(--ov-hover-border);
+    color: var(--admin-primary);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.sq-edit-type-btn:hover {
+      border-color: var(--ov-hover-border);
+    color: var(--ov-heading-text);
+    background-color: var(--admin-primary);
+}
+
+.sq-edit-type-btn.active {
+background: var(--admin-primary);
+    border-color: var(--ov-hover-border);
+    color: #fff;
+}
+
+.sq-edit-type-form {
+  margin-top: 16px;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+.dq-col-type {
+  display: table-cell;
+}
+
+.dq-col-date {
+  display: table-cell;
+}
+
+@media (max-width: 991px) {
+  .dq-col-date {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .dq-col-type {
+    display: none;
+  }
+}

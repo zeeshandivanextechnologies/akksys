@@ -1,0 +1,148 @@
+﻿/* ============================================
+   Create Version Page Styles (cv-)
+   ============================================ */
+
+/* Previous Version Info */
+.cv-prev-version {
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--ov-new-border);
+  border-left: 4px solid var(--admin-primary);
+  background: var(--ov-new-bg);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cv-prev-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(0, 200, 255, 0.2);
+  color: var(--admin-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.cv-prev-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ov-heading-text);
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.cv-prev-meta {
+  font-size: 13px;
+  color: var(--ov-subheading-text);
+  margin: 0px;
+  font-weight: 400;
+}
+
+/* Activation Card */
+.cv-activation-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--ov-new-bg);
+  border: 1px solid var(--ov-new-border);
+  border-radius: 10px;
+}
+
+.cv-switch-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ov-subheading-text);
+  font-family: 'Poppins', sans-serif;
+}
+
+.cv-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+}
+
+.cv-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cv-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #e8e4f0;
+  border-radius: 26px;
+  transition: all 0.3s ease;
+}
+
+.cv-switch-slider::before {
+  content: '';
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.cv-switch input:checked + .cv-switch-slider {
+  background: var(--admin-primary);
+}
+
+.cv-switch input:checked + .cv-switch-slider::before {
+  transform: translateX(22px);
+}
+
+/* Warning Card */
+.cv-warning {
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--ov-new-border);
+  border-left: 4px solid #f59e0b;
+  background: var(--ov-new-bg);
+  display: flex;
+  gap: 14px;
+}
+
+.cv-warning-icon {
+  color: #f59e0b;
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cv-warning-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ov-heading-text);
+  margin: 0 0 4px 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.cv-warning-text {
+  font-size: 13px;
+  color: var(--ov-subheading-text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .cv-prev-version {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

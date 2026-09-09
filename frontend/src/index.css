@@ -1,0 +1,198 @@
+/* Custom Premium UI CSS for AKKSYS - Glassmorphism Theme */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-color: #1a0b2e; /* Deep purple night sky */
+  --accent-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-light: #ffffff;
+  --text-muted: #cbd5e1;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  /* Premium dynamic background gradient */
+  background: #090C14 !important;
+  color: var(--text-light);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Landing Page Mobile-First Container with Glassmorphism */
+.landing-container {
+  font-family: 'Poppins', sans-serif;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Adding background glowing orbs for that rich aesthetic */
+.landing-container::before, .landing-container::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+}
+.landing-container::before {
+  top: -100px;
+  left: -100px;
+  width: 300px;
+  height: 300px;
+  background: rgba(236, 72, 153, 0.25); /* Pink glow */
+}
+.landing-container::after {
+  bottom: -50px;
+  right: -50px;
+  width: 250px;
+  height: 250px;
+  background: rgba(249, 115, 22, 0.2); /* Orange glow */
+}
+
+/* Header Aesthetics */
+.akksys-header {
+  padding: 1.5rem;
+  text-align: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+  z-index: 10;
+}
+
+.brand-logo {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Video Container */
+.video-wrapper {
+  position: relative;
+  width: 90%;
+  margin: 2rem auto;
+  padding-bottom: 50%; 
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 0 1px var(--glass-border);
+  backdrop-filter: blur(15px);
+}
+
+.video-wrapper iframe, .video-wrapper video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Content Area - Floating Glass Card */
+.campaign-content {
+  margin: 0 1.5rem 2rem 1.5rem;
+  padding: 2.5rem 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  
+  /* Glassmorphism Card Style */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 30px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.campaign-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.campaign-desc {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  font-weight: 300;
+}
+
+/* Custom CTA Button - Vibrant Glow */
+.cta-button {
+  width: 100%;
+  padding: 1.2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 50px; /* Pill shape for modern look */
+  background: var(--accent-gradient);
+  border: none;
+  color: white;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Button hover shine effect */
+.cta-button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+  transform: rotate(30deg) translateY(-50%);
+  transition: transform 0.5s;
+  pointer-events: none;
+}
+
+.cta-button:hover::after {
+  transform: rotate(30deg) translateY(50%);
+}
+
+.cta-button:hover, .cta-button:active {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(236, 72, 153, 0.6);
+}
+
+/* Desktop Responsiveness */
+@media (min-width: 481px) {
+  body {
+    background: #0f0518; /* Darker outside the mobile view */
+  }
+  .landing-container {
+    height: 90vh;
+    border-radius: 40px;
+    background: radial-gradient(circle at 10% 20%, rgb(33, 11, 57) 0%, rgb(18, 5, 29) 90%);
+    box-shadow: 0 0 100px rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+} 
+

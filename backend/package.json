@@ -1,0 +1,26 @@
+{
+  "name": "akksys-backend",
+  "version": "1.0.0",
+  "description": "AKKSYS Backend API - Dynamic QR Platform",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "migrate": "node migrations/run.js",
+    "seed": "node seeds/run.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.1",
+    "qrcode": "^1.5.4",
+    "useragent": "^2.3.0"
+  }
+}

@@ -1,0 +1,617 @@
+/* ============================================
+   QR Detail Page - Module CSS
+   ============================================ */
+
+/* Page Wrapper */
+.qrd-wrapper {
+  padding: 20px;
+}
+
+/* Header */
+.qrd-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.qrd-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.qrd-back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #e8e4f0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #100e14;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.qrd-back-btn:hover {
+  background: #fafafc;
+  border-color: #6943c8;
+  color: #6943c8;
+}
+
+.qrd-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #100e14;
+  font-family: 'Poppins', sans-serif;
+}
+
+.qrd-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #8b8599;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qrd-url {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #fafafc;
+  border: 1px solid #e8e4f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6943c8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qrd-url:hover {
+  background: rgba(105, 67, 200, 0.08);
+}
+
+.qrd-header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Header Buttons */
+.qrd-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+}
+
+.qrd-btn-secondary {
+  background: #fff;
+  border: 1px solid #e8e4f0;
+  color: #100e14;
+}
+
+.qrd-btn-secondary:hover {
+  background: #fafafc;
+}
+
+.qrd-btn-primary {
+  background: #6943c8;
+  color: #fff;
+}
+
+.qrd-btn-primary:hover {
+  background: #5a38b0;
+}
+
+.qrd-btn-danger {
+  background: #fff;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+}
+
+.qrd-btn-danger:hover {
+  background: #dc3545;
+  color: #fff;
+}
+
+.qrd-btn-success {
+  background: #fff;
+  border: 1px solid #28a745;
+  color: #28a745;
+}
+
+.qrd-btn-success:hover {
+  background: #28a745;
+  color: #fff;
+}
+
+/* ============================================
+   Stat Cards
+   ============================================ */
+.qrd-stat-card {
+  background: #fff;
+  border: 1px solid #e8e4f0;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+
+.qrd-stat-card:hover {
+  box-shadow: 0 4px 20px rgba(16, 14, 20, 0.08);
+}
+
+.qrd-stat-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.qrd-stat-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8b8599;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.qrd-stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.qrd-stat-icon.primary {
+  background: rgba(105, 67, 200, 0.1);
+  color: #6943c8;
+}
+
+.qrd-stat-icon.blue {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.qrd-stat-icon.orange {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.qrd-stat-icon.green {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.qrd-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #100e14;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.qrd-stat-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qrd-stat-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.qrd-stat-change.up {
+  color: #10b981;
+}
+
+.qrd-stat-change.down {
+  color: #dc3545;
+}
+
+.qrd-stat-label {
+  font-size: 12px;
+  color: #8b8599;
+}
+
+.qrd-stat-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.qrd-stat-bar.primary {
+  background: linear-gradient(90deg, #6943c8, #713cf7);
+}
+
+.qrd-stat-bar.blue {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.qrd-stat-bar.orange {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.qrd-stat-bar.green {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+/* ============================================
+   Tabs
+   ============================================ */
+.qrd-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #e8e4f0;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.qrd-tab {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  color: #8b8599;
+  font-family: 'Poppins', sans-serif;
+}
+
+.qrd-tab:hover {
+  background: #fafafc;
+  color: #100e14;
+}
+
+.qrd-tab.active {
+  background: #6943c8;
+  color: #fff;
+}
+
+/* ============================================
+   Cards
+   ============================================ */
+.qrd-card {
+  background: #fff;
+  border: 1px solid #e8e4f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+
+.qrd-card:hover {
+  box-shadow: 0 4px 20px rgba(16, 14, 20, 0.08);
+}
+
+.qrd-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8e4f0;
+}
+
+.qrd-card-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #100e14;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qrd-card-body {
+  padding: 20px;
+}
+
+/* ============================================
+   Chart Container
+   ============================================ */
+.qrd-chart-container {
+  min-height: 220px;
+}
+
+/* ============================================
+   Version Timeline
+   ============================================ */
+.qrd-timeline {
+  padding: 20px;
+}
+
+.qrd-timeline-item {
+  display: flex;
+  gap: 16px;
+  position: relative;
+  padding-bottom: 24px;
+}
+
+.qrd-timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.qrd-timeline-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qrd-timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e8e4f0;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #e8e4f0;
+}
+
+.qrd-timeline-dot.active {
+  background: #6943c8;
+  box-shadow: 0 0 0 2px #6943c8;
+}
+
+.qrd-timeline-line {
+  width: 2px;
+  flex: 1;
+  background: #e8e4f0;
+  margin-top: 4px;
+}
+
+.qrd-timeline-content {
+  flex: 1;
+  background: #fafafc;
+  border: 1px solid #e8e4f0;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.qrd-timeline-item.active .qrd-timeline-content {
+  border-color: rgba(105, 67, 200, 0.3);
+  background: rgba(105, 67, 200, 0.04);
+}
+
+.qrd-timeline-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.qrd-timeline-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #100e14;
+}
+
+.qrd-timeline-date {
+  font-size: 12px;
+  color: #8b8599;
+}
+
+.qrd-timeline-badge {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.qrd-timeline-badge.current {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.qrd-timeline-badge.past {
+  background: #f1f3f5;
+  color: #8b8599;
+}
+
+.qrd-timeline-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.qrd-timeline-detail {
+  font-size: 13px;
+  color: #8b8599;
+}
+
+.qrd-timeline-detail strong {
+  color: #100e14;
+  font-weight: 600;
+}
+
+/* ============================================
+   Settings Form
+   ============================================ */
+.qrd-form-group {
+  margin-bottom: 20px;
+}
+
+.qrd-form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #100e14;
+  margin-bottom: 6px;
+}
+
+.qrd-form-input {
+  width: 100%;
+  height: 48px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e8e4f0;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s ease;
+  color: #100e14;
+}
+
+.qrd-form-input:focus {
+  border-color: #6943c8;
+  box-shadow: 0 0 0 2px rgba(105, 67, 200, 0.1);
+  outline: none;
+}
+
+.qrd-form-input:read-only {
+  background: #fafafc;
+}
+
+.qrd-input-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.qrd-input-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: #fafafc;
+  border: 1px solid #e8e4f0;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  font-size: 14px;
+  color: #8b8599;
+}
+
+.qrd-input-group .qrd-form-input {
+  border-radius: 0 8px 8px 0;
+}
+
+/* ============================================
+   QR Preview
+   ============================================ */
+.qrd-qr-preview {
+  background: #fafafc;
+  border: 1px solid #e8e4f0;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.qrd-qr-preview-inner {
+  display: inline-block;
+  position: relative;
+}
+
+.qrd-qr-preview-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.qrd-qr-preview-logo-inner {
+  width: 24px;
+  height: 24px;
+  background: #6943c8;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ============================================
+   Danger Zone
+   ============================================ */
+.qrd-danger-zone {
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.qrd-danger-title {
+  color: #dc3545 !important;
+}
+
+/* ============================================
+   Logo Section
+   ============================================ */
+.qrd-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qrd-logo-box {
+  width: 48px;
+  height: 48px;
+  background: #6943c8;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.qrd-logo-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 767px) {
+  .qrd-header {
+    flex-direction: column;
+  }
+
+  .qrd-header-actions {
+    width: 100%;
+  }
+
+  .qrd-header-actions .qrd-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .qrd-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .qrd-tab {
+    white-space: nowrap;
+  }
+}

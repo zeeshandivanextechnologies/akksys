@@ -1,0 +1,825 @@
+/* ============================================
+   Dynamic QR Codes - Purple Theme
+   ============================================ */
+
+/* Page Wrapper */
+.dq-page-wrapper {
+  padding: 16px;
+  font-family: 'Poppins', sans-serif;
+  background: var(--ov-main-bg);
+}
+
+@media (max-width: 576px) {
+  .dq-page-wrapper {
+    padding: 12px;
+  }
+}
+
+/* ============================================
+   Page Header - Same as Overview
+   ============================================ */
+.dq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dq-page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ov-heading-text);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.dq-page-subtitle {
+  font-size: 14px;
+  color: var(--ov-subheading-text);
+  margin: 0;
+  font-weight: 500;
+}
+
+@media (max-width: 576px) {
+ 
+}
+
+.dq-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Action Buttons */
+.dq-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
+}
+
+.dq-action-primary {
+  background: linear-gradient(135deg, var(--ov-primary, #6943c8), var(--ov-accent, #713cf7));
+  color: white;
+  box-shadow: 0 2px 8px rgba(105, 67, 200, 0.25);
+}
+
+.dq-action-primary:hover {
+  box-shadow: 0 4px 12px rgba(105, 67, 200, 0.35);
+  transform: translateY(-1px);
+}
+
+.dq-action-secondary {
+  background: var(--ov-card-bg, #ffffff);
+  color: var(--ov-text, #100e14);
+  border: 1px solid var(--ov-border, #e8e4f0);
+}
+
+.dq-action-secondary:hover {
+  background: var(--ov-bg, #fafafc);
+  border-color: var(--ov-primary, #6943c8);
+}
+
+@media (max-width: 576px) {
+}
+
+/* ============================================
+   Card - Same as Overview
+   ============================================ */
+.dq-card {
+  overflow: visible;
+  background: var(--ov-new-bg);
+  border: 1px solid var(--ov-new-border);
+  border-radius: 12px;
+  box-shadow: 0px 4px 25px 0px #0000001A;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+
+}
+
+/* ============================================
+   Controls Bar
+   ============================================ */
+.dq-search-input {
+  height: 48px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e8e4f0;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s ease;
+  color: #100e14;
+}
+
+.dq-search-input::placeholder {
+  color: #8b8599;
+  opacity: 1;
+}
+
+.dq-search-input:focus {
+  border-color: #6943c8;
+  box-shadow: 0 0 0 2px rgba(105, 67, 200, 0.1);
+  outline: none;
+}
+
+.dq-filter-select {
+  height: 48px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e8e4f0;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #100e14;
+  background-color: #fff;
+}
+
+.dq-filter-select:focus {
+  border-color: #6943c8;
+  box-shadow: 0 0 0 2px rgba(105, 67, 200, 0.1);
+  outline: none;
+}
+
+/* ============================================
+   Table Wrapper
+   ============================================ */
+.dq-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================
+   Table
+   ============================================ */
+.dq-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+.dq-th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ov-new-border);
+  background: var(--ov-secondary);
+  white-space: nowrap;
+
+}
+
+.dq-tr td {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--ov-new-border);
+  vertical-align: middle;
+  color : var(--ov-heading-text);
+}
+
+.pagination-main-box{
+    border-top: 1px solid var(--ov-new-border);
+    padding: 16px;
+}
+
+.dq-tr:last-child td {
+  border-bottom: none;
+}
+
+.dq-tr:hover {
+  background: rgba(0, 200, 255, 0.1);;
+}
+
+/* QR Cell */
+.dq-qr-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dq-qr-thumb {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.dq-qr-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dq-qr-logo-inner {
+  width: 10px;
+  height: 10px;
+  background: var(--ov-primary, #6943c8);
+  border-radius: 2px;
+  font-size: 5px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dq-qr-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dq-qr-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ov-heading-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dq-qr-url {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ov-subheading-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* CTR */
+.dq-ctr {
+  color: var(--ov-primary, #6943c8) !important;
+  font-weight: 600;
+}
+
+/* CTA Destination */
+.dq-cta-dest {
+  font-size: 0.8rem;
+  color: var(--ov-text, #100e14);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+/* Status Badge */
+.dq-status-badge {
+  display: inline-block;
+  padding: 4px 6px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.dq-status-badge.active {
+  background-color: #15D28E;
+  color: #fff;
+}
+
+.dq-status-badge.paused {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+/* Action Cell */
+.dq-action-cell {
+  position: relative;
+  overflow: visible;
+}
+
+.dq-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--ov-new-border);
+  border-radius: 8px;
+  background: var(--ov-new-bg);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ov-heading-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.dq-edit-btn:hover {
+  background: var(--ov-new-border);
+  border-color: var(--ov-new-bg);
+}
+
+/* Dropdown Menu */
+.dq-dropdown-menu {
+  position: fixed;
+  background: var(--ov-new-bg);
+  border: 1px solid var(--ov-new-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  min-width: 170px;
+  z-index: 1000;
+  padding: 6px 0;
+  animation: dq-fadeIn 0.15s ease;
+}
+
+@keyframes dq-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dq-dropdown-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 12px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  color: var(--ov-heading-text);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.dq-dropdown-menu button:hover {
+  background: rgba(0, 200, 255, 0.1);;
+  color: var(--ov-primary, #6943c8);
+}
+
+/* ============================================
+   Responsive - Hide columns progressively
+   ============================================ */
+.dq-col-dest {
+  display: table-cell;
+}
+
+.dq-col-ctr {
+  display: table-cell;
+}
+
+.dq-col-clicks {
+  display: table-cell;
+}
+
+.dq-col-unique {
+  display: table-cell;
+}
+
+.dq-col-scans {
+  display: table-cell;
+}
+
+/* Tablet - hide CTA Destination */
+@media (max-width: 991px) {
+  .dq-col-dest {
+    display: none;
+  }
+}
+
+/* Mobile landscape - hide CTR */
+@media (max-width: 767px) {
+  .dq-col-ctr {
+    display: none;
+  }
+}
+
+/* ============================================
+   Back Button
+   ============================================ */
+.dq-back-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6943c8;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.dq-back-btn:hover {
+  background: rgba(105, 67, 200, 0.08);
+}
+
+/* ============================================
+   Card Header & Body
+   ============================================ */
+.dq-card-header {
+  padding: 16px ;
+  border-bottom: 1px solid var(--ov-new-border);
+}
+
+.dq-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ov-heading-text);
+  font-family: 'Poppins', sans-serif;
+}
+
+.dq-card-body {
+  padding: 16px;
+}
+
+/* ============================================
+   Form Labels
+   ============================================ */
+.dq-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ov-heading-text);
+  margin-bottom: 6px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ============================================
+   Upload Zone
+   ============================================ */
+.dq-upload-zone {
+  padding: 32px 20px;
+     border: 1px dashed var(--ov-hover-border);
+  border-radius: 12px;
+  text-align: center;
+     background: var(--ov-new-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dq-upload-zone:hover {
+      border-color: var(--admin-primary);
+    background: rgba(105, 67, 200, 0.04);;
+}
+
+.dq-upload-icon {
+      color: var(--admin-primary);
+  margin-bottom: 12px;
+}
+
+.dq-upload-text {
+  font-size: 16px;
+  font-weight: 500;
+ color: var(--admin-primary);
+  margin-bottom: 4px;
+}
+
+.dq-upload-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ov-subheading-text);
+}
+
+.dq-logo-preview {
+  max-width: 80px;
+  max-height: 80px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.dq-logo-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--ov-hover-border);
+  background: var(--ov-new-bg);
+}
+
+/* ============================================
+   Uploaded File Card
+   ============================================ */
+.dq-uploaded-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--ov-new-bg);
+  border: 1px solid var(--ov-new-border);
+  border-radius: 12px;
+}
+
+.dq-uploaded-file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dq-uploaded-file-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(0, 200, 255, 0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-primary);
+}
+
+.dq-uploaded-file-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ov-heading-text);
+}
+
+.dq-uploaded-file-meta {
+  font-size: 12px;
+  color: var(--ov-subheading-text);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.dq-remove-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #e8e4f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #dc3545;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.dq-remove-btn:hover {
+  background: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+}
+
+/* ============================================
+   Preview Grid
+   ============================================ */
+.dq-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.dq-preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.dq-preview-qr {
+  width: 100px;
+  height: 100px;
+  background: rgba(0, 200, 255, 0.1);
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.dq-preview-logo {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--admin-primary);
+  border-radius: 4px;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dq-preview-more {
+  background: var(--ov-new-bg);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ov-subheading-text);
+}
+
+.dq-preview-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ov-subheading-text);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ============================================
+   Preview Empty
+   ============================================ */
+.dq-preview-empty {
+  text-align: center;
+  padding:20px;
+}
+
+.dq-preview-empty svg {
+  opacity: 0.5;
+  margin-bottom: 12px;
+  color: #e8e4f0;
+ 
+}
+
+.dq-preview-empty p {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--ov-subheading-text);
+}
+
+/* ============================================
+   Code Box
+   ============================================ */
+.dq-code-box {
+  background: var(--ov-main-bg);
+  border: 1px solid var(--ov-new-border);
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.dq-code-box code {
+  font-size: 12px;
+  color: #e8e4f0;
+  font-family: 'Courier New', monospace;
+}
+
+/* ============================================
+   Summary List
+   ============================================ */
+.dq-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dq-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ov-new-border);
+}
+
+.dq-summary-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.dq-summary-row span {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ov-subheading-text);
+}
+
+.dq-summary-row strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ov-heading-text);
+}
+
+.dq-text-success {
+  color: #28a745 !important;
+}
+
+/* ============================================
+   Large Button
+   ============================================ */
+.dq-btn-lg {
+  padding: 14px 32px;
+  font-size: 16px;
+}
+
+/* ============================================
+   OR Divider
+   ============================================ */
+.dq-or-divider {
+  text-align: center;
+  margin: 16px 0;
+  position: relative;
+}
+
+.dq-or-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ov-new-border);
+}
+
+.dq-or-divider span {
+  background: var(--ov-new-bg );
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ov-subheading-text);
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   Field Hint
+   ============================================ */
+.dq-field-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #ddd;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* ============================================
+   Sticky Card (CTA sidebar)
+   ============================================ */
+.dq-card-sticky {
+  position: sticky;
+  top: 20px;
+}
+
+/* ============================================
+   Pagination
+   ============================================ */
+.custom-pagination {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.custom-pagination .page-item .page-link {
+  background: transparent;
+  border: 1px solid var(--ov-new-border);
+  color: var(--ov-heading-text);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.custom-pagination .page-item .page-link:hover {
+  background: rgba(0, 200, 255, 0.1);
+  color: var(--admin-primary);
+  border-color: var(--admin-primary);
+}
+
+.custom-pagination .page-item.active .page-link {
+  background: var(--admin-primary);
+  color: #fff;
+  border-color: var(--admin-primary);
+}
+
+.custom-pagination .page-item.disabled .page-link {
+  background: transparent;
+  color: var(--ov-subheading-text);
+  border-color: var(--ov-new-border);
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,0 +1,480 @@
+/* ============================================
+   Video Library - Module CSS
+   ============================================ */
+
+/* Video Card */
+.vl-video-card {
+  background: var(--ov-new-bg);
+  border: 1px solid var(--ov-new-border); 
+  border-radius: 12px;
+  overflow: visible;
+  transition: all 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0px 4px 45px 0px #00000026;
+}
+
+.vl-video-card:hover {
+  box-shadow: 0 8px 24px rgba(16, 14, 20, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Thumbnail */
+.vl-thumbnail {
+  position: relative;
+  height: 160px;
+  background: linear-gradient(135deg, var(--admin-primary), var(--admin-accent));
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+}
+
+.vl-thumbnail-bg {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+  135deg,
+  var(--admin-primary),
+  var(--admin-accent)
+);
+
+}
+
+.vl-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-primary);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.vl-play-btn:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  background: #fff;
+}
+
+.vl-duration {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.vl-status-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.vl-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.vl-badge.active {
+  background: rgba(40, 167, 69, 0.9);
+  color: #fff;
+}
+
+.vl-badge.draft {
+  background: rgba(139, 133, 153, 0.9);
+  color: #fff;
+}
+
+/* Video Info */
+.vl-video-info {
+  padding: 12px 16px;
+  flex: 1;
+  position: relative;
+}
+
+.vl-video-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.vl-video-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ov-heading-text);
+  line-height: 1.3;
+  word-break: break-all;
+}
+
+.vl-dropdown {
+  position: relative;
+}
+
+.vl-dropdown-btn {
+ padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ov-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.vl-dropdown-btn:hover {
+  background: var(--ov-new-bg);
+  color: var(--admin-primary);
+}
+
+.vl-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: var(--ov-new-bg);
+    border: 1px solid var(--ov-new-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(16, 14, 20, 0.12);
+  min-width: 150px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.vl-dropdown-menu button {
+  width: 100%;
+  padding: 5px 14px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+ color: var(--ov-heading-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  transition: all 0.15s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.vl-dropdown-menu button:hover {
+background: rgba(0, 200, 255, 0.1);;
+    color: var(--ov-primary, #6943c8);
+}
+
+.vl-danger {
+  color: #dc3545 !important;
+}
+
+.vl-danger:hover {
+  background: var(--ov-new-bg);
+  color: #dc3545 !important;
+}
+
+.vl-video-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ov-subheading-text);
+  margin-bottom: 5px;
+}
+
+.vl-dot {
+  color: var(--ov-subheading-text);
+}
+
+.vl-linked-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ov-primary);
+}
+
+.vl-link-icon {
+  font-size: 11px;
+}
+
+/* Video Actions */
+.vl-video-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--ov-new-border);
+}
+
+.vl-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  border: none;
+  text-align: center;
+}
+
+.vl-btn-secondary {
+  background: var(--ov-bg);
+  color: var(--ov-text);
+  border: 1px solid var(--ov-border);
+}
+
+.vl-btn-secondary:hover {
+  background: var(--ov-border);
+}
+
+.vl-btn-primary {
+  background: var(--ov-primary);
+  color: #fff;
+}
+
+.vl-btn-primary:hover {
+  background: #5a38b0;
+}
+
+/* Upload Card */
+.vl-upload-card {
+  background: var(--ov-new-border);
+  border: 1px dashed var(--ov-hover-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 100%;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.vl-upload-card:hover {
+  border-color: var(--admin-primary);
+    background: rgba(105, 67, 200, 0.04);
+}
+
+.vl-upload-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(105, 67, 200, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--ov-primary);
+  margin-bottom: 16px;
+}
+
+.vl-upload-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ov-heading-text);
+}
+
+.vl-upload-desc {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ov-subheading-text);
+  max-width: 200px;
+  line-height: 1.5;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 576px) {
+
+  .vl-play-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .vl-video-info {
+    padding: 12px;
+  }
+
+  .vl-video-name {
+    font-size: 13px;
+  }
+
+  .vl-preview-footer {
+    flex-direction: column;
+    gap: 10px;
+    align-items: start !important;
+    padding: 16px;
+  }
+
+  .vl-preview-actions{
+    flex-direction: column;
+    width: 100%;
+
+  }
+
+
+}
+
+/* ============================================
+   Video Preview Modal
+   ============================================ */
+.vl-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(16, 14, 20, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.vl-preview-modal {
+  background: var(--ov-new-bg);
+  border: 1px solid var(--ov-new-border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(16, 14, 20, 0.3);
+}
+
+.vl-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ov-new-border);
+}
+
+.vl-preview-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ov-heading-text);
+}
+
+.vl-preview-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e8e4f0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #8b8599;
+  transition: all 0.2s ease;
+}
+
+.vl-preview-close:hover {
+  background: #fafafc;
+  color: #100e14;
+}
+
+.vl-preview-body {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vl-preview-video {
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+}
+
+.vl-preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-top: 1px solid var(--ov-new-border);
+}
+
+.vl-preview-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ov-subheading-text);
+}
+
+.vl-preview-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Thumbnail Image */
+.vl-thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vl-thumbnail-img.hide {
+  opacity: 0;
+}
+
+/* Video on hover */
+.vl-thumbnail-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vl-thumbnail-video.show {
+  opacity: 1;
+}
+
+/* Play/Pause button transition */
+.vl-play-btn {
+  transition: all 0.2s ease;
+}
