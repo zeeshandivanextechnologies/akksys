@@ -63,22 +63,21 @@ app.use(errorHandler);
 import { runMigrations } from './migrations/run.js';
 import { seed } from './seeds/seed.js';
 
-const start = async () => {
-  try {
-    await db.query('SELECT NOW()');
-    console.log('PostgreSQL connected');
+const start = () => {
+  app.listen(PORT, async () => {
+    console.log(`Server running on port ${PORT}`);
+    try {
+      await db.query('SELECT NOW()');
+      console.log('PostgreSQL connected successfully');
 
-    // Auto-run DB migrations & seed on server start
-    await runMigrations(false);
-    await seed(false);
-
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  } catch (err) {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-  }
+      // Auto-run DB migrations & seed on server start
+      await runMigrations(false);
+      await seed(false);
+    } catch (err) {
+      console.error('Database connection error:', err.message);
+      console.error('Tip: Make sure DATABASE_URL in Render is set to External Database URL or full hostname with .render.com');
+    }
+  });
 };
 
 start();
