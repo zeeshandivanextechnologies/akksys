@@ -23,6 +23,8 @@ const StaticQRCodes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('All Types');
   const [qrList, setQrList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchQRs = async () => {
     try {
@@ -44,6 +46,15 @@ const StaticQRCodes = () => {
     const matchesType = typeFilter === 'All Types' || qr.type === typeFilter.toLowerCase();
     return matchesSearch && matchesType;
   });
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredList.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredList.length / itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, typeFilter]);
 
   const toggleActive = async (id) => {
     try {
@@ -109,8 +120,15 @@ const StaticQRCodes = () => {
         setOpenDropdown(null);
       }
     };
+    const handleScroll = () => {
+      if (openDropdown) setOpenDropdown(null);
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
   }, [openDropdown]);
 
   const getTypeIcon = (type) => {
@@ -210,20 +228,20 @@ const StaticQRCodes = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredList.length === 0 ? (
+                {currentItems.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center" style={{ color: '#ddd', height : "250px" }}>
+                    <td colSpan="6" className="text-center py-4" style={{ color: '#8892a4' }}>
                       No static QR codes found.
                     </td>
                   </tr>
                 ) : (
-                  filteredList.map((qr, index) => {
+                  currentItems.map((qr, index) => {
                     const qrUrl = getQrUrl(qr);
                     const details = getDetails(qr);
                     const isActive = qr.status === 'active';
                     return (
                       <tr key={qr.id} className="dq-tr">
-                        <td>{index + 1}</td>
+                        <td>{indexOfFirstItem + index + 1}</td>
                         <td>
                           <div className="dq-qr-cell">
                             <div className="dq-qr-thumb">
@@ -275,22 +293,40 @@ const StaticQRCodes = () => {
             </table>
           </div>
 
+            {totalPages > 1 && (
+            <div className="d-flex justify-content-end pagination-main-box">
+              <ul className="pagination custom-pagination mb-0">
+                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>Previous</button>
+                </li>
+                {[...Array(totalPages)].map((_, i) => (
+                  <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
+                  </li>
+                ))}
+                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>Next</button>
+                </li>
+              </ul>
+            </div>
+          )}
+
           {openDropdown && (
             <div
               className="dq-dropdown-menu"
               style={{ top: dropdownPos.top, left: dropdownPos.left }}
             >
-              <button onClick={() => handleView(filteredList.find(q => q.id === openDropdown))}>
+              <button onClick={() => handleView(currentItems.find(q => q.id === openDropdown))}>
                 <FaEye size={16} /> View Details
               </button>
-              <button onClick={() => handleDownload(filteredList.find(q => q.id === openDropdown))}>
+              <button onClick={() => handleDownload(currentItems.find(q => q.id === openDropdown))}>
                 <FaDownload size={16} /> Download QR
               </button>
-              <button onClick={() => handleEdit(filteredList.find(q => q.id === openDropdown))}>
+              <button onClick={() => handleEdit(currentItems.find(q => q.id === openDropdown))}>
                 <FaEdit size={16} /> Edit QR
               </button>
               <button onClick={() => { toggleActive(openDropdown); setOpenDropdown(null); }}>
-                {filteredList.find(q => q.id === openDropdown)?.status === 'active'
+                {currentItems.find(q => q.id === openDropdown)?.status === 'active'
                   ? <><FaToggleOff size={12} /> Deactivate</>
                   : <><FaToggleOn size={16} /> Activate</>}
               </button>
