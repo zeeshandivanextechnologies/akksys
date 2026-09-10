@@ -405,7 +405,11 @@ const CTAManager = () => {
                 <div className="modal-content show-edit-model">
                   <div className="modal-header justify-content-between">
                     <h6 className="modal-title fw-bold">
-                      <FaEdit className="me-2" /> Edit CTA Configuration
+                      {selectedCtaId ? (
+                        <><FaEdit className="me-2 text-primary" /> Edit CTA Configuration</>
+                      ) : (
+                        <><FaPlus className="me-2 text-primary" /> Create New CTA</>
+                      )}
                     </h6>
                     <button type="button" className="cmp-back-btn" onClick={() => setShowEditModal(false)}> <FaTimes /> </button>
                   </div>
