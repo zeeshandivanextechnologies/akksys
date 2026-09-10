@@ -295,7 +295,7 @@ const QRDetail = () => {
     },
     dataLabels: { enabled: false },
     labels: deviceData.map(d => d.type),
-    colors: deviceData.map(d => d.color || '#00C8FF'),
+    colors: ['#00C8FF', '#0077FF', '#4DDCFF'],
     legend: { show: false },
     tooltip: {
       theme: 'light',
