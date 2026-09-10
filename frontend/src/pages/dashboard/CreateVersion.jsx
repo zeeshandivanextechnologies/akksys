@@ -97,7 +97,13 @@ const CreateVersion = () => {
   const activeVersion = campaign?.versions?.find(v => v.is_active) || campaign?.versions?.[0] || null;
 
   if (loading) {
-    return <div className="ov-wrapper"><p style={{textAlign:'center',padding:'60px 0',color:'#999'}}>Loading...</p></div>;
+    return ( 
+        <div className="text-center py-4">
+                    <div className="spinner-border text-info" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
+    );
   }
 
   if (!campaign) {
