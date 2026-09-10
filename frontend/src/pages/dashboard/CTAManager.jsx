@@ -452,7 +452,7 @@ const CTAManager = () => {
                   <p className="ov-card-subtitle">Track performance across all QR codes</p>
                 </div>
               </div>
-              <div className="ov-card-body">
+              <div className="ov-card-body" style={qrCodes.length > 10 ? { maxHeight: '600px', overflowY: 'auto' } : {}}>
                 {qrCodes.map((qr) => {
                   const clicks = parseInt(qr.cta_clicks) || 0;
                   const scans = parseInt(qr.total_scans) || 0;
