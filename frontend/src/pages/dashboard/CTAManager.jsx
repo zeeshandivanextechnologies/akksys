@@ -189,6 +189,28 @@ const CTAManager = () => {
     }
   };
 
+  const handleCreateNew = () => {
+    setSelectedCtaId(null);
+    setCTAData({
+      buttonText: 'Buy Now',
+      destinationUrl: '',
+      customText: '',
+    });
+    setSelectedQR('');
+    setShowEditModal(true);
+  };
+
+  const handleEditClick = (cta) => {
+    setSelectedCtaId(cta.id);
+    setCTAData({
+      buttonText: cta.button_text,
+      destinationUrl: cta.destination_url,
+      customText: '',
+    });
+    setSelectedQR(cta.qr_id ? String(cta.qr_id) : '');
+    setShowEditModal(true);
+  };
+
   const handleSelectPreset = (index) => {
     setSelectedPreset(index);
     setCTAData({
@@ -318,52 +340,59 @@ const CTAManager = () => {
               <div className="ov-card-header">
                 <div>
                   <h6 className="ov-card-title"><FaLink className="me-2" />Configure CTA</h6>
-                  <p className="ov-card-subtitle">Set up your call-to-action button</p>
+                  <p className="ov-card-subtitle">Manage all your call-to-action buttons</p>
                 </div>
-                <button className="thm-btn outline"  onClick={() => setShowEditModal(true)}>
-                  <FaEdit /> Edit
+                <button className="thm-btn outline" onClick={handleCreateNew}>
+                  <FaPlus /> Create New CTA
                 </button>
               </div>
-              <div className="ov-card-body">
-                {/* View Mode */}
-                <div className="cta-view-mode">
-                  <div className="cta-view-item">
-                    <span className="cta-view-label">Button Text</span>
-                    <span className="cta-view-value">{ctaData.buttonText}</span>
-                  </div>
-                  <div className="cta-view-item">
-                    <span className="cta-view-label">Destination URL</span>
-                    <a 
-                      href={ctaData.destinationUrl.startsWith('http') ? ctaData.destinationUrl : `https://${ctaData.destinationUrl}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="cta-view-value cta-view-url"
-                      style={{ textDecoration: 'none' }}
-                    >
-                      {ctaData.destinationUrl}
-                    </a>
-                  </div>
-                  <div className="cta-view-item">
-                    <span className="cta-view-label">Applied to QR</span>
-                    <span className="cta-view-value">{qrCodes.find(q => String(q.id) === selectedQR)?.name || '—'}</span>
-                  </div>
-                </div>
-
-                {/* Live Preview */}
-                <div className="cta-live-preview">
-                  <div className="cta-preview-label">Live Preview</div>
-                  <div className="cta-preview-box">
-                    <div className="cta-preview-content">
-                      <div className="cta-preview-icon">
-                        <FaLink />
-                      </div>
-                      <div className="cta-preview-info">
-                        <span className="cta-preview-button">{ctaData.buttonText} →</span>
-                        <span className="cta-preview-url">{ctaData.destinationUrl}</span>
-                      </div>
-                    </div>
-                    <span className="cta-preview-badge">● LIVE</span>
-                  </div>
+              <div className="ov-card-body p-0">
+                <div className="dq-table-wrapper" style={{ margin: 0, borderRadius: '0 0 16px 16px' }}>
+                  <table className="dq-table table-responsive mb-0">
+                    <thead>
+                      <tr>
+                        <th className="dq-th">Button Text</th>
+                        <th className="dq-th">Destination URL</th>
+                        <th className="dq-th">Applied to QR</th>
+                        <th className="dq-th">Status</th>
+                        <th className="dq-th text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ctaList.length === 0 ? (
+                        <tr>
+                          <td colSpan="5" className="text-center py-5 text-muted" style={{ borderBottom: 'none' }}>
+                            <p className="mb-2">No CTAs found. Create your first one!</p>
+                            <button className="thm-btn outline mt-2" onClick={handleCreateNew}>
+                              <FaPlus /> Create New CTA
+                            </button>
+                          </td>
+                        </tr>
+                      ) : (
+                        ctaList.map((cta) => (
+                          <tr key={cta.id} className="dq-tr">
+                            <td className="dq-td fw-bold" style={{ color: '#fff' }}>{cta.button_text}</td>
+                            <td className="dq-td">
+                              <a href={(cta.destination_url || '').startsWith('http') ? cta.destination_url : `https://${cta.destination_url}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#00C8FF' }}>
+                                {cta.destination_url}
+                              </a>
+                            </td>
+                            <td className="dq-td">{qrCodes.find(q => String(q.id) === String(cta.qr_id))?.name || '—'}</td>
+                            <td className="dq-td">
+                              <span style={{ fontSize: '12px', padding: '4px 8px', borderRadius: '4px', background: cta.is_active ? 'rgba(0, 200, 255, 0.1)' : 'rgba(255, 255, 255, 0.1)', color: cta.is_active ? '#00C8FF' : '#aaa' }}>
+                                {cta.is_active ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td className="dq-td text-center">
+                              <button className="thm-btn outline" onClick={() => handleEditClick(cta)} style={{ padding: '6px 12px', fontSize: '12px', minHeight: 'unset' }}>
+                                <FaEdit className="me-1" /> Edit
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
