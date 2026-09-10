@@ -574,7 +574,7 @@ const QRDetail = () => {
                   </div>
                 </div>
                 <div className="ov-cta-info">
-                  <div className="ov-cta-logo">B</div>
+                  <div className="ov-cta-logo">{(currentCampaign?.name || 'B').charAt(0).toUpperCase()}</div>
                   <div>
                     <div className="ov-cta-text">{currentCampaign?.name || 'No Campaign'} →</div>
                     <div className="ov-cta-dest">{qrData.ctaDestination}</div>
@@ -591,7 +591,7 @@ const QRDetail = () => {
                       colors: ['#00C8FF'],
                       xaxis: {
                         ...chartOptions.xaxis,
-                        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        categories: weeklyData.map(d => d.day),
                       },
                     }}
                     series={[{ name: 'Clicks', data: weeklyData.map(d => d.clicks) }]}
