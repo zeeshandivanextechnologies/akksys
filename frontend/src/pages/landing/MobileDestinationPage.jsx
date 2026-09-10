@@ -55,10 +55,10 @@ const VideoPlayer = ({ videoUrl }) => {
     <div className="ld-video">
       <div className="ld-video-inner">
         {isMp4 ? (
-          <video 
-            src={src} 
-            controls 
-            playsInline 
+          <video
+            src={src}
+            controls
+            playsInline
             onLoadedData={() => setLoaded(true)}
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           />
@@ -75,7 +75,9 @@ const MobileDestinationPage = () => {
   const { qrId } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(() => {
+    return localStorage.getItem(`akksys_liked_${qrId}`) === 'true';
+  });
   const [copied, setCopied] = useState(false);
   const [data, setData] = useState(null);
 
@@ -93,6 +95,7 @@ const MobileDestinationPage = () => {
           cta: res.data.cta_text || 'Learn More',
           ctaLink: res.data.cta_url || '#',
           scans: parseInt(res.data.scans) || 0,
+          likes: parseInt(res.data.likes) || 0,
           rating: res.data.rating || 5.0,
           reviews: res.data.reviews || 0,
           badge: res.data.badge || '',
@@ -112,7 +115,7 @@ const MobileDestinationPage = () => {
       setData({
         brand: 'AKKSYS', video: '', headline: 'Preview Mode', tagline: 'This is a preview',
         desc: 'Dynamic content will appear here when a real QR is scanned.',
-        cta: 'Learn More', ctaLink: '#', scans: 0, rating: 5.0, reviews: 0, badge: 'PREVIEW',
+        cta: 'Learn More', ctaLink: '#', scans: 0, rating: 5.0, reviews: 0, likes: 0, badge: 'PREVIEW',
         features: ['Feature 1', 'Feature 2']
       });
       setLoading(false);
@@ -138,6 +141,24 @@ const MobileDestinationPage = () => {
     else { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); }
   };
 
+  const handleLikeToggle = async () => {
+    const newLikedState = !liked;
+    setLiked(newLikedState);
+    if (newLikedState) {
+      localStorage.setItem(`akksys_liked_${qrId}`, 'true');
+      setData(prev => ({ ...prev, likes: prev.likes + 1 }));
+    } else {
+      localStorage.removeItem(`akksys_liked_${qrId}`);
+      setData(prev => ({ ...prev, likes: Math.max(0, prev.likes - 1) }));
+    }
+
+    try {
+      await api.post(`/landing/${qrId}/like`, { liked: newLikedState });
+    } catch (err) {
+      console.error('Failed to toggle like', err);
+    }
+  };
+
   if (loading) return <LoadingScreen />;
   if (error) return <ErrorScreen message={error} onRetry={() => window.location.reload()} />;
   if (!data) return <ErrorScreen message="Not found" />;
@@ -149,14 +170,21 @@ const MobileDestinationPage = () => {
 
       <div className="ld-card">
         <div className="ld-hdr">
-          {/* <div className="ld-brand"><span className="ld-brand-dot"><FaQrcode size={16} color="#fff" /></span>{data.brand}</div> */}
-          <NavLink to="/" className="ld-brand">
+          <div className="ld-brand">
+            <span className="ld-brand-dot">
+              <FaQrcode size={16} color="#fff" />
+            </span>
+            {data.brand}
+          </div>
+          {/* <NavLink to="/" className="ld-brand">
   <span className="ld-brand-dot">
     <FaQrcode size={16} color="#fff" />
   </span>
   {data.brand}
-</NavLink>
-          <button className={`ld-heart ${liked ? 'active' : ''}`} onClick={() => setLiked(!liked)}><FaHeart /></button>
+</NavLink> */}
+          <button className={`ld-heart ${liked ? 'active' : ''}`} onClick={handleLikeToggle}>
+            <FaHeart /> <span style={{ fontSize: '12px', marginLeft: '4px' }}>{data.likes}</span>
+          </button>
         </div>
 
         <div className="ld-badge"><span className="ld-badge-pulse"></span>{data.badge}</div>
@@ -179,17 +207,17 @@ const MobileDestinationPage = () => {
 
         <VideoPlayer videoUrl={data.video} />
 
-   
+
         <div className="ld-features">
           {data.features.map((f, i) => (
             <div key={i} className="ld-feat"><FaCheck className="ld-feat-icon" /><span>{f}</span></div>
           ))}
         </div>
 
-   
+
         <p className="ld-desc">{data.desc}</p>
 
-   
+
         <a href={data.ctaLink} onClick={handleCTAClick} className="thm-btn" style={{ padding: "12px 0" }}>
           <span>{data.cta}</span>  <FaArrowRight className="ld-cta-arrow" />
         </a>
@@ -205,7 +233,7 @@ const MobileDestinationPage = () => {
           <button className="thm-btn outline" onClick={handleShare}> <FaShareAlt /> {copied ? 'Copied!' : 'Share'}</button>
         </div>
 
-    
+
         <div className="ld-footer">Powered by <strong>AKKSYS</strong></div>
       </div>
     </div>

@@ -69,6 +69,7 @@ export const getLandingData = async (req, res, next) => {
       features: campaign?.features || [],
       rating: parseFloat(campaign?.rating || 4.8),
       reviews: parseInt(campaign?.reviews || 324),
+      likes: parseInt(campaign?.likes || 0),
       scans: parseInt(qr.total_scans || 0),
       version_id: version?.id || null,
     });
@@ -107,6 +108,36 @@ export const trackCTAClick = async (req, res, next) => {
     );
 
     res.json({ destination_url: cta_destination });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const toggleLike = async (req, res, next) => {
+  try {
+    const { qrId } = req.params;
+    const { liked } = req.body;
+
+    const qrResult = await db.query("SELECT id FROM qr_codes WHERE qr_id = $1", [qrId]);
+    if (qrResult.rows.length === 0) {
+      return res.status(404).json({ error: 'QR not found' });
+    }
+    
+    const numericQrId = qrResult.rows[0].id;
+
+    const result = await db.query(
+      `UPDATE campaigns 
+       SET likes = GREATEST(COALESCE(likes, 0) + $1, 0) 
+       WHERE qr_id = $2 AND status = 'active'
+       RETURNING likes`,
+      [liked ? 1 : -1, numericQrId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Active campaign not found' });
+    }
+
+    res.json({ likes: result.rows[0].likes });
   } catch (err) {
     next(err);
   }
