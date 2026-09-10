@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { QRCodeCanvas, QRCodeSVG } from 'qrcode.react';
 import { FaDownload, FaImage, FaFilePdf, FaFileCode, FaTimes, FaCheck } from 'react-icons/fa';
 import { jsPDF } from 'jspdf';
@@ -8,40 +8,12 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
   const [format, setFormat] = useState('png');
   const [size, setSize] = useState('400');
   const [withLogo, setWithLogo] = useState(true);
-  const fallbackLogo = useMemo(() => {
-    if (!withLogo || logoUrl) return null;
-    const s = 200;
-    const r = 16;
-    const canvas = document.createElement('canvas');
-    canvas.width = s;
-    canvas.height = s;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#00C8FF';
-    ctx.beginPath();
-    ctx.moveTo(r, 0);
-    ctx.lineTo(s - r, 0);
-    ctx.quadraticCurveTo(s, 0, s, r);
-    ctx.lineTo(s, s - r);
-    ctx.quadraticCurveTo(s, s, s - r, s);
-    ctx.lineTo(r, s);
-    ctx.quadraticCurveTo(0, s, 0, s - r);
-    ctx.lineTo(0, r);
-    ctx.quadraticCurveTo(0, 0, r, 0);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 67px Arial, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('AK', s / 2, s / 2 + 2);
-    return canvas.toDataURL('image/png');
-  }, [withLogo, logoUrl]);
 
   if (!show) return null;
 
   const qrValue = qrUrl ? `https://${qrUrl}` : 'https://akksys.io/q/xk9p2m';
   const sizeNum = parseInt(size);
-  const logoSrc = withLogo ? (logoUrl || fallbackLogo || undefined) : undefined;
+  const logoSrc = withLogo ? (logoUrl || undefined) : undefined;
 
   const formats = [
     { id: 'png', label: 'PNG', icon: <FaImage />, desc: 'Best for web & social' },
