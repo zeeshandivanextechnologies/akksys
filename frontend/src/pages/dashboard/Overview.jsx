@@ -1,181 +1,197 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Chart from 'react-apexcharts';
-import { 
+import {
   FaQrcode, FaChartLine, FaMousePointer, FaUsers,
   FaGlobeAsia, FaArrowUp, FaArrowDown
 } from 'react-icons/fa';
+import api from '../../services/api';
+import Loader from './Loader';
 import '../../styles/Overview.css';
 
 const Overview = () => {
-  const stats = [
-    {
-      title: 'TOTAL SCANS',
-      value: '6,071',
-      change: '+12.4%',
-      trend: 'up',
-      color: 'primary',
-      icon: <FaChartLine />,
-    },
-    {
-      title: 'UNIQUE SCANS',
-      value: '3,891',
-      change: '+8.1%',
-      trend: 'up',
-      color: 'blue',
-      icon: <FaUsers />,
-    },
-    {
-      title: 'CTA CLICKS',
-      value: '1,924',
-      change: '+18.3%',
-      trend: 'up',
-      color: 'orange',
-      icon: <FaMousePointer />,
-    },
-    {
-      title: 'ACTIVE QR CODES',
-      value: '4/5',
-      change: '80%',
-      trend: 'neutral',
-      color: 'green',
-      icon: <FaQrcode />,
-    },
-  ];
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState(7);
+  const [stats, setStats] = useState([
+    { title: 'TOTAL SCANS', value: '0', change: '0%', trend: 'up', color: 'primary', icon: <FaChartLine /> },
+    { title: 'UNIQUE SCANS', value: '0', change: '0%', trend: 'up', color: 'blue', icon: <FaUsers /> },
+    { title: 'CTA CLICKS', value: '0', change: '0%', trend: 'up', color: 'orange', icon: <FaMousePointer /> },
+    { title: 'ACTIVE QR CODES', value: '0/0', change: '0%', trend: 'neutral', color: 'green', icon: <FaQrcode /> },
+  ]);
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [deviceData, setDeviceData] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [qrTypes, setQrTypes] = useState([]);
 
-  const weeklyData = [
-    { day: 'Mon', scans: 142, clicks: 42 },
-    { day: 'Tue', scans: 198, clicks: 58 },
-    { day: 'Wed', scans: 167, clicks: 49 },
-    { day: 'Thu', scans: 224, clicks: 67 },
-    { day: 'Fri', scans: 289, clicks: 85 },
-    { day: 'Sat', scans: 198, clicks: 56 },
-    { day: 'Sun', scans: 134, clicks: 38 },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [overviewRes, devicesRes, locationsRes, qrRes] = await Promise.all([
+          api.get(`/analytics/overview?days=${days}`),
+          api.get('/analytics/devices'),
+          api.get('/analytics/locations'),
+          api.get('/qr'),
+        ]);
 
-const chartOptions = {
-  chart: {
-    type: 'bar',
-    toolbar: { show: false },
-    fontFamily: 'Poppins, sans-serif',
-  },
-  plotOptions: {
-    bar: {
-      horizontal: false,
-      columnWidth: '55%',
-      borderRadius: 4,
-      borderRadiusApplication: 'end',
+        const curr = overviewRes.data;
+        const totalQr = qrRes.data.length;
+        const activeQr = qrRes.data.filter(q => q.status === 'active').length;
+
+        const dynamicCount = qrRes.data.filter(q => q.campaign_id).length;
+        const staticCount = totalQr - dynamicCount;
+        const dynamicPercent = totalQr > 0 ? Math.round((dynamicCount / totalQr) * 100) : 0;
+        const staticPercent = totalQr > 0 ? 100 - dynamicPercent : 0;
+
+        setStats([
+          {
+            title: 'TOTAL SCANS',
+            value: (curr.totalScans || 0).toLocaleString(),
+            change: '—',
+            trend: 'up',
+            color: 'primary',
+            icon: <FaChartLine />,
+          },
+          {
+            title: 'UNIQUE SCANS',
+            value: (curr.uniqueScans || 0).toLocaleString(),
+            change: '—',
+            trend: 'up',
+            color: 'blue',
+            icon: <FaUsers />,
+          },
+          {
+            title: 'CTA CLICKS',
+            value: (curr.ctaClicks || 0).toLocaleString(),
+            change: '—',
+            trend: 'up',
+            color: 'orange',
+            icon: <FaMousePointer />,
+          },
+          {
+            title: 'ACTIVE QR CODES',
+            value: `${activeQr}/${totalQr}`,
+            change: totalQr > 0 ? `${Math.round((activeQr / totalQr) * 100)}%` : '0%',
+            trend: 'neutral',
+            color: 'green',
+            icon: <FaQrcode />,
+          },
+        ]);
+
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const weekData = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          weekData.push({ day: dayNames[d.getDay()], scans: 0, clicks: 0 });
+        }
+        setWeeklyData(weekData);
+
+        const totalDevices = devicesRes.data.reduce((sum, d) => sum + parseInt(d.count), 0);
+        const devData = devicesRes.data.map(d => ({
+          type: d.device_type || 'Unknown',
+          percent: totalDevices > 0 ? Math.round((parseInt(d.count) / totalDevices) * 100) : 0,
+          color: d.device_type === 'mobile' ? '#00C8FF' : d.device_type === 'desktop' ? '#0077FF' : '#4DDCFF',
+        }));
+        setDeviceData(devData.length > 0 ? devData : [{ type: 'No Data', percent: 100, color: '#e0e0e0' }]);
+
+        const totalLoc = locationsRes.data.reduce((sum, l) => sum + parseInt(l.count), 0);
+        const locData = locationsRes.data.slice(0, 5).map(l => ({
+          city: l.city || 'Unknown',
+          country: l.country || '',
+          scans: parseInt(l.count),
+          percent: totalLoc > 0 ? Math.round((parseInt(l.count) / totalLoc) * 100) : 0,
+        }));
+        setLocations(locData);
+
+        setQrTypes([
+          { type: 'Dynamic QR', desc: 'Updatable', count: dynamicCount, percent: dynamicPercent },
+          { type: 'Static QR', desc: 'Fixed', count: staticCount, percent: staticPercent },
+        ]);
+      } catch (err) {
+        console.error('Failed to fetch overview data', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [days]);
+
+  const chartOptions = {
+    chart: {
+      type: 'bar',
+      toolbar: { show: false },
+      fontFamily: 'Poppins, sans-serif',
     },
-  },
-  dataLabels: { enabled: false },
-  stroke: { show: true, width: 0 },
-  xaxis: {
-    categories: weeklyData.map(d => d.day),
-    labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
-    axisBorder: { show: false },
-    axisTicks: { show: false },
-  },
-  yaxis: {
-    labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
-  },
-  grid: {
-    borderColor: '#B8EEFF',
-    strokeDashArray: 4,
-    xaxis: { lines: { show: false } },
-    yaxis: { lines: { show: true } },
-    padding: { top: -10, bottom: -5 },
-  },
-  colors: ['#00C8FF', '#0077FF'],
-  legend: { show: false },
-  tooltip: {
-    theme: 'light',
-    style: { fontSize: '12px', fontFamily: 'Poppins, sans-serif' },
-  },
-};
-
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+        borderRadius: 4,
+        borderRadiusApplication: 'end',
+      },
+    },
+    dataLabels: { enabled: false },
+    stroke: { show: true, width: 0 },
+    xaxis: {
+      categories: weeklyData.map(d => d.day),
+      labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    yaxis: {
+      labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
+    },
+    grid: {
+      borderColor: '#B8EEFF',
+      strokeDashArray: 4,
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } },
+      padding: { top: -10, bottom: -5 },
+    },
+    colors: ['#00C8FF', '#0077FF'],
+    legend: { show: false },
+    tooltip: {
+      theme: 'light',
+      style: { fontSize: '12px', fontFamily: 'Poppins, sans-serif' },
+    },
+  };
 
   const chartSeries = [
     { name: 'Scans', data: weeklyData.map(d => d.scans) },
     { name: 'CTA Clicks', data: weeklyData.map(d => d.clicks) },
   ];
 
-const deviceData = [
-  { type: 'Android', percent: 64, color: '#00C8FF' },
-  { type: 'iOS', percent: 31, color: '#0077FF' },
-  { type: 'Other', percent: 5, color: '#4DDCFF' },
-];
-
-
-const donutOptions = {
-  chart: {
-    type: 'donut',
-    fontFamily: 'Poppins, sans-serif',
-  },
-
-  plotOptions: {
-    pie: {
-      donut: {
-        size: '60%',
-      },
-    },
-  },
-
-  dataLabels: {
-    enabled: false,
-  },
-
-  labels: deviceData.map(d => d.type),
-
-  colors: [
-    '#00C8FF',
-    '#0077FF',
-    '#4DDCFF',
-  ],
-
-  legend: {
-    show: false,
-  },
-
-  tooltip: {
-    theme: 'light',
-    style: {
-      fontSize: '12px',
+  const donutOptions = {
+    chart: {
+      type: 'donut',
       fontFamily: 'Poppins, sans-serif',
     },
-    y: {
-      formatter: (val) => `${val}%`,
-    },
-  },
-
-  stroke: {
-    width: 2,
-    colors: ['#E6F9FF'],
-  },
-
-  states: {
-    hover: {
-      filter: {
-        type: 'none',
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '60%',
+        },
       },
     },
-  },
-};
-
-
+    dataLabels: { enabled: false },
+    labels: deviceData.map(d => d.type),
+    colors: deviceData.map(d => d.color),
+    legend: { show: false },
+    tooltip: {
+      theme: 'light',
+      style: { fontSize: '12px', fontFamily: 'Poppins, sans-serif' },
+      y: { formatter: (val) => `${val}%` },
+    },
+    stroke: { width: 2, colors: ['#E6F9FF'] },
+    states: { hover: { filter: { type: 'none' } } },
+  };
 
   const donutSeries = deviceData.map(d => d.percent);
+  const totalScans = stats[0].value;
 
-  const locations = [
-    { city: 'Mumbai', country: 'IN', scans: 1840, percent: 30 },
-    { city: 'Delhi', country: 'IN', scans: 1411, percent: 23 },
-    { city: 'Bengaluru', country: 'IN', scans: 982, percent: 16 },
-    { city: 'Hyderabad', country: 'IN', scans: 674, percent: 11 },
-    { city: 'Pune', country: 'IN', scans: 487, percent: 8 },
-  ];
-
-  const qrTypes = [
-    { type: 'Dynamic QR', desc: 'Updatable', count: 5, percent: 62.5 },
-    { type: 'Static QR', desc: 'Fixed', count: 3, percent: 37.5 },
-  ];
+  if (loading) return <Loader />;
 
   return (
     <>
@@ -187,10 +203,10 @@ const donutOptions = {
             <p className="ov-page-subtitle">Track your QR code performance and analytics</p>
           </div>
           <div className="ov-header-actions">
-            <select className="ov-date-select">
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-              <option>Last 90 Days</option>
+            <select className="ov-date-select" value={days} onChange={(e) => { setDays(Number(e.target.value)); setLoading(true); }}>
+              <option value={7}>Last 7 Days</option>
+              <option value={30}>Last 30 Days</option>
+              <option value={90}>Last 90 Days</option>
             </select>
           </div>
         </div>
@@ -227,7 +243,7 @@ const donutOptions = {
               <div className="ov-card-header">
                 <div>
                   <h6 className="ov-card-title">Scans & CTA Clicks</h6>
-                  <p className="ov-card-subtitle">Last 7 Days Performance</p>
+                  <p className="ov-card-subtitle">Last {days} Days Performance</p>
                 </div>
                 <div className="ov-legend">
                   <span className="ov-legend-item">
@@ -239,11 +255,11 @@ const donutOptions = {
                 </div>
               </div>
               <div className="ov-apex-chart">
-                <Chart 
-                  options={chartOptions} 
-                  series={chartSeries} 
-                  type="bar" 
-                  height={270} 
+                <Chart
+                  options={chartOptions}
+                  series={chartSeries}
+                  type="bar"
+                  height={270}
                 />
               </div>
             </div>
@@ -259,14 +275,14 @@ const donutOptions = {
                 </div>
               </div>
               <div className="ov-apex-chart">
-                <Chart 
-                  options={donutOptions} 
-                  series={donutSeries} 
-                  type="donut" 
-                  height={200} 
+                <Chart
+                  options={donutOptions}
+                  series={donutSeries}
+                  type="donut"
+                  height={200}
                 />
                 <div className="ov-donut-total">
-                  <span className="ov-donut-total-value">6,071</span>
+                  <span className="ov-donut-total-value">{totalScans}</span>
                   <span className="ov-donut-total-label">Total Scans</span>
                 </div>
               </div>
@@ -295,23 +311,29 @@ const donutOptions = {
                 </div>
               </div>
               <div className="ov-locations-list">
-                {locations.map((loc, i) => (
-                  <div key={i} className="ov-location-item">
-                    <div className="ov-location-info">
-                      <span className="ov-location-city">{loc.city}</span>
-                      <span className="ov-location-badge">{loc.country}</span>
-                    </div>
-                    <div className="ov-location-stats">
-                      <div className="ov-location-bar-bg">
-                        <div className="ov-location-bar" style={{ width: `${loc.percent}%` }}></div>
-                      </div>
-                      <div className="ov-location-numbers">
-                        <span className="ov-location-scans">{loc.scans.toLocaleString()}</span>
-                        <span className="ov-location-percent">{loc.percent}%</span>
-                      </div>
-                    </div>
+                {locations.length === 0 ? (
+                  <div className="text-center py-4">
+                    <p style={{ color: '#8892a4' }}>No location data available yet.</p>
                   </div>
-                ))}
+                ) : (
+                  locations.map((loc, i) => (
+                    <div key={i} className="ov-location-item">
+                      <div className="ov-location-info">
+                        <span className="ov-location-city">{loc.city}</span>
+                        {loc.country && <span className="ov-location-badge">{loc.country}</span>}
+                      </div>
+                      <div className="ov-location-stats">
+                        <div className="ov-location-bar-bg">
+                          <div className="ov-location-bar" style={{ width: `${loc.percent}%` }}></div>
+                        </div>
+                        <div className="ov-location-numbers">
+                          <span className="ov-location-scans">{loc.scans.toLocaleString()}</span>
+                          <span className="ov-location-percent">{loc.percent}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -352,10 +374,10 @@ const donutOptions = {
               <div className="ov-quick-actions">
                 <h6 className="ov-card-title mb-3">Quick Actions</h6>
                 <div className="ov-action-buttons">
-                  <button className="thm-btn w-100">
+                  <button className="thm-btn w-100" onClick={() => navigate('/admin/dynamic-qr/create')}>
                     <FaQrcode /> Create QR
                   </button>
-                  <button className="thm-btn outline w-100">
+                  <button className="thm-btn outline w-100" onClick={() => navigate('/admin/analytics')}>
                     <FaChartLine /> View Analytics
                   </button>
                 </div>

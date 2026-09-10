@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import {
@@ -26,6 +26,7 @@ const QRDetail = () => {
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState('');
   const [analyticsData, setAnalyticsData] = useState({ weeklyData: [], deviceData: [], locations: [] });
+  const logoInputRef = useRef(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -181,6 +182,42 @@ const QRDetail = () => {
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(`https://${qrData?.url}`);
     toast.success('URL copied!');
+  };
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('File size must be less than 2MB');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      toast.error('Only image files are allowed');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target.result;
+      try {
+        await api.put(`/qr/${qrData.id}`, { logo_url: dataUrl });
+        setQrData(prev => ({ ...prev, logoUrl: dataUrl }));
+        toast.success('Logo updated');
+      } catch {
+        toast.error('Failed to update logo');
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleLogoRemove = async () => {
+    try {
+      await api.put(`/qr/${qrData.id}`, { logo_url: null });
+      setQrData(prev => ({ ...prev, logoUrl: null }));
+      toast.success('Logo removed');
+    } catch {
+      toast.error('Failed to remove logo');
+    }
   };
 
   if (loading) return <Loader />;
@@ -650,10 +687,27 @@ const QRDetail = () => {
                   </div>
                   <div className="custom-frm-bx mb-0">
                     <label className="">Brand Logo</label>
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={handleLogoUpload}
+                    />
                     <div className="d-flex align-items-center gap-3">
-                      <div className="ov-logo-box">AK</div>
-                      <button className="thm-btn outline">Change Logo</button>
-                      <button className="thm-lg-btn ov-btn-danger">Remove</button>
+                      {qrData.logoUrl ? (
+                        <img
+                          src={qrData.logoUrl}
+                          alt="Logo"
+                          style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', background: '#fff', padding: '4px' }}
+                        />
+                      ) : (
+                        <div className="ov-logo-box">AK</div>
+                      )}
+                      <button className="thm-btn outline" onClick={() => logoInputRef.current?.click()}>Change Logo</button>
+                      {qrData.logoUrl && (
+                        <button className="thm-lg-btn ov-btn-danger" onClick={handleLogoRemove}>Remove</button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -696,10 +750,18 @@ const QRDetail = () => {
                         level="H"
                         bgColor="#ffffff"
                         fgColor="#0f1629"
+                        imageSettings={qrData.logoUrl ? {
+                          src: qrData.logoUrl,
+                          height: 30,
+                          width: 30,
+                          excavate: true,
+                        } : undefined}
                       />
-                      <div className="ov-qr-preview-logo">
-                        <div className="ov-qr-preview-logo-inner">AK</div>
-                      </div>
+                      {!qrData.logoUrl && (
+                        <div className="ov-qr-preview-logo">
+                          <div className="ov-qr-preview-logo-inner">AK</div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="d-grid gap-2">
