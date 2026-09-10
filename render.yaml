@@ -32,14 +32,14 @@ services:
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://akksys-backend.onrender.com/api/*
+        destination: https://akksys.onrender.com/api/*
       - type: rewrite
         source: /uploads/*
-        destination: https://akksys-backend.onrender.com/uploads/*
+        destination: https://akksys.onrender.com/uploads/*
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://akksys-backend.onrender.com/api
- # Set to backend URL (e.g. https://akksys-backend.onrender.com/api)
+        value: https://akksys.onrender.com/api
+ # Set to backend URL (e.g. https://akksys.onrender.com/api)

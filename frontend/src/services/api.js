@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_BASE =
   import.meta.env.VITE_API_URL ||
   (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')
-    ? 'https://akksys-backend.onrender.com/api'
+    ? 'https://akksys.onrender.com/api'
     : '/api');
 
 
