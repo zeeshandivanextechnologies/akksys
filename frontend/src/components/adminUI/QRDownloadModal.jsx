@@ -205,6 +205,13 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
                         excavate: true,
                       } : undefined}
                     />
+
+                    {withLogo && !logoUrl && (
+                      <div className="qrd-preview-logo">
+                        <div className="qrd-preview-logo-inner">AK</div>
+                      </div>
+                    )}
+
                   </div>
                   <p className="qrd-preview-url">
                     <a href={`https://${qrUrl || 'akksys.io/q/xk9p2m'}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>

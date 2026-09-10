@@ -27,7 +27,7 @@ const DynamicQRCodes = () => {
         id: qr.id,
         qrId: qr.qr_id,
         name: qr.name,
-        url: `akksys.in/r/${qr.qr_id}`,
+        url: `${window.location.host}/r/${qr.qr_id}`,
         scans: parseInt(qr.total_scans) || 0,
         unique: parseInt(qr.unique_scans) || 0,
         ctaClicks: parseInt(qr.cta_clicks) || 0,

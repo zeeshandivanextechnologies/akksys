@@ -102,3 +102,70 @@ export const getLocationAnalytics = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getQRDetailAnalytics = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const weeklyResult = await db.query(
+      `WITH RECURSIVE dates AS (
+         SELECT current_date - 6 AS date
+         UNION ALL
+         SELECT date + 1 FROM dates WHERE date < current_date
+       )
+       SELECT 
+         to_char(d.date, 'Dy') as day,
+         (SELECT COUNT(*) FROM scan_events WHERE date(scanned_at) = d.date AND qr_id = $1) as scans,
+         (SELECT COUNT(*) FROM cta_clicks WHERE date(clicked_at) = d.date AND qr_id = $1) as clicks
+       FROM dates d
+       ORDER BY d.date ASC`,
+      [id]
+    );
+
+    const deviceResult = await db.query(
+      `SELECT device_type as type, COUNT(*) as count 
+       FROM scan_events 
+       WHERE qr_id = $1 
+       GROUP BY device_type 
+       ORDER BY count DESC`,
+      [id]
+    );
+
+    const totalDeviceScans = deviceResult.rows.reduce((acc, row) => acc + parseInt(row.count), 0);
+    const colors = ['#00C8FF', '#0077FF', '#4DDCFF', '#003366'];
+    const deviceData = deviceResult.rows.map((row, i) => ({
+      type: row.type || 'Other',
+      percent: totalDeviceScans > 0 ? Math.round((parseInt(row.count) / totalDeviceScans) * 100) : 0,
+      color: colors[i % colors.length]
+    }));
+
+    const locationResult = await db.query(
+      `SELECT city, COUNT(*) as scans 
+       FROM scan_events 
+       WHERE qr_id = $1 AND city != 'Unknown' 
+       GROUP BY city 
+       ORDER BY scans DESC 
+       LIMIT 5`,
+      [id]
+    );
+    
+    const totalLocationScans = locationResult.rows.reduce((acc, row) => acc + parseInt(row.scans), 0);
+    const locations = locationResult.rows.map(row => ({
+      city: row.city,
+      scans: parseInt(row.scans),
+      percent: totalLocationScans > 0 ? Math.round((parseInt(row.scans) / totalLocationScans) * 100) : 0
+    }));
+
+    res.json({
+      weeklyData: weeklyResult.rows.map(r => ({
+        day: r.day,
+        scans: parseInt(r.scans),
+        clicks: parseInt(r.clicks)
+      })),
+      deviceData,
+      locations
+    });
+  } catch (err) {
+    next(err);
+  }
+};

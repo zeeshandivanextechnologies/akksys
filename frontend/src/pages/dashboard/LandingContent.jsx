@@ -315,11 +315,12 @@ const LandingContent = () => {
 
   if (loading) {
     return (
-      <div className="ov-wrapper d-flex align-items-center justify-content-center" style={{ minHeight: '400px' }}>
-        <div className="text-center">
-          <FaSpinner className="fa-spin" size={32} />
-          <p className="mt-2">Loading landing content...</p>
-        </div>
+      <div className="ov-wrapper">
+        <div className="text-center py-4">
+                    <div className="spinner-border text-info" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
       </div>
     );
   }

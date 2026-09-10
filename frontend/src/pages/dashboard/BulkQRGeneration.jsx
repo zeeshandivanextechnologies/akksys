@@ -89,7 +89,7 @@ const BulkQRGeneration = () => {
       setBulkData(prev => prev.map((item, i) => ({
         ...item,
         status: 'generated',
-        qr_url: created[i] ? `akksys.in/r/${created[i].qr_id}` : item.qr_url,
+        qr_url: created[i] ? `${window.location.host}/r/${created[i].qr_id}` : item.qr_url,
       })));
       setGenerated(true);
       toast.success(`${created.length} QR codes generated successfully!`);
@@ -442,7 +442,7 @@ Warranty Registration,https://akksys.in/warranty/register`;
                       <div className="dq-preview-qr">
                         {qrFormat === 'SVG' ? (
                           <QRCodeSVG
-                            value={item.qr_url ? `https://${item.qr_url}` : `https://akksys.in/r/preview-${i}`}
+                            value={item.qr_url ? `https://${item.qr_url}` : `https://${window.location.host}/r/preview-${i}`}
                             size={60}
                             level={level}
                             bgColor="#ffffff"
@@ -450,7 +450,7 @@ Warranty Registration,https://akksys.in/warranty/register`;
                           />
                         ) : (
                           <QRCodeCanvas
-                            value={item.qr_url ? `https://${item.qr_url}` : `https://akksys.in/r/preview-${i}`}
+                            value={item.qr_url ? `https://${item.qr_url}` : `https://${window.location.host}/r/preview-${i}`}
                             size={60}
                             level={level}
                             bgColor="#ffffff"

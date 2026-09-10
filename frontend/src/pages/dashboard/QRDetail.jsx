@@ -25,6 +25,7 @@ const QRDetail = () => {
   const [versionHistory, setVersionHistory] = useState([]);
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState('');
+  const [analyticsData, setAnalyticsData] = useState({ weeklyData: [], deviceData: [], locations: [] });
 
   const fetchData = useCallback(async () => {
     try {
@@ -45,17 +46,51 @@ const QRDetail = () => {
       const ctaClicks = parseInt(qr.cta_clicks) || 0;
       const ctr = totalScans > 0 ? ((ctaClicks / totalScans) * 100).toFixed(1) : '0.0';
 
+      const scansLast7 = parseInt(qr.scans_last_7) || 0;
+      const scansPrev7 = parseInt(qr.scans_prev_7) || 0;
+      const uniqueLast7 = parseInt(qr.unique_last_7) || 0;
+      const uniquePrev7 = parseInt(qr.unique_prev_7) || 0;
+      const ctaLast7 = parseInt(qr.cta_last_7) || 0;
+      const ctaPrev7 = parseInt(qr.cta_prev_7) || 0;
+
+      const calcChange = (curr, prev) => {
+        if (prev === 0) return curr > 0 ? { change: '+100.0%', trend: 'up' } : { change: '0.0%', trend: 'up' };
+        const diff = curr - prev;
+        const pct = (diff / prev) * 100;
+        return { change: `${pct > 0 ? '+' : ''}${pct.toFixed(1)}%`, trend: pct >= 0 ? 'up' : 'down' };
+      };
+
+      const scansStats = calcChange(scansLast7, scansPrev7);
+      const uniqueStats = calcChange(uniqueLast7, uniquePrev7);
+      const ctaStats = calcChange(ctaLast7, ctaPrev7);
+
+      const ctrLast7 = scansLast7 > 0 ? (ctaLast7 / scansLast7) * 100 : 0;
+      const ctrPrev7 = scansPrev7 > 0 ? (ctaPrev7 / scansPrev7) * 100 : 0;
+      const ctrDiff = ctrLast7 - ctrPrev7;
+      const ctrStats = {
+        change: `${ctrDiff > 0 ? '+' : ''}${ctrDiff.toFixed(1)}%`,
+        trend: ctrDiff >= 0 ? 'up' : 'down'
+      };
+
       setQrData({
         id: qr.id,
         qrId: qr.qr_id,
         name: qr.name,
-        url: `akksys.in/r/${qr.qr_id}`,
+        url: `${window.location.host}/r/${qr.qr_id}`,
         created: new Date(qr.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
         status: qr.status,
         totalScans,
         uniqueScans,
         ctaClicks,
         ctr,
+        scansChange: scansStats.change,
+        scansTrend: scansStats.trend,
+        uniqueChange: uniqueStats.change,
+        uniqueTrend: uniqueStats.trend,
+        ctaChange: ctaStats.change,
+        ctaTrend: ctaStats.trend,
+        ctrChange: ctrStats.change,
+        ctrTrend: ctrStats.trend,
         currentVideoUrl: qr.current_video_url || '—',
         logoUrl: qr.logo_url || null,
       });
@@ -63,6 +98,13 @@ const QRDetail = () => {
 
       const qrCampaigns = campRes.data.filter(c => c.qr_id === qrId || c.qr_id === qr.id);
       setCampaigns(qrCampaigns);
+
+      try {
+        const analyticsRes = await api.get(`/analytics/qr/${qr.id}`);
+        setAnalyticsData(analyticsRes.data);
+      } catch (err) {
+        console.error('Failed to fetch detailed analytics', err);
+      }
 
       if (qrCampaigns.length > 0) {
         const versionsPromises = qrCampaigns.map(c => api.get(`/campaign/${c.id}`));
@@ -77,7 +119,7 @@ const QRDetail = () => {
               date: new Date(v.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
               video: v.video_url || '—',
               cta: v.cta_text ? `${v.cta_text} → ${v.cta_destination || ''}` : '—',
-              scans: 0,
+              scans: parseInt(v.total_scans) || 0,
               status: v.is_active ? 'active' : 'completed',
             });
           });
@@ -143,14 +185,14 @@ const QRDetail = () => {
   if (loading) return <Loader />;
   if (!qrData) return null;
 
-  const weeklyData = [
-    { day: 'Mon', scans: 198, clicks: 62 },
-    { day: 'Tue', scans: 245, clicks: 78 },
-    { day: 'Wed', scans: 178, clicks: 45 },
-    { day: 'Thu', scans: 312, clicks: 89 },
-    { day: 'Fri', scans: 289, clicks: 72 },
-    { day: 'Sat', scans: 156, clicks: 38 },
-    { day: 'Sun', scans: 134, clicks: 43 },
+  const weeklyData = analyticsData.weeklyData.length > 0 ? analyticsData.weeklyData : [
+    { day: 'Mon', scans: 0, clicks: 0 },
+    { day: 'Tue', scans: 0, clicks: 0 },
+    { day: 'Wed', scans: 0, clicks: 0 },
+    { day: 'Thu', scans: 0, clicks: 0 },
+    { day: 'Fri', scans: 0, clicks: 0 },
+    { day: 'Sat', scans: 0, clicks: 0 },
+    { day: 'Sun', scans: 0, clicks: 0 },
   ];
 
   const chartOptions = {
@@ -198,10 +240,8 @@ const QRDetail = () => {
     { name: 'CTA Clicks', data: weeklyData.map(d => d.clicks) },
   ];
 
-  const deviceData = [
-    { type: 'Android', percent: 64, color: '#00C8FF' },
-    { type: 'iOS', percent: 31, color: '#0077FF' },
-    { type: 'Other', percent: 5, color: '#4DDCFF' },
+  const deviceData = analyticsData.deviceData.length > 0 ? analyticsData.deviceData : [
+    { type: 'No Data', percent: 100, color: '#e0e0e0' }
   ];
 
   const donutOptions = {
@@ -230,44 +270,38 @@ const QRDetail = () => {
 
   const donutSeries = deviceData.map(d => d.percent);
 
-  const locations = [
-    { city: 'Mumbai', scans: 387, percent: 31 },
-    { city: 'Delhi', scans: 284, percent: 23 },
-    { city: 'Bengaluru', scans: 198, percent: 16 },
-    { city: 'Hyderabad', scans: 142, percent: 11 },
-    { city: 'Others', scans: 236, percent: 19 },
-  ];
+  const locations = analyticsData.locations.length > 0 ? analyticsData.locations : [];
 
   const stats = [
     {
       title: 'TOTAL SCANS',
       value: qrData.totalScans.toLocaleString(),
-      change: '+12.4%',
-      trend: 'up',
+      change: qrData.scansChange,
+      trend: qrData.scansTrend,
       color: 'primary',
       icon: <FaChartLine />,
     },
     {
       title: 'UNIQUE SCANS',
       value: qrData.uniqueScans.toLocaleString(),
-      change: '+8.1%',
-      trend: 'up',
+      change: qrData.uniqueChange,
+      trend: qrData.uniqueTrend,
       color: 'blue',
       icon: <FaGlobeAsia />,
     },
     {
       title: 'CTA CLICKS',
       value: qrData.ctaClicks.toLocaleString(),
-      change: '+18.3%',
-      trend: 'up',
+      change: qrData.ctaChange,
+      trend: qrData.ctaTrend,
       color: 'orange',
       icon: <FaMousePointer />,
     },
     {
       title: 'CTR',
       value: `${qrData.ctr}%`,
-      change: qrData.ctr + '%',
-      trend: 'up',
+      change: qrData.ctrChange,
+      trend: qrData.ctrTrend,
       color: 'green',
       icon: <FaChartLine />,
     },
@@ -465,23 +499,29 @@ const QRDetail = () => {
                   </div>
                 </div>
                 <div className="ov-locations-list">
-                  {locations.map((loc, i) => (
-                    <div key={i} className="ov-location-item">
-                      <div className="ov-location-info">
-                        <span className="ov-location-city">{loc.city}</span>
-                        <span className="ov-location-badge">IN</span>
-                      </div>
-                      <div className="ov-location-stats">
-                        <div className="ov-location-bar-bg">
-                          <div className="ov-location-bar" style={{ width: `${loc.percent}%` }}></div>
-                        </div>
-                        <div className="ov-location-numbers">
-                          <span className="ov-location-scans">{loc.scans.toLocaleString()}</span>
-                          <span className="ov-location-percent">{loc.percent}%</span>
-                        </div>
-                      </div>
+                  {locations.length === 0 ? (
+                    <div className="text-center py-4" >
+                      <p style={{color : "#eee"}}>No location data available yet.</p>
                     </div>
-                  ))}
+                  ) : (
+                    locations.map((loc, i) => (
+                      <div key={i} className="ov-location-item">
+                        <div className="ov-location-info">
+                          <span className="ov-location-city">{loc.city}</span>
+                          <span className="ov-location-badge">IN</span>
+                        </div>
+                        <div className="ov-location-stats">
+                          <div className="ov-location-bar-bg">
+                            <div className="ov-location-bar" style={{ width: `${loc.percent}%` }}></div>
+                          </div>
+                          <div className="ov-location-numbers">
+                            <span className="ov-location-scans">{loc.scans.toLocaleString()}</span>
+                            <span className="ov-location-percent">{loc.percent}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>

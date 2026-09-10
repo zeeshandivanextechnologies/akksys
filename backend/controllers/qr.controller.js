@@ -7,10 +7,22 @@ export const listQRCodes = async (req, res, next) => {
       `SELECT q.*, 
         (SELECT COUNT(*) FROM scan_events WHERE qr_id = q.id) as total_scans,
         (SELECT COUNT(DISTINCT session_id) FROM scan_events WHERE qr_id = q.id) as unique_scans,
+        (SELECT COUNT(*) FROM scan_events WHERE qr_id = q.id AND scanned_at >= NOW() - INTERVAL '7 days') as scans_last_7,
+        (SELECT COUNT(*) FROM scan_events WHERE qr_id = q.id AND scanned_at >= NOW() - INTERVAL '14 days' AND scanned_at < NOW() - INTERVAL '7 days') as scans_prev_7,
+        (SELECT COUNT(DISTINCT session_id) FROM scan_events WHERE qr_id = q.id AND scanned_at >= NOW() - INTERVAL '7 days') as unique_last_7,
+        (SELECT COUNT(DISTINCT session_id) FROM scan_events WHERE qr_id = q.id AND scanned_at >= NOW() - INTERVAL '14 days' AND scanned_at < NOW() - INTERVAL '7 days') as unique_prev_7,
         (SELECT COUNT(*) FROM cta_clicks cv 
          JOIN campaign_versions v ON cv.version_id = v.id 
          JOIN campaigns c ON v.campaign_id = c.id 
          WHERE c.qr_id = q.id) as cta_clicks,
+        (SELECT COUNT(*) FROM cta_clicks cv 
+         JOIN campaign_versions v ON cv.version_id = v.id 
+         JOIN campaigns c ON v.campaign_id = c.id 
+         WHERE c.qr_id = q.id AND cv.clicked_at >= NOW() - INTERVAL '7 days') as cta_last_7,
+        (SELECT COUNT(*) FROM cta_clicks cv 
+         JOIN campaign_versions v ON cv.version_id = v.id 
+         JOIN campaigns c ON v.campaign_id = c.id 
+         WHERE c.qr_id = q.id AND cv.clicked_at >= NOW() - INTERVAL '14 days' AND cv.clicked_at < NOW() - INTERVAL '7 days') as cta_prev_7,
         (SELECT v.video_url FROM campaign_versions v 
          JOIN campaigns c ON v.campaign_id = c.id 
          WHERE c.qr_id = q.id AND c.status = 'active' AND v.is_active = true 

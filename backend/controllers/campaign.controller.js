@@ -55,7 +55,11 @@ export const getCampaignById = async (req, res, next) => {
       return res.status(404).json({ error: 'Campaign not found' });
     }
     const versions = await db.query(
-      'SELECT * FROM campaign_versions WHERE campaign_id = $1 ORDER BY version_number DESC',
+      `SELECT v.*, 
+        (SELECT COUNT(*) FROM scan_events WHERE version_id = v.id) as total_scans
+       FROM campaign_versions v 
+       WHERE v.campaign_id = $1 
+       ORDER BY v.version_number DESC`,
       [id]
     );
     res.json({ ...result.rows[0], versions: versions.rows });
