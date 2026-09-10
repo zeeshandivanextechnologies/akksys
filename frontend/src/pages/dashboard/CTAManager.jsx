@@ -333,7 +333,15 @@ const CTAManager = () => {
                   </div>
                   <div className="cta-view-item">
                     <span className="cta-view-label">Destination URL</span>
-                    <span className="cta-view-value cta-view-url">{ctaData.destinationUrl}</span>
+                    <a 
+                      href={ctaData.destinationUrl.startsWith('http') ? ctaData.destinationUrl : `https://${ctaData.destinationUrl}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="cta-view-value cta-view-url"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      {ctaData.destinationUrl}
+                    </a>
                   </div>
                   <div className="cta-view-item">
                     <span className="cta-view-label">Applied to QR</span>
