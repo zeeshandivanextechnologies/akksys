@@ -19,7 +19,6 @@ const StaticQRCodes = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedQR, setSelectedQR] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('All Types');
   const [qrList, setQrList] = useState([]);
@@ -100,18 +99,8 @@ const StaticQRCodes = () => {
     setQrList(prev => prev.map(qr => qr.id === updatedQR.id ? updatedQR : qr));
   };
 
-  const toggleDropdown = (id, e) => {
-    if (openDropdown === id) {
-      setOpenDropdown(null);
-      return;
-    }
-    const btn = e.currentTarget;
-    const btnRect = btn.getBoundingClientRect();
-    setDropdownPos({
-      top: btnRect.bottom + 6,
-      left: btnRect.right - 170,
-    });
-    setOpenDropdown(id);
+  const toggleDropdown = (id) => {
+    setOpenDropdown(prev => prev === id ? null : id);
   };
 
   useEffect(() => {
@@ -120,15 +109,8 @@ const StaticQRCodes = () => {
         setOpenDropdown(null);
       }
     };
-    const handleScroll = () => {
-      if (openDropdown) setOpenDropdown(null);
-    };
     document.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('scroll', handleScroll, true);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll, true);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openDropdown]);
 
   const getTypeIcon = (type) => {
@@ -279,10 +261,40 @@ const StaticQRCodes = () => {
                           <div className="dq-action-cell">
                             <button
                               className="dq-edit-btn"
-                              onClick={(e) => toggleDropdown(qr.id, e)}
+                              onClick={() => toggleDropdown(qr.id)}
                             >
                               Edit <FaChevronDown size={10} />
                             </button>
+                            {openDropdown === qr.id && (
+                              <div
+                                className="dq-dropdown-menu"
+                                style={{
+                                  position: 'absolute',
+                                  ...(currentItems.length > 2 && index >= currentItems.length - 2 ? { bottom: 'calc(100% + 5px)' } : { top: 'calc(100% + 5px)' }),
+                                  right: 0,
+                                  zIndex: 1050,
+                                  minWidth: '170px'
+                                }}
+                              >
+                                <button onClick={() => handleView(qr)}>
+                                  <FaEye size={16} /> View Details
+                                </button>
+                                <button onClick={() => handleDownload(qr)}>
+                                  <FaDownload size={16} /> Download QR
+                                </button>
+                                <button onClick={() => handleEdit(qr)}>
+                                  <FaEdit size={16} /> Edit QR
+                                </button>
+                                <button onClick={() => { toggleActive(qr.id); setOpenDropdown(null); }}>
+                                  {qr.status === 'active'
+                                    ? <><FaToggleOff size={12} /> Deactivate</>
+                                    : <><FaToggleOn size={16} /> Activate</>}
+                                </button>
+                                <button className="sq-dropdown-danger" onClick={() => handleDelete(qr.id)}>
+                                  <FaTrash size={14} /> Delete
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -311,30 +323,6 @@ const StaticQRCodes = () => {
             </div>
           )}
 
-          {openDropdown && (
-            <div
-              className="dq-dropdown-menu"
-              style={{ top: dropdownPos.top, left: dropdownPos.left }}
-            >
-              <button onClick={() => handleView(currentItems.find(q => q.id === openDropdown))}>
-                <FaEye size={16} /> View Details
-              </button>
-              <button onClick={() => handleDownload(currentItems.find(q => q.id === openDropdown))}>
-                <FaDownload size={16} /> Download QR
-              </button>
-              <button onClick={() => handleEdit(currentItems.find(q => q.id === openDropdown))}>
-                <FaEdit size={16} /> Edit QR
-              </button>
-              <button onClick={() => { toggleActive(openDropdown); setOpenDropdown(null); }}>
-                {currentItems.find(q => q.id === openDropdown)?.status === 'active'
-                  ? <><FaToggleOff size={12} /> Deactivate</>
-                  : <><FaToggleOn size={16} /> Activate</>}
-              </button>
-              <button className="sq-dropdown-danger" onClick={() => handleDelete(openDropdown)}>
-                <FaTrash size={14} /> Delete
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
