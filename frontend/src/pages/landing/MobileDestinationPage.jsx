@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
+import api from '../../services/api';
 import {
   FaArrowRight, FaShareAlt, FaHeart, FaExclamationTriangle,
   FaRedo, FaCheckCircle, FaStar, FaFire, FaClock, FaPlay,
@@ -69,31 +70,55 @@ const MobileDestinationPage = () => {
     const load = async () => {
       setLoading(true);
       try {
-        await new Promise(r => setTimeout(r, 1000));
-        const db = {
-          'xk9p2m': {
-            brand: "AKKSYS", video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            headline: "Pro X1 Launch", tagline: "Exclusive Premium Offer",
-            desc: "Get 20% off on the new Pro X1. Limited time offer!",
-            cta: "Buy Now on Amazon", ctaLink: "https://amazon.in/dp/example",
-            scans: 1247, rating: 4.8, reviews: 324, badge: "HOT DEAL",
-            features: ["Free Shipping", "20% Off", "Easy Returns"]
-          },
-          'ms3k8x': {
-            brand: "AKKSYS", video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            headline: "Summer Sale 2026", tagline: "Up to 50% Off",
-            desc: "Biggest summer sale! Up to 50% off on all products.",
-            cta: "Shop on Flipkart", ctaLink: "https://flipkart.com/example",
-            scans: 3845, rating: 4.9, reviews: 892, badge: "LIMITED TIME",
-            features: ["50% Off", "Fast Delivery", "Top Brands"]
-          }
-        };
-        setData(db[qrId] || db['xk9p2m']);
-      } catch { setError('Failed to load'); }
-      finally { setLoading(false); }
+        const res = await api.get(`/landing/${qrId}`);
+        setData({
+          brand: res.data.brand || 'AKKSYS',
+          video: res.data.video_url || '',
+          headline: res.data.headline || 'Welcome',
+          tagline: res.data.tagline || '',
+          desc: res.data.description || '',
+          cta: res.data.cta_text || 'Learn More',
+          ctaLink: res.data.cta_url || '#',
+          scans: parseInt(res.data.scans) || 0,
+          rating: 5.0, // placeholder
+          reviews: 0,
+          badge: res.data.badge || '',
+          features: res.data.features || [],
+          versionId: res.data.version_id
+        });
+      } catch (err) {
+        setError(err.response?.data?.error || 'Failed to load');
+      } finally {
+        setLoading(false);
+      }
     };
-    load();
+    if (qrId) {
+      load();
+    } else {
+      // Preview mode fallback
+      setData({
+        brand: 'AKKSYS', video: '', headline: 'Preview Mode', tagline: 'This is a preview',
+        desc: 'Dynamic content will appear here when a real QR is scanned.',
+        cta: 'Learn More', ctaLink: '#', scans: 0, rating: 5.0, reviews: 0, badge: 'PREVIEW',
+        features: ['Feature 1', 'Feature 2']
+      });
+      setLoading(false);
+    }
   }, [qrId]);
+
+  const handleCTAClick = async (e) => {
+    e.preventDefault();
+    if (data.versionId && data.ctaLink !== '#') {
+      try {
+        await api.post(`/landing/${data.versionId}/click`, { qr_id: qrId });
+      } catch (err) {
+        console.error('Failed to track click', err);
+      }
+      window.open(data.ctaLink, '_blank', 'noopener,noreferrer');
+    } else if (data.ctaLink !== '#') {
+      window.open(data.ctaLink, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   const handleShare = async () => {
     if (navigator.share) { try { await navigator.share({ title: data.headline, url: window.location.href }); } catch { } }
@@ -152,7 +177,7 @@ const MobileDestinationPage = () => {
         <p className="ld-desc">{data.desc}</p>
 
    
-        <a href={data.ctaLink} target="_blank" rel="noopener noreferrer" className="thm-btn" style={{ padding: "12px 0" }}>
+        <a href={data.ctaLink} onClick={handleCTAClick} className="thm-btn" style={{ padding: "12px 0" }}>
           <span>{data.cta}</span>  <FaArrowRight className="ld-cta-arrow" />
         </a>
         <p className="ld-urgency"><FaClock /> Offer ends soon!</p>

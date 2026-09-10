@@ -70,6 +70,7 @@ export const getLandingData = async (req, res, next) => {
       rating: null,
       reviews: 0,
       scans: parseInt(qr.total_scans || 0),
+      version_id: version?.id || null,
     });
   } catch (err) {
     next(err);
