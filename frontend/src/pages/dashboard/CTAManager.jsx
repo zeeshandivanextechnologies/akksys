@@ -152,31 +152,41 @@ const CTAManager = () => {
   ];
 
   const handleSave = async () => {
-    if (!selectedCtaId) {
-      toast.error('No CTA selected');
-      return;
-    }
     setSaving(true);
     try {
-      await api.put(`/cta/${selectedCtaId}`, {
-        button_text: ctaData.buttonText,
-        destination_url: ctaData.destinationUrl,
-        qr_id: selectedQR ? Number(selectedQR) : null,
-      });
+      if (!selectedCtaId) {
+        const res = await api.post('/cta', {
+          button_text: ctaData.buttonText,
+          destination_url: ctaData.destinationUrl,
+          qr_id: selectedQR ? Number(selectedQR) : null,
+        });
+        setSelectedCtaId(res.data.id);
+        toast.success('CTA created successfully');
+      } else {
+        await api.put(`/cta/${selectedCtaId}`, {
+          button_text: ctaData.buttonText,
+          destination_url: ctaData.destinationUrl,
+          qr_id: selectedQR ? Number(selectedQR) : null,
+        });
+        toast.success('CTA saved successfully');
+      }
       setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-      toast.success('CTA saved successfully');
+      return true;
     } catch {
       setSaving(false);
       toast.error('Failed to save CTA');
+      return false;
     }
   };
 
   const handleModalSave = async () => {
-    await handleSave();
-    await fetchCTAs();
-    setShowEditModal(false);
+    const success = await handleSave();
+    if (success) {
+      await fetchCTAs();
+      setShowEditModal(false);
+    }
   };
 
   const handleSelectPreset = (index) => {
