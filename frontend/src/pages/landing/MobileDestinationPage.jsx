@@ -183,7 +183,7 @@ const MobileDestinationPage = () => {
   {data.brand}
 </NavLink> */}
           <button className={`ld-heart ${liked ? 'active' : ''}`} onClick={handleLikeToggle}>
-            <FaHeart /> <span style={{ fontSize: '12px', marginLeft: '4px' }}>{data.likes}</span>
+            <FaHeart /> <span className="ld-heart-count">{data.likes}</span>
           </button>
         </div>
 

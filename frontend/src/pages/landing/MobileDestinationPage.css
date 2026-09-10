@@ -263,6 +263,22 @@ border: 1px solid #1e2a40;
   animation: ld-pop 0.3s;
 }
 
+.ld-heart-count {
+  font-size: 12px;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.ld-heart:hover .ld-heart-count,
+.ld-heart.active .ld-heart-count {
+  max-width: 30px;
+  opacity: 1;
+  margin-left: 6px;
+}
+
 @keyframes ld-pop {
   50% {
     transform: scale(1.2);
