@@ -362,7 +362,7 @@ const CTAManager = () => {
                       {ctaList.length === 0 ? (
                         <tr>
                           <td colSpan="5" className="text-center py-5 text-muted" style={{ borderBottom: 'none' }}>
-                            <p className="mb-2">No CTAs found. Create your first one!</p>
+                            <p className="mb-2" style={{color : "#ddd"}}>No CTAs found. Create your first one!</p>
                             <button className="thm-btn outline mt-2" onClick={handleCreateNew}>
                               <FaPlus /> Create New CTA
                             </button>
@@ -678,7 +678,7 @@ const CTAManager = () => {
               <div className="cta-top-performing">
                 {qrAnalytics
                   .filter(q => parseInt(q.cta_clicks) > 0)
-                  .slice(0, 3)
+                  .slice(0, 5)
                   .map((qr, i) => (
                   <div key={qr.id} className="cta-top-item">
                     <div className="cta-top-rank">{i + 1}</div>
