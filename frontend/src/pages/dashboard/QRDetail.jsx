@@ -92,6 +92,7 @@ const QRDetail = () => {
         ctrChange: ctrStats.change,
         ctrTrend: ctrStats.trend,
         currentVideoUrl: qr.current_video_url || '—',
+        ctaDestination: qr.cta_destination || '—',
         logoUrl: qr.logo_url || null,
       });
       setNewName(qr.name);
@@ -628,13 +629,17 @@ const QRDetail = () => {
                 </div>
                 <div className="ov-card-body">
                   <div className="custom-frm-bx">
-                    <label className="">Campaign Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                    />
+                    <label className="">QR Name</label>
+                    <div className="d-flex gap-2">
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        onBlur={() => { if (newName !== qrData.name) handleSaveName(); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && newName !== qrData.name) handleSaveName(); }}
+                      />
+                    </div>
                   </div>
                   <div className="custom-frm-bx">
                     <label className="">QR Short URL</label>
