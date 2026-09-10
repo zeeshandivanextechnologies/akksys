@@ -440,4 +440,4 @@ const EditCampaign = () => {
   );
 };
 
-export default CreateCampaign;
+export default EditCampaign;
