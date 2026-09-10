@@ -14,7 +14,7 @@ export async function runMigrations(closePoolAfter = false) {
     console.log('Running database migrations...');
     const client = await pool.connect();
     
-    const migrations = ['001_initial.sql', '002_add_2fa_columns.sql', '003_add_notification_columns.sql', '004_landing_content.sql'];
+    const migrations = ['001_initial.sql', '002_add_2fa_columns.sql', '003_add_notification_columns.sql', '004_landing_content.sql', '005_add_ratings.sql'];
     
     for (const file of migrations) {
       console.log(`Running ${file}...`);

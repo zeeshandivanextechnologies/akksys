@@ -67,8 +67,8 @@ export const getLandingData = async (req, res, next) => {
       cta_url: version?.cta_destination || '#',
       logo_url: qr.logo_url || null,
       features: campaign?.features || [],
-      rating: null,
-      reviews: 0,
+      rating: parseFloat(campaign?.rating || 4.8),
+      reviews: parseInt(campaign?.reviews || 324),
       scans: parseInt(qr.total_scans || 0),
       version_id: version?.id || null,
     });

@@ -93,8 +93,8 @@ const MobileDestinationPage = () => {
           cta: res.data.cta_text || 'Learn More',
           ctaLink: res.data.cta_url || '#',
           scans: parseInt(res.data.scans) || 0,
-          rating: 5.0, // placeholder
-          reviews: 0,
+          rating: res.data.rating || 5.0,
+          reviews: res.data.reviews || 0,
           badge: res.data.badge || '',
           features: res.data.features || [],
           versionId: res.data.version_id

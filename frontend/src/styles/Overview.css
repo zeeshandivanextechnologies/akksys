@@ -1458,6 +1458,7 @@ border: 1px solid var(--ov-new-border);
   font-size: 20px;
   font-weight: 700;
   color: var(--ov-primary);
+  margin-right: 5px;
 }
 
 .ov-cta-clicks-label {
