@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Chart from 'react-apexcharts';
 import {
   FaLink, FaSave, FaEye, FaCheck, FaArrowUp, FaArrowDown,
@@ -7,6 +7,8 @@ import {
   FaExternalLinkAlt, FaCopy, FaSyncAlt,
   FaTimes
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import api from '../../services/api';
 import '../../styles/Overview.css';
 import '../../styles/CTAManager.css';
 
@@ -15,15 +17,11 @@ const CTAManager = () => {
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState('configure');
   const [selectedPreset, setSelectedPreset] = useState(0);
-  const [selectedQR, setSelectedQR] = useState('QR-001');
+  const [selectedQR, setSelectedQR] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
-
-  const [ctaData, setCTAData] = useState({
-    buttonText: 'Buy Now',
-    destinationUrl: 'https://amazon.in/dp/akksys-pro-x1',
-    customText: '',
-  });
-
+  const [ctaList, setCtaList] = useState([]);
+  const [selectedCtaId, setSelectedCtaId] = useState(null);
+  const [qrCodes, setQrCodes] = useState([]);
   const [presets, setPresets] = useState([
     { id: 1, name: 'Amazon.in', url: 'https://amazon.in/dp/', icon: 'shopping-cart', color: '#ff9900' },
     { id: 2, name: 'Flipkart', url: 'https://flipkart.com/p/', icon: 'shopping-bag', color: '#2874f0' },
@@ -32,50 +30,104 @@ const CTAManager = () => {
     { id: 5, name: 'App Store', url: 'https://apps.apple.com/', icon: 'mobile-alt', color: '#007aff' },
     { id: 6, name: 'Application Form', url: 'https://akksys.in/apply', icon: 'file-alt', color: '#ea4335' },
   ]);
+  const [overviewData, setOverviewData] = useState({ totalScans: 0, uniqueScans: 0, ctaClicks: 0, activeQr: 0 });
+  const [dailyData, setDailyData] = useState([]);
+  const [qrAnalytics, setQrAnalytics] = useState([]);
+
+  const [ctaData, setCTAData] = useState({
+    buttonText: 'Buy Now',
+    destinationUrl: '',
+    customText: '',
+  });
+
+  const fetchCTAs = useCallback(async () => {
+    try {
+      const res = await api.get('/cta');
+      setCtaList(res.data);
+      if (res.data.length > 0 && !selectedCtaId) {
+        const first = res.data[0];
+        setSelectedCtaId(first.id);
+        setCTAData({
+          buttonText: first.button_text || 'Buy Now',
+          destinationUrl: first.destination_url || '',
+          customText: '',
+        });
+        setSelectedQR(first.qr_id ? String(first.qr_id) : '');
+      }
+    } catch {
+      toast.error('Failed to load CTAs');
+    }
+  }, []);
+
+  const fetchQRs = useCallback(async () => {
+    try {
+      const res = await api.get('/qr');
+      setQrCodes(res.data);
+    } catch {
+      toast.error('Failed to load QR codes');
+    }
+  }, []);
+
+  const fetchOverview = useCallback(async () => {
+    try {
+      const [overviewRes, dailyRes, qrRes] = await Promise.all([
+        api.get('/analytics/overview', { params: { days: 7 } }),
+        api.get('/analytics/overview/daily', { params: { days: 7 } }),
+        api.get('/analytics/qr'),
+      ]);
+      setOverviewData(overviewRes.data);
+      setDailyData(dailyRes.data);
+      setQrAnalytics(qrRes.data);
+    } catch {
+      // analytics fail silently
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCTAs();
+    fetchQRs();
+    fetchOverview();
+  }, [fetchCTAs, fetchQRs, fetchOverview]);
+
+  const totalScans = overviewData.totalScans || 0;
+  const ctaClicks = overviewData.ctaClicks || 0;
+  const ctr = totalScans > 0 ? ((ctaClicks / totalScans) * 100).toFixed(1) : '0.0';
 
   const stats = [
-    { title: 'TOTAL CLICKS', value: '3,891', change: '+18.3%', trend: 'up', color: 'primary', icon: <FaMousePointer /> },
-    { title: 'CONVERSIONS', value: '1,245', change: '+12.5%', trend: 'up', color: 'blue', icon: <FaShoppingCart /> },
-    { title: 'CTR', value: '32.4%', change: '+5.2%', trend: 'up', color: 'orange', icon: <FaChartLine /> },
-    { title: 'ACTIVE CTAs', value: '8', change: '2', trend: 'neutral', color: 'green', icon: <FaLink /> },
-  ];
-
-  const qrCodes = [
-    { id: 'QR-001', name: 'Pro X1 Launch', clicks: 427, percent: 80 },
-    { id: 'QR-002', name: 'Summer Sale', clicks: 1183, percent: 95 },
-    { id: 'QR-003', name: 'Festival Offer', clicks: 315, percent: 40 },
-    { id: 'QR-004', name: 'App Download', clicks: 64, percent: 15 },
-    { id: 'QR-005', name: 'Contact Us', clicks: 15, percent: 5 },
+    { title: 'TOTAL CLICKS', value: ctaClicks.toLocaleString(), change: '', trend: 'neutral', color: 'primary', icon: <FaMousePointer /> },
+    { title: 'CONVERSIONS', value: totalScans.toLocaleString(), change: '', trend: 'neutral', color: 'blue', icon: <FaShoppingCart /> },
+    { title: 'CTR', value: `${ctr}%`, change: '', trend: 'neutral', color: 'orange', icon: <FaChartLine /> },
+    { title: 'ACTIVE CTAs', value: String(ctaList.filter(c => c.is_active).length), change: '', trend: 'neutral', color: 'green', icon: <FaLink /> },
   ];
 
   const buttonTexts = ['Buy Now', 'Explore', 'Apply Now', 'Shop Now', 'Learn More', 'Download', 'Sign Up', 'Get Started'];
 
- const chartOptions = {
-  chart: {
-    type: 'bar',
-    toolbar: { show: false },
-    fontFamily: 'Poppins, sans-serif',
-  },
-  plotOptions: {
-    bar: {
-      horizontal: false,
-      columnWidth: '55%',
-      borderRadius: 4,
-      borderRadiusApplication: 'end',
+  const chartOptions = {
+    chart: {
+      type: 'bar',
+      toolbar: { show: false },
+      fontFamily: 'Poppins, sans-serif',
     },
-  },
-  dataLabels: { enabled: false },
-  stroke: { show: true, width: 0 },
-  xaxis: {
-    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
-    axisBorder: { show: false },
-    axisTicks: { show: false },
-  },
-  yaxis: {
-    labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
-  },
-  grid: {
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+        borderRadius: 4,
+        borderRadiusApplication: 'end',
+      },
+    },
+    dataLabels: { enabled: false },
+    stroke: { show: true, width: 0 },
+    xaxis: {
+      categories: dailyData.map(d => d.day),
+      labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    yaxis: {
+      labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
+    },
+    grid: {
     borderColor: '#B8EEFF',
     strokeDashArray: 4,
     xaxis: { lines: { show: false } },
@@ -91,16 +143,29 @@ const CTAManager = () => {
 
 
   const chartSeries = [
-    { name: 'Clicks', data: [420, 510, 480, 620, 710, 820, 330] },
+    { name: 'Clicks', data: dailyData.map(d => d.clicks) },
   ];
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!selectedCtaId) {
+      toast.error('No CTA selected');
+      return;
+    }
     setSaving(true);
-    setTimeout(() => {
+    try {
+      await api.put(`/cta/${selectedCtaId}`, {
+        button_text: ctaData.buttonText,
+        destination_url: ctaData.destinationUrl,
+        qr_id: selectedQR ? Number(selectedQR) : null,
+      });
       setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-    }, 1500);
+      toast.success('CTA saved successfully');
+    } catch {
+      setSaving(false);
+      toast.error('Failed to save CTA');
+    }
   };
 
   const handleSelectPreset = (index) => {
@@ -234,7 +299,7 @@ const CTAManager = () => {
                   </div>
                   <div className="cta-view-item">
                     <span className="cta-view-label">Applied to QR</span>
-                    <span className="cta-view-value">{selectedQR}</span>
+                    <span className="cta-view-value">{qrCodes.find(q => String(q.id) === selectedQR)?.name || '—'}</span>
                   </div>
                 </div>
 
@@ -339,8 +404,9 @@ const CTAManager = () => {
                         value={selectedQR}
                         onChange={(e) => setSelectedQR(e.target.value)}
                       >
+                        <option value="">None</option>
                         {qrCodes.map(qr => (
-                          <option key={qr.id} value={qr.id}>{qr.id} - {qr.name}</option>
+                          <option key={qr.id} value={qr.id}>{qr.qr_id} - {qr.name}</option>
                         ))}
                       </select>
                     </div>
@@ -366,26 +432,31 @@ const CTAManager = () => {
                 </div>
               </div>
               <div className="ov-card-body">
-                {qrCodes.map((qr) => (
+                {qrCodes.map((qr) => {
+                  const clicks = parseInt(qr.cta_clicks) || 0;
+                  const scans = parseInt(qr.total_scans) || 0;
+                  const maxClicks = Math.max(...qrCodes.map(q => parseInt(q.cta_clicks) || 0), 1);
+                  const percent = Math.round((clicks / maxClicks) * 100);
+                  return (
                   <div key={qr.id} className="cta-tracking-item">
                     <div className="cta-tracking-info">
-                      <span className="cta-tracking-id">{qr.id}</span>
+                      <span className="cta-tracking-id">{qr.qr_id}</span>
                       <span className="cta-tracking-name">{qr.name}</span>
                     </div>
                     <div className="cta-tracking-bar-container">
                       <div className="cta-tracking-bar-bg">
                         <div
                           className="cta-tracking-bar"
-                          style={{ width: `${qr.percent}%` }}
+                          style={{ width: `${percent}%` }}
                         ></div>
                       </div>
                     </div>
                     <div className="cta-tracking-stats">
-                      <span className="cta-tracking-clicks">{qr.clicks.toLocaleString()}</span>
-                      <span className="cta-tracking-percent">{qr.percent}%</span>
+                      <span className="cta-tracking-clicks">{clicks.toLocaleString()}</span>
+                      <span className="cta-tracking-percent">{percent}%</span>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
           )}
@@ -464,15 +535,15 @@ const CTAManager = () => {
               <div className="cta-quick-stats">
                 <div className="cta-quick-stat">
                   <span className="cta-quick-stat-label">Total Clicks</span>
-                  <span className="cta-quick-stat-value">3,891</span>
+                  <span className="cta-quick-stat-value">{overviewData.ctaClicks?.toLocaleString() || '0'}</span>
                 </div>
                 <div className="cta-quick-stat">
                   <span className="cta-quick-stat-label">Unique Clicks</span>
-                  <span className="cta-quick-stat-value">2,847</span>
+                  <span className="cta-quick-stat-value">{overviewData.uniqueScans?.toLocaleString() || '0'}</span>
                 </div>
                 <div className="cta-quick-stat">
                   <span className="cta-quick-stat-label">Conversion Rate</span>
-                  <span className="cta-quick-stat-value">32.4%</span>
+                  <span className="cta-quick-stat-value">{ctr}%</span>
                 </div>
               </div>
             </div>
@@ -507,30 +578,21 @@ const CTAManager = () => {
             </div>
             <div className="ov-card-body">
               <div className="cta-top-performing">
-                <div className="cta-top-item">
-                  <div className="cta-top-rank">1</div>
-                  <div className="cta-top-info">
-                    <span className="cta-top-name">Summer Sale</span>
-                    <span className="cta-top-clicks">1,183 clicks</span>
+                {qrAnalytics
+                  .filter(q => parseInt(q.cta_clicks) > 0)
+                  .slice(0, 3)
+                  .map((qr, i) => (
+                  <div key={qr.id} className="cta-top-item">
+                    <div className="cta-top-rank">{i + 1}</div>
+                    <div className="cta-top-info">
+                      <span className="cta-top-name">{qr.name}</span>
+                      <span className="cta-top-clicks">{parseInt(qr.cta_clicks).toLocaleString()} clicks</span>
+                    </div>
                   </div>
-                  <span className="cta-top-badge">+24%</span>
-                </div>
-                <div className="cta-top-item">
-                  <div className="cta-top-rank">2</div>
-                  <div className="cta-top-info">
-                    <span className="cta-top-name">Pro X1 Launch</span>
-                    <span className="cta-top-clicks">427 clicks</span>
-                  </div>
-                  <span className="cta-top-badge">+18%</span>
-                </div>
-                <div className="cta-top-item">
-                  <div className="cta-top-rank">3</div>
-                  <div className="cta-top-info">
-                    <span className="cta-top-name">Festival Offer</span>
-                    <span className="cta-top-clicks">315 clicks</span>
-                  </div>
-                  <span className="cta-top-badge">+12%</span>
-                </div>
+                ))}
+                {qrAnalytics.filter(q => parseInt(q.cta_clicks) > 0).length === 0 && (
+                  <p style={{ color: '#8892a4', fontSize: '13px' }}>No CTA clicks yet</p>
+                )}
               </div>
             </div>
           </div>
