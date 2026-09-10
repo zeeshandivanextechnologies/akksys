@@ -24,10 +24,16 @@ const CampaignDetail = () => {
 
   useEffect(() => {
     fetchCampaign();
-  }, [fetchCampaign]);
+  }, [fetchCampaign]); 
 
   if (loading) {
-    return <div className="cd-page-wrapper"><p style={{textAlign:'center',padding:'60px 0',color:'#999'}}>Loading campaign...</p></div>;
+    return (
+        <div className="text-center py-4">
+                    <div className="spinner-border text-info" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+    </div>
+    );
   }
 
   if (!campaign) {
