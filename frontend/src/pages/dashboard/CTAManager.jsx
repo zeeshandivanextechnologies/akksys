@@ -239,7 +239,14 @@ const CTAManager = () => {
           <p className="ov-page-subtitle">Configure and track call-to-action buttons for your QR codes</p>
         </div>
         <div className="ov-header-actions">
-          <button className="thm-btn outline">
+          <button className="thm-btn outline" onClick={() => {
+            const qr = qrCodes.find(q => String(q.id) === selectedQR);
+            if (qr) {
+              window.open(`/r/${qr.qr_id}`, '_blank');
+            } else {
+              toast.info('Select a QR code first');
+            }
+          }}>
             <FaEye /> Preview
           </button>
           <button className="thm-btn" onClick={handleSave} disabled={saving}>
