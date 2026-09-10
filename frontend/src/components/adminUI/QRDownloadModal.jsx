@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { QRCodeCanvas, QRCodeSVG } from 'qrcode.react';
 import { FaDownload, FaImage, FaFilePdf, FaFileCode, FaTimes, FaCheck } from 'react-icons/fa';
 import { jsPDF } from 'jspdf';
@@ -8,12 +8,29 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
   const [format, setFormat] = useState('png');
   const [size, setSize] = useState('400');
   const [withLogo, setWithLogo] = useState(true);
+  const fallbackLogo = useMemo(() => {
+    if (!withLogo || logoUrl) return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#0f1629';
+    ctx.beginPath();
+    ctx.roundRect(0, 0, 200, 200, 40);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 80px Poppins, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('AK', 100, 105);
+    return canvas.toDataURL('image/png');
+  }, [withLogo, logoUrl]);
 
   if (!show) return null;
 
   const qrValue = qrUrl ? `https://${qrUrl}` : 'https://akksys.io/q/xk9p2m';
   const sizeNum = parseInt(size);
-  const logoSrc = withLogo ? (logoUrl || undefined) : undefined;
+  const logoSrc = withLogo ? (logoUrl || fallbackLogo || undefined) : undefined;
 
   const formats = [
     { id: 'png', label: 'PNG', icon: <FaImage />, desc: 'Best for web & social' },

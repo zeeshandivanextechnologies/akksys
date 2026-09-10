@@ -258,7 +258,7 @@ const QRDetail = () => {
     },
     dataLabels: { enabled: false },
     labels: deviceData.map(d => d.type),
-    colors: ['#00C8FF', '#0077FF', '#4DDCFF'],
+    colors: deviceData.map(d => d.color || '#00C8FF'),
     legend: { show: false },
     tooltip: {
       theme: 'light',
@@ -540,7 +540,7 @@ const QRDetail = () => {
                   <div className="ov-cta-logo">B</div>
                   <div>
                     <div className="ov-cta-text">{currentCampaign?.name || 'No Campaign'} →</div>
-                    <div className="ov-cta-dest">{qrData.currentVideoUrl}</div>
+                    <div className="ov-cta-dest">{qrData.ctaDestination}</div>
                   </div>
                   <div className="ov-cta-clicks">
                     <span className="ov-cta-clicks-value">{qrData.ctaClicks}</span>
