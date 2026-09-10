@@ -1,130 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaHistory, FaEye, FaUndo, FaCalendarAlt, FaSearch, FaPlus, FaChevronDown, FaPlay, FaLink, FaChartLine, FaCheck, FaPause, FaArrowUp } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import api from '../../services/api';
 import '../../styles/CampaignHistory.css';
+import { BsPencil, BsTrash } from 'react-icons/bs';
 
 const CampaignHistory = () => {
   const navigate = useNavigate();
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ total: 0, active: 0, completed: 0, paused: 0, change: { total: 0, active: 0, completed: 0, paused: 0 } });
 
-  const campaigns = [
-    {
-      id: 'CMP-001',
-      name: 'Festive Offer 2026',
-      qrCode: 'Pro X1 Launch',
-      qrId: 'xk9p2m',
-      startDate: '25 Aug 2026',
-      endDate: 'Present',
-      status: 'active',
-      video: 'Festive Promo 2026.mp4',
-      cta: 'Shop Now → Flipkart',
-      scans: 892,
-      ctaClicks: 234,
-      versions: 3,
-    },
-    {
-      id: 'CMP-002',
-      name: 'Monsoon Sale',
-      qrCode: 'Pro X1 Launch',
-      qrId: 'xk9p2m',
-      startDate: '10 Aug 2026',
-      endDate: '24 Aug 2026',
-      status: 'completed',
-      video: 'Monsoon Deal.mp4',
-      cta: 'Explore → AKKSYS Website',
-      scans: 1456,
-      ctaClicks: 389,
-      versions: 2,
-    },
-    {
-      id: 'CMP-003',
-      name: 'Launch Week',
-      qrCode: 'Pro X1 Launch',
-      qrId: 'xk9p2m',
-      startDate: '01 Aug 2026',
-      endDate: '09 Aug 2026',
-      status: 'completed',
-      video: 'Product Demo 2026.mp4',
-      cta: 'Buy Now → Amazon.in',
-      scans: 4247,
-      ctaClicks: 1203,
-      versions: 1,
-    },
-    {
-      id: 'CMP-004',
-      name: 'Summer Campaign',
-      qrCode: 'Summer Campaign',
-      qrId: 'ms3k8x',
-      startDate: '01 Jun 2026',
-      endDate: '31 Jul 2026',
-      status: 'completed',
-      video: 'Summer 2026.mp4',
-      cta: 'Shop Now → Flipkart',
-      scans: 3845,
-      ctaClicks: 1103,
-      versions: 4,
-    },
-    {
-      id: 'CMP-005',
-      name: 'App Launch Promo',
-      qrCode: 'App Download',
-      qrId: 'nd7r1q',
-      startDate: '15 Jul 2026',
-      endDate: 'Present',
-      status: 'active',
-      video: 'App Tutorial.mp4',
-      cta: 'Download → Play Store',
-      scans: 612,
-      ctaClicks: 315,
-      versions: 2,
-    },
-    {
-      id: 'CMP-006',
-      name: 'Warranty Registration',
-      qrCode: 'Warranty Card',
-      qrId: 'pw2t6h',
-      startDate: '01 Aug 2026',
-      endDate: 'Present',
-      status: 'paused',
-      video: 'Tutorial Video.mp4',
-      cta: 'Register → akksys.in',
-      scans: 289,
-      ctaClicks: 64,
-      versions: 1,
-    },
-  ];
+  const fetchCampaigns = useCallback(async () => {
+    try {
+      const res = await api.get('/campaign');
+      setCampaigns(res.data);
+    } catch {
+      toast.error('Failed to load campaigns');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await api.get('/campaign/stats');
+      setStats({ ...res.data.current, change: res.data.change });
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    fetchCampaigns();
+    fetchStats();
+  }, [fetchCampaigns, fetchStats]);
 
   const filteredCampaigns = campaigns.filter(c => {
     const matchesStatus = filterStatus === 'all' || c.status === filterStatus;
     const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          c.qrCode.toLowerCase().includes(searchTerm.toLowerCase());
+                          (c.qr_name || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
-  const stats = {
-    total: campaigns.length,
-    active: campaigns.filter(c => c.status === 'active').length,
-    completed: campaigns.filter(c => c.status === 'completed').length,
-    paused: campaigns.filter(c => c.status === 'paused').length,
-    totalScans: campaigns.reduce((sum, c) => sum + c.scans, 0),
-    totalCtaClicks: campaigns.reduce((sum, c) => sum + c.ctaClicks, 0),
-  };
-
-  const toggleDropdown = (id, e) => {
-    if (openDropdown === id) {
-      setOpenDropdown(null);
-      return;
-    }
-    const btn = e.currentTarget;
-    const btnRect = btn.getBoundingClientRect();
-    setDropdownPos({
-      top: btnRect.bottom + 6,
-      left: btnRect.right - 170,
-    });
-    setOpenDropdown(id);
+  const toggleDropdown = (id) => {
+    setOpenDropdown(prev => prev === id ? null : id);
   };
 
   useEffect(() => {
@@ -168,7 +90,9 @@ const CampaignHistory = () => {
             </div>
             <p className="ch-stat-value">{stats.total}</p>
             <div className="ch-stat-footer">
-              <span className="ch-stat-change up"><FaArrowUp /> 12%</span>
+              <span className={`ch-stat-change ${stats.change.total >= 0 ? 'up' : 'down'}`}>
+                <FaArrowUp style={stats.change.total < 0 ? { transform: 'rotate(90deg)' } : {}} /> {Math.abs(stats.change.total)}%
+              </span>
               <span className="ch-stat-period">vs last month</span>
             </div>
             <div className="ch-stat-bar purple"></div>
@@ -182,7 +106,9 @@ const CampaignHistory = () => {
             </div>
             <p className="ch-stat-value">{stats.active}</p>
             <div className="ch-stat-footer">
-              <span className="ch-stat-change up"><FaArrowUp /> 8%</span>
+              <span className={`ch-stat-change ${stats.change.active >= 0 ? 'up' : 'down'}`}>
+                <FaArrowUp style={stats.change.active < 0 ? { transform: 'rotate(90deg)' } : {}} /> {Math.abs(stats.change.active)}%
+              </span>
               <span className="ch-stat-period">vs last month</span>
             </div>
             <div className="ch-stat-bar green"></div>
@@ -196,7 +122,9 @@ const CampaignHistory = () => {
             </div>
             <p className="ch-stat-value">{stats.completed}</p>
             <div className="ch-stat-footer">
-              <span className="ch-stat-change up"><FaArrowUp /> 24%</span>
+              <span className={`ch-stat-change ${stats.change.completed >= 0 ? 'up' : 'down'}`}>
+                <FaArrowUp style={stats.change.completed < 0 ? { transform: 'rotate(90deg)' } : {}} /> {Math.abs(stats.change.completed)}%
+              </span>
               <span className="ch-stat-period">vs last month</span>
             </div>
             <div className="ch-stat-bar blue"></div>
@@ -210,7 +138,9 @@ const CampaignHistory = () => {
             </div>
             <p className="ch-stat-value">{stats.paused}</p>
             <div className="ch-stat-footer">
-              <span className="ch-stat-change down"><FaArrowUp /> 2</span>
+              <span className={`ch-stat-change ${stats.change.paused >= 0 ? 'up' : 'down'}`}>
+                <FaArrowUp style={stats.change.paused < 0 ? { transform: 'rotate(90deg)' } : {}} /> {Math.abs(stats.change.paused)}
+              </span>
               <span className="ch-stat-period">vs last month</span>
             </div>
             <div className="ch-stat-bar red"></div>
@@ -288,51 +218,86 @@ const CampaignHistory = () => {
                   <td className="ch-td">{index + 1}</td>
                   <td className="ch-td">
                     <span className="ch-td-title">{campaign.name}</span>
-                    <span className="ch-td-subtitle">{campaign.id}</span>
+                    <span className="ch-td-subtitle">ID: {campaign.id}</span>
                   </td>
                   <td className="ch-td">
-                    <span className="ch-td-title">{campaign.qrCode}</span>
-                    <span className="ch-td-subtitle">akksys.io/q/{campaign.qrId}</span>
+                    <span className="ch-td-title">{campaign.qr_name || '—'}</span>
+                    <span className="ch-td-subtitle">{campaign.qr_id}</span>
                   </td>
                   <td className="ch-td">
                     <div className="ch-td-meta">
                       <FaCalendarAlt className="ch-td-meta-icon" />
                       <div>
-                        <span className="ch-td-meta-text">{campaign.startDate}</span>
-                        <span className="ch-td-meta-sub">{campaign.endDate}</span>
+                        <span className="ch-td-meta-text">{campaign.start_date ? new Date(campaign.start_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</span>
+                        <span className="ch-td-meta-sub">{campaign.end_date ? new Date(campaign.end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Present'}</span>
                       </div>
                     </div>
                   </td>
                   <td className="ch-td">
                     <div className="ch-td-meta">
                       <FaPlay className="ch-td-meta-icon" size={10} />
-                      <span className="ch-td-meta-text">{campaign.video}</span>
+                      <span className="ch-td-meta-text">{campaign.video_type || '—'}</span>
                     </div>
                   </td>
                   <td className="ch-td">
                     <div className="ch-td-meta">
                       <FaLink className="ch-td-meta-icon" size={10} />
-                      <span className="ch-td-meta-text">{campaign.cta}</span>
+                      <span className="ch-td-meta-text">{campaign.cta_text || '—'}</span>
                     </div>
                   </td>
-                  <td className="ch-td ch-td-number">{campaign.scans.toLocaleString()}</td>
-                  <td className="ch-td ch-td-number">{campaign.ctaClicks.toLocaleString()}</td>
+                  <td className="ch-td ch-td-number">{parseInt(campaign.total_scans || 0).toLocaleString()}</td>
+                  <td className="ch-td ch-td-number">{parseInt(campaign.cta_clicks || 0).toLocaleString()}</td>
                   <td className="ch-td">
-                    <span className="ch-version-badge">{campaign.versions} versions</span>
+                    <span className="ch-version-badge">{campaign.version_count || 0} versions</span>
                   </td>
                   <td className="ch-td">
                     <span className={`ch-status-badge ${campaign.status}`}>
-                      {campaign.status.toUpperCase()}
+                      {(campaign.status || 'active').toUpperCase()}
                     </span>
                   </td>
                   <td className="ch-td">
-                    <div className="ch-action-cell">
+                    <div className="ch-action-cell" style={{ position: 'relative' }}>
                       <button 
                         className="ch-edit-btn"
-                        onClick={(e) => toggleDropdown(campaign.id, e)}
+                        onClick={() => toggleDropdown(campaign.id)}
                       >
                         Edit <FaChevronDown size={10} />
                       </button>
+                      {openDropdown === campaign.id && (
+                        <div
+                          className="ch-dropdown-menu"
+                          style={{
+                            position: 'absolute',
+                            top: 'calc(100% + 5px)',
+                            right: 0,
+                            zIndex: 1050,
+                            minWidth: '170px'
+                          }}
+                        >
+                          <button onClick={() => { setOpenDropdown(null); navigate(`/admin/campaign/${campaign.id}`); }}>
+                            <FaEye size={16} /> View Details
+                          </button>
+                          <button onClick={() => { setOpenDropdown(null); navigate(`/admin/campaign/${campaign.id}/version/create`); }}>
+                            <FaPlus size={16} /> New Version
+                          </button>
+                          <button onClick={() => { setOpenDropdown(null); navigate(`/admin/campaign/${campaign.id}`, { state: { edit: true } }); }}>
+                            <BsPencil size={16} /> Edit 
+                          </button>
+                          <button className="ch-dropdown-danger" style={{color : "#ef4444"}} onClick={async () => {
+                            if (!window.confirm('Are you sure you want to delete this campaign?')) return;
+                            try {
+                              await api.delete(`/campaign/${campaign.id}`);
+                              setCampaigns(prev => prev.filter(c => c.id !== campaign.id));
+                              toast.success('Campaign deleted');
+                            } catch {
+                              toast.error('Failed to delete campaign');
+                            }
+                            setOpenDropdown(null);
+                          }}>
+                            <BsTrash size={16} /> Delete 
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -340,23 +305,6 @@ const CampaignHistory = () => {
             </tbody>
           </table>
         </div>
-
-        {openDropdown && (
-          <div
-            className="ch-dropdown-menu"
-            style={{ top: dropdownPos.top, left: dropdownPos.left }}
-          >
-            <button onClick={() => navigate(`/admin/campaign/${openDropdown}`)}>
-              <FaEye size={16} /> View Details
-            </button>
-            <button onClick={() => navigate(`/admin/campaign/${openDropdown}/version/create`)}>
-              <FaPlus size={16} /> New Version
-            </button>
-            <button onClick={() => setOpenDropdown(null)}>
-              <FaUndo size={16} /> Restore
-            </button>
-          </div>
-        )}
 
         {filteredCampaigns.length === 0 && (
           <div className="ch-empty">

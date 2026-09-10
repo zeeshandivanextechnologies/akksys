@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FaArrowLeft, FaSave, FaVideo, FaMousePointer, FaLink, 
   FaCalendarAlt, FaQrcode, FaPlay
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import api from '../../services/api';
 import '../../styles/CreateCampaign.css';
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
+  const [qrOptions, setQrOptions] = useState([]);
+  const [videoOptions, setVideoOptions] = useState([]);
   const [formData, setFormData] = useState({
     campaignName: '',
     qrCode: '',
@@ -24,18 +29,28 @@ const CreateCampaign = () => {
 
   const [selectedVideo, setSelectedVideo] = useState(null);
 
-  const qrOptions = [
-    { id: 'xk9p2m', name: 'Pro X1 Launch' },
-    { id: 'ms3k8x', name: 'Summer Campaign' },
-    { id: 'nd7r1q', name: 'App Download' },
-    { id: 'pw2t6h', name: 'Warranty Card' },
-  ];
+  const fetchQRs = useCallback(async () => {
+    try {
+      const res = await api.get('/qr');
+      setQrOptions(res.data);
+    } catch {
+      toast.error('Failed to load QR codes');
+    }
+  }, []);
 
-  const videoOptions = [
-    { id: 'v1', name: 'Product Demo 2026', duration: '2:34' },
-    { id: 'v2', name: 'Summer 2026 Promo', duration: '1:48' },
-    { id: 'v3', name: 'App Tutorial', duration: '3:12' },
-  ];
+  const fetchVideos = useCallback(async () => {
+    try {
+      const res = await api.get('/video');
+      setVideoOptions(res.data);
+    } catch {
+      toast.error('Failed to load videos');
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchQRs();
+    fetchVideos();
+  }, [fetchQRs, fetchVideos]);
 
   const ctaPresets = [
     'Buy Now', 'Shop Now', 'Explore', 'Apply Now', 
@@ -46,9 +61,38 @@ const CreateCampaign = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    alert('Campaign saved successfully!');
-    navigate('/admin/campaign-history');
+  const handleSave = async () => {
+    if (!formData.campaignName.trim()) {
+      toast.error('Campaign name is required');
+      return;
+    }
+    if (!formData.qrCode) {
+      toast.error('Select a QR code');
+      return;
+    }
+    setSaving(true);
+    try {
+      const selectedVid = videoOptions.find(v => v.id === selectedVideo);
+      await api.post('/campaign/create', {
+        qr_id: Number(formData.qrCode),
+        name: formData.campaignName,
+        start_date: formData.startDate || null,
+        end_date: formData.endDate || null,
+        headline: formData.headline,
+        tagline: formData.tagline,
+        badge: formData.badge,
+        video_type: formData.videoType,
+        video_url: formData.videoType === 'library' ? (selectedVid?.url || selectedVid?.video_url || null) : formData.videoUrl,
+        cta_text: formData.ctaText,
+        cta_destination: formData.ctaDestination,
+      });
+      toast.success('Campaign created successfully');
+      navigate('/admin/campaign-history');
+    } catch {
+      toast.error('Failed to create campaign');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -68,8 +112,8 @@ const CreateCampaign = () => {
           <button className="thm-btn outline" onClick={() => navigate('/admin/campaign-history')}>
             Cancel
           </button>
-          <button className="thm-btn" onClick={handleSave}>
-            <FaSave className="me-1" /> Save Campaign
+          <button className="thm-btn" onClick={handleSave} disabled={saving}>
+            {saving ? 'Saving...' : <><FaSave className="me-1" /> Save Campaign</>}
           </button>
         </div>
       </div>
@@ -106,7 +150,7 @@ const CreateCampaign = () => {
                   >
                     <option value="">Select QR Code</option>
                     {qrOptions.map(qr => (
-                      <option key={qr.id} value={qr.id}>{qr.name}</option>
+                      <option key={qr.id} value={qr.id}>{qr.name} ({qr.qr_id})</option>
                     ))}
                   </select>
                 </div>
@@ -165,23 +209,28 @@ const CreateCampaign = () => {
               </div>
 
               {formData.videoType === 'library' && (
-                <div className="row ">
-                  {videoOptions.map(video => (
-                    <div className="col-md-4" key={video.id}>
-                      <div 
-                        className={`cmp-video-card ${selectedVideo === video.id ? 'selected' : ''}`}
-                        onClick={() => setSelectedVideo(video.id)}
-                      >
-                        <div className={`cmp-video-icon ${video.id === 'v1' ? '' : video.id === 'v2' ? 'green' : 'blue'}`}>
-                          <FaPlay />
-                        </div>
-                        <div className="cmp-video-info">
-                          <p className="cmp-video-name">{video.name}</p>
-                          <p className="cmp-video-duration">{video.duration}</p>
+                <div className="cmp-video-scroll">
+                  {videoOptions.length === 0 && (
+                    <p className="cmp-helper" style={{ padding: '12px' }}>No videos in library. Add videos first.</p>
+                  )}
+                  <div className="row">
+                    {videoOptions.map(video => (
+                      <div className="col-md-4 col-sm-6" key={video.id}>
+                        <div 
+                          className={`cmp-video-card ${selectedVideo === video.id ? 'selected' : ''}`}
+                          onClick={() => setSelectedVideo(video.id)}
+                        >
+                          <div className={`cmp-video-icon`}>
+                            <FaPlay />
+                          </div>
+                          <div className="cmp-video-info">
+                            <p className="cmp-video-name">{video.title || video.name}</p>
+                            <p className="cmp-video-duration">{video.duration || video.source_type || ''}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
 

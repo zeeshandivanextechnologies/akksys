@@ -1,5 +1,51 @@
 import { db } from '../config/db.js';
 
+export const getCampaignStats = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const currStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    const curr = await db.query(
+      `SELECT 
+        COUNT(*) as total,
+        COUNT(*) FILTER (WHERE status = 'active') as active,
+        COUNT(*) FILTER (WHERE status = 'completed') as completed,
+        COUNT(*) FILTER (WHERE status = 'paused') as paused
+       FROM campaigns WHERE created_at >= $1`,
+      [currStart]
+    );
+    const prev = await db.query(
+      `SELECT 
+        COUNT(*) as total,
+        COUNT(*) FILTER (WHERE status = 'active') as active,
+        COUNT(*) FILTER (WHERE status = 'completed') as completed,
+        COUNT(*) FILTER (WHERE status = 'paused') as paused
+       FROM campaigns WHERE created_at >= $1 AND created_at <= $2`,
+      [prevStart, prevEnd]
+    );
+
+    const c = curr.rows[0];
+    const p = prev.rows[0];
+
+    const pct = (curr, prev) => {
+      const a = parseInt(curr);
+      const b = parseInt(prev);
+      if (b === 0) return a > 0 ? 100 : 0;
+      return Math.round(((a - b) / b) * 100);
+    };
+
+    res.json({
+      current: { total: parseInt(c.total), active: parseInt(c.active), completed: parseInt(c.completed), paused: parseInt(c.paused) },
+      previous: { total: parseInt(p.total), active: parseInt(p.active), completed: parseInt(p.completed), paused: parseInt(p.paused) },
+      change: { total: pct(c.total, p.total), active: pct(c.active, p.active), completed: pct(c.completed, p.completed), paused: pct(c.paused, p.paused) },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const listCampaigns = async (req, res, next) => {
   try {
     const result = await db.query(
@@ -56,13 +102,21 @@ export const getCampaignById = async (req, res, next) => {
     }
     const versions = await db.query(
       `SELECT v.*, 
-        (SELECT COUNT(*) FROM scan_events WHERE version_id = v.id) as total_scans
+        (SELECT COUNT(*) FROM scan_events WHERE version_id = v.id) as total_scans,
+        (SELECT COUNT(*) FROM cta_clicks WHERE version_id = v.id) as cta_clicks
        FROM campaign_versions v 
        WHERE v.campaign_id = $1 
        ORDER BY v.version_number DESC`,
       [id]
     );
-    res.json({ ...result.rows[0], versions: versions.rows });
+    const stats = await db.query(
+      `SELECT 
+        COALESCE(SUM((SELECT COUNT(*) FROM scan_events WHERE version_id = v.id)), 0) as total_scans,
+        COALESCE(SUM((SELECT COUNT(*) FROM cta_clicks WHERE version_id = v.id)), 0) as cta_clicks
+       FROM campaign_versions v WHERE v.campaign_id = $1`,
+      [id]
+    );
+    res.json({ ...result.rows[0], versions: versions.rows, total_scans: parseInt(stats.rows[0].total_scans), cta_clicks: parseInt(stats.rows[0].cta_clicks) });
   } catch (err) {
     next(err);
   }
@@ -95,6 +149,19 @@ export const updateCampaign = async (req, res, next) => {
       );
     }
     res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteCampaign = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query('DELETE FROM campaigns WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+    res.json({ message: 'Campaign deleted' });
   } catch (err) {
     next(err);
   }

@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   FaArrowLeft, FaSave, FaVideo, FaMousePointer, FaLink, 
   FaHistory, FaExclamationTriangle
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import api from '../../services/api';
 import '../../styles/CreateCampaign.css';
 import '../../styles/CreateVersion.css';
 
 const CreateVersion = () => {
   const navigate = useNavigate();
   const { campaignId } = useParams();
+  const [campaign, setCampaign] = useState(null);
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     versionName: '',
     videoType: 'library',
@@ -24,33 +30,79 @@ const CreateVersion = () => {
 
   const [selectedVideo, setSelectedVideo] = useState(null);
 
-  const videoOptions = [
-    { id: 'v1', name: 'Product Demo 2026', duration: '2:34' },
-    { id: 'v2', name: 'Summer 2026 Promo', duration: '1:48' },
-    { id: 'v3', name: 'App Tutorial', duration: '3:12' },
-  ];
-
   const ctaPresets = [
     'Buy Now', 'Shop Now', 'Explore', 'Apply Now', 
     'Learn More', 'Download', 'Visit Website', 'Register'
   ];
 
-  const previousVersion = {
-    version: 'v2',
-    campaign: 'Campaign 2 - Monsoon Sale',
-    video: 'Monsoon Deal.mp4',
-    cta: 'Explore → AKKSYS Website',
-    scans: 1456,
-  };
+  const fetchData = useCallback(async () => {
+    try {
+      const [campRes, vidRes] = await Promise.all([
+        api.get(`/campaign/${campaignId}`),
+        api.get('/video')
+      ]);
+      setCampaign(campRes.data);
+      setVideos(vidRes.data);
+    } catch {
+      toast.error('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  }, [campaignId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    alert('New version created and activated!');
-    navigate('/admin/campaign-history');
+  const handleVideoSelect = (video) => {
+    setSelectedVideo(video.id);
+    setFormData(prev => ({
+      ...prev,
+      videoType: video.source_type || 'library',
+      videoUrl: video.file_path || video.source_url || video.title,
+    }));
   };
+
+  const handleSave = async () => {
+    if (!formData.ctaText) {
+      toast.error('CTA text is required');
+      return;
+    }
+    if (formData.videoType !== 'library' && !formData.videoUrl) {
+      toast.error('Video URL is required');
+      return;
+    }
+    setSaving(true);
+    try {
+      await api.post(`/campaign/${campaignId}/version`, {
+        video_type: formData.videoType,
+        video_url: formData.videoUrl || null,
+        cta_text: formData.ctaText,
+        cta_destination: formData.ctaDestination || null,
+        activate_immediately: formData.activateImmediately,
+      });
+      toast.success('New version created and activated!');
+      navigate(`/admin/campaign/${campaignId}`);
+    } catch {
+      toast.error('Failed to create version');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const activeVersion = campaign?.versions?.find(v => v.is_active) || campaign?.versions?.[0] || null;
+
+  if (loading) {
+    return <div className="ov-wrapper"><p style={{textAlign:'center',padding:'60px 0',color:'#999'}}>Loading...</p></div>;
+  }
+
+  if (!campaign) {
+    return <div className="ov-wrapper"><p style={{textAlign:'center',padding:'60px 0',color:'#999'}}>Campaign not found</p></div>;
+  }
 
   return (
     <div className="ov-wrapper">
@@ -62,31 +114,33 @@ const CreateVersion = () => {
           </button>
           <div>
             <h4 className="cmp-header-title">Create New Version</h4>
-            <p className="cmp-header-subtitle">Add a new version to an existing campaign</p>
+            <p className="cmp-header-subtitle">Add a new version to {campaign.name}</p>
           </div>
         </div>
         <div className="cmp-header-actions">
-          <button className="thm-btn outline" onClick={() => navigate('/admin/campaign-history')}>
+          <button className="thm-btn outline" onClick={() => navigate(`/admin/campaign/${campaignId}`)}>
             Cancel
           </button>
-          <button className="thm-btn" onClick={handleSave}>
-            <FaSave className="me-1" /> Save & Activate
+          <button className="thm-btn" onClick={handleSave} disabled={saving}>
+            <FaSave className="me-1" /> {saving ? 'Saving...' : 'Save & Activate'}
           </button>
         </div>
       </div>
 
       {/* Previous Version Info */}
-      <div className="cv-prev-version mb-3">
-        <div className="cv-prev-icon">
-          <FaHistory />
+      {activeVersion && (
+        <div className="cv-prev-version mb-3">
+          <div className="cv-prev-icon">
+            <FaHistory />
+          </div>
+          <div>
+            <p className="cv-prev-title">Current Active Version: v{activeVersion.version_number}</p>
+            <p className="cv-prev-meta">
+              {campaign.name} • {activeVersion.cta_text || 'No CTA'} • {parseInt(activeVersion.total_scans || 0).toLocaleString()} scans
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="cv-prev-title">Current Active Version: {previousVersion.version}</p>
-          <p className="cv-prev-meta">
-            {previousVersion.campaign} • {previousVersion.video} • {previousVersion.scans.toLocaleString()} scans
-          </p>
-        </div>
-      </div>
+      )}
 
       <div className="row">
         {/* Left Column */}
@@ -115,7 +169,7 @@ const CreateVersion = () => {
                   <input 
                     type="text" 
                     className="cmp-input" 
-                    value={campaignId || 'CMP-001'}
+                    value={campaign.name}
                     readOnly
                     style={{ background: 'var(--ov-new-bg)', cursor: 'not-allowed' }}
                   />
@@ -137,42 +191,47 @@ const CreateVersion = () => {
               <div className="cmp-video-tabs">
                 <button 
                   className={`cmp-video-tab ${formData.videoType === 'library' ? 'active' : ''}`}
-                  onClick={() => handleChange('videoType', 'library')}
+                  onClick={() => { handleChange('videoType', 'library'); setSelectedVideo(null); }}
                 >
                   <FaVideo /> From Library
                 </button>
                 <button 
                   className={`cmp-video-tab ${formData.videoType === 'youtube' ? 'active' : ''}`}
-                  onClick={() => handleChange('videoType', 'youtube')}
+                  onClick={() => { handleChange('videoType', 'youtube'); setSelectedVideo(null); }}
                 >
                   <FaVideo /> YouTube URL
                 </button>
                 <button 
                   className={`cmp-video-tab ${formData.videoType === 'vimeo' ? 'active' : ''}`}
-                  onClick={() => handleChange('videoType', 'vimeo')}
+                  onClick={() => { handleChange('videoType', 'vimeo'); setSelectedVideo(null); }}
                 >
                   <FaVideo /> Vimeo URL
                 </button>
               </div>
 
               {formData.videoType === 'library' && (
-                <div className="row">
-                  {videoOptions.map(video => (
-                    <div className="col-md-4" key={video.id}>
-                      <div 
-                        className={`cmp-video-card ${selectedVideo === video.id ? 'selected' : ''}`}
-                        onClick={() => setSelectedVideo(video.id)}
-                      >
-                        <div className={`cmp-video-icon ${video.id === 'v1' ? '' : video.id === 'v2' ? 'green' : 'blue'}`}>
-                          <FaVideo />
-                        </div>
-                        <div className="cmp-video-info">
-                          <p className="cmp-video-name">{video.name}</p>
-                          <p className="cmp-video-duration">{video.duration}</p>
+                <div className="cmp-video-scroll">
+                  {videos.length === 0 && (
+                    <p className="cmp-helper" style={{ padding: '12px' }}>No videos in library. Upload videos first.</p>
+                  )}
+                  <div className="row">
+                    {videos.map((video, idx) => (
+                      <div className="col-md-4 col-sm-6" key={video.id}>
+                        <div 
+                          className={`cmp-video-card ${selectedVideo === video.id ? 'selected' : ''}`}
+                          onClick={() => handleVideoSelect(video)}
+                        >
+                          <div className={`cmp-video-icon ${idx % 3 === 0 ? '' : idx % 3 === 1 ? 'green' : 'blue'}`}>
+                            <FaVideo />
+                          </div>
+                          <div className="cmp-video-info">
+                            <p className="cmp-video-name">{video.title || video.filename}</p>
+                            <p className="cmp-video-duration">{video.source_type || 'upload'}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
 
