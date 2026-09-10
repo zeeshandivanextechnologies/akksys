@@ -36,10 +36,11 @@ const Overview = () => {
         ]);
 
         const curr = overviewRes.data;
-        const totalQr = qrRes.data.length;
-        const activeQr = qrRes.data.filter(q => q.status === 'active').length;
+        const qrData = qrRes.data || [];
+        const totalQr = qrData.length;
+        const activeQr = qrData.filter(q => q.status === 'active').length;
 
-        const dynamicCount = qrRes.data.filter(q => q.campaign_id).length;
+        const dynamicCount = qrData.filter(q => q.campaign_id).length;
         const staticCount = totalQr - dynamicCount;
         const dynamicPercent = totalQr > 0 ? Math.round((dynamicCount / totalQr) * 100) : 0;
         const staticPercent = totalQr > 0 ? 100 - dynamicPercent : 0;

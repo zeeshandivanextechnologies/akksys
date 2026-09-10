@@ -171,6 +171,7 @@
   font-size: 14px;
   font-weight: 500;
   color : var(--ov-subheading-text);
+  word-break: break-all;
 }
 
 .preview-click-btn{
