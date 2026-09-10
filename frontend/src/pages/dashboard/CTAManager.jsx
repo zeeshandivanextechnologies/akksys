@@ -17,15 +17,18 @@ const CTAManager = () => {
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState('configure');
   const [selectedPreset, setSelectedPreset] = useState(0);
-  const [selectedQR, setSelectedQR] = useState('');
+  const [selectedCampaign, setSelectedCampaign] = useState('');
+  const [ctaActive, setCtaActive] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [ctaList, setCtaList] = useState([]);
   const [selectedCtaId, setSelectedCtaId] = useState(null);
-  const [qrCodes, setQrCodes] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
   const [presets, setPresets] = useState([]);
   const [overviewData, setOverviewData] = useState({ totalScans: 0, uniqueScans: 0, ctaClicks: 0, activeQr: 0 });
   const [dailyData, setDailyData] = useState([]);
   const [qrAnalytics, setQrAnalytics] = useState([]);
+  const [qrCodes, setQrCodes] = useState([]);
   const [newPresetName, setNewPresetName] = useState('');
   const [newPresetUrl, setNewPresetUrl] = useState('');
 
@@ -47,10 +50,20 @@ const CTAManager = () => {
           destinationUrl: first.destination_url || '',
           customText: '',
         });
-        setSelectedQR(first.qr_id ? String(first.qr_id) : '');
+        setSelectedCampaign(first.campaign_id ? String(first.campaign_id) : '');
+        setCtaActive(first.is_active !== false);
       }
     } catch {
       toast.error('Failed to load CTAs');
+    }
+  }, []);
+
+  const fetchCampaigns = useCallback(async () => {
+    try {
+      const res = await api.get('/campaign');
+      setCampaigns(res.data);
+    } catch {
+      toast.error('Failed to load campaigns');
     }
   }, []);
 
@@ -59,7 +72,7 @@ const CTAManager = () => {
       const res = await api.get('/qr');
       setQrCodes(res.data);
     } catch {
-      toast.error('Failed to load QR codes');
+      // silent fail for QR data
     }
   }, []);
 
@@ -89,10 +102,11 @@ const CTAManager = () => {
 
   useEffect(() => {
     fetchCTAs();
+    fetchCampaigns();
     fetchQRs();
     fetchOverview();
     fetchPresets();
-  }, [fetchCTAs, fetchQRs, fetchOverview, fetchPresets]);
+  }, [fetchCTAs, fetchCampaigns, fetchQRs, fetchOverview, fetchPresets]);
 
   const totalScans = overviewData.totalScans || 0;
   const ctaClicks = overviewData.ctaClicks || 0;
@@ -158,7 +172,8 @@ const CTAManager = () => {
         const res = await api.post('/cta/create', {
           button_text: ctaData.buttonText,
           destination_url: ctaData.destinationUrl,
-          qr_id: selectedQR ? Number(selectedQR) : null,
+          campaign_id: selectedCampaign ? Number(selectedCampaign) : null,
+          is_active: ctaActive,
         });
         setSelectedCtaId(res.data.id);
         toast.success('CTA created successfully');
@@ -166,7 +181,8 @@ const CTAManager = () => {
         await api.put(`/cta/${selectedCtaId}`, {
           button_text: ctaData.buttonText,
           destination_url: ctaData.destinationUrl,
-          qr_id: selectedQR ? Number(selectedQR) : null,
+          campaign_id: selectedCampaign ? Number(selectedCampaign) : null,
+          is_active: ctaActive,
         });
         toast.success('CTA saved successfully');
       }
@@ -196,7 +212,8 @@ const CTAManager = () => {
       destinationUrl: '',
       customText: '',
     });
-    setSelectedQR('');
+    setSelectedCampaign('');
+    setCtaActive(true);
     setShowEditModal(true);
   };
 
@@ -207,7 +224,8 @@ const CTAManager = () => {
       destinationUrl: cta.destination_url,
       customText: '',
     });
-    setSelectedQR(cta.qr_id ? String(cta.qr_id) : '');
+    setSelectedCampaign(cta.campaign_id ? String(cta.campaign_id) : '');
+    setCtaActive(cta.is_active !== false);
     setShowEditModal(true);
   };
 
@@ -272,11 +290,13 @@ const CTAManager = () => {
         </div>
         <div className="ov-header-actions">
           <button className="thm-btn outline" onClick={() => {
-            const qr = qrCodes.find(q => String(q.id) === selectedQR);
-            if (qr) {
-              window.open(`/r/${qr.qr_id}`, '_blank');
+            const selectedCta = ctaList.find(c => c.id === selectedCtaId);
+            if (selectedCta?.qr_id) {
+              window.open(`/r/QR${selectedCta.qr_id}`, '_blank');
+            } else if (selectedCampaign) {
+              toast.info('Preview available after QR code is linked');
             } else {
-              toast.info('Select a QR code first');
+              toast.info('Select a campaign first');
             }
           }}>
             <FaEye /> Preview
@@ -353,7 +373,7 @@ const CTAManager = () => {
                       <tr>
                         <th className="dq-th">Button Text</th>
                         <th className="dq-th">Destination URL</th>
-                        <th className="dq-th">Applied to QR</th>
+                        <th className="dq-th">Applied to Campaign</th>
                         <th className="dq-th">Status</th>
                         <th className="dq-th text-center">Action</th>
                       </tr>
@@ -377,7 +397,7 @@ const CTAManager = () => {
                                 {cta.destination_url}
                               </a>
                             </td>
-                            <td className="dq-td">{qrCodes.find(q => String(q.id) === String(cta.qr_id))?.name || '—'}</td>
+                            <td className="dq-td">{cta.campaign_name || '—'}</td>
                             <td className="dq-td">
                               <span style={{ fontSize: '12px', padding: '4px 8px', borderRadius: '4px', background: cta.is_active ? 'rgba(0, 200, 255, 0.1)' : 'rgba(255, 255, 255, 0.1)', color: cta.is_active ? '#00C8FF' : '#aaa' }}>
                                 {cta.is_active ? 'Active' : 'Inactive'}
@@ -475,19 +495,43 @@ const CTAManager = () => {
                       </div>
                     </div>
 
-                    {/* Apply to QR */}
-                    <div className="custom-frm-bx mb-0">
-                      <label className="cta-label">Apply to QR Code</label>
+                    {/* Apply to Campaign */}
+                    <div className="custom-frm-bx">
+                      <label className="cta-label">Apply to Campaign</label>
                       <select
                         className="form-control"
-                        value={selectedQR}
-                        onChange={(e) => setSelectedQR(e.target.value)}
+                        value={selectedCampaign}
+                        onChange={(e) => setSelectedCampaign(e.target.value)}
                       >
                         <option value="">None</option>
-                        {qrCodes.map(qr => (
-                          <option key={qr.id} value={qr.id}>{qr.qr_id} - {qr.name}</option>
+                        {campaigns.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                       </select>
+                    </div>
+
+                    {/* Active Status */}
+                    <div className="custom-frm-bx mb-0">
+                      <label className="cta-label">Status</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '24px', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={ctaActive} onChange={() => setCtaActive(!ctaActive)} style={{ display: 'none' }} />
+                          <span style={{
+                            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                            backgroundColor: ctaActive ? '#00C8FF' : '#444',
+                            borderRadius: '24px', transition: '0.3s'
+                          }}>
+                            <span style={{
+                              position: 'absolute', top: '2px', left: ctaActive ? '24px' : '2px',
+                              width: '20px', height: '20px', backgroundColor: '#fff',
+                              borderRadius: '50%', transition: '0.3s'
+                            }}></span>
+                          </span>
+                        </label>
+                        <span style={{ fontSize: '13px', color: ctaActive ? '#00C8FF' : '#888' }}>
+                          {ctaActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="modal-footer">
