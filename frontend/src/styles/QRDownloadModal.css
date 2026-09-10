@@ -173,6 +173,10 @@
   color : var(--ov-subheading-text);
 }
 
+.preview-click-btn{
+  word-break: break-all;
+}
+
 .qrd-option-group {
   margin: 16px 0;
 }

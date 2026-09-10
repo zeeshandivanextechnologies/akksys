@@ -179,7 +179,7 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
                     )}
                   </div>
                   <p className="qrd-preview-url">
-                    <a href={`https://${qrUrl || 'akksys.io/q/xk9p2m'}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
+                    <a href={`https://${qrUrl || 'akksys.io/q/xk9p2m'}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }} className='preview-click-btn'>
                       {qrUrl || 'akksys.io/q/xk9p2m'}
                     </a>
                   </p>
@@ -214,7 +214,7 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
 
                   </div>
                   <p className="qrd-preview-url">
-                    <a href={`https://${qrUrl || 'akksys.io/q/xk9p2m'}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
+                    <a href={`https://${qrUrl || 'akksys.io/q/xk9p2m'}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }} className='preview-click-btn'>
                       {qrUrl || 'akksys.io/q/xk9p2m'}
                     </a>
                   </p>

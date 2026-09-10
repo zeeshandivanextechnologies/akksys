@@ -88,20 +88,25 @@ export const trackCTAClick = async (req, res, next) => {
     const sessionId = req.headers['x-session-id'] || crypto.randomUUID();
 
     const versionResult = await db.query(
-      'SELECT cta_destination FROM campaign_versions WHERE id = $1',
+      `SELECT v.cta_destination, c.qr_id as numeric_qr_id 
+       FROM campaign_versions v
+       JOIN campaigns c ON v.campaign_id = c.id
+       WHERE v.id = $1`,
       [versionId]
     );
     if (versionResult.rows.length === 0) {
       return res.status(404).json({ error: 'Version not found' });
     }
 
+    const { cta_destination, numeric_qr_id } = versionResult.rows[0];
+
     await db.query(
       `INSERT INTO cta_clicks (version_id, qr_id, session_id, device_type, city, country, clicked_at) 
        VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-      [versionId, qr_id || null, sessionId, device.type, location.city, location.country]
+      [versionId, numeric_qr_id, sessionId, device.type, location.city, location.country]
     );
 
-    res.json({ destination_url: versionResult.rows[0].cta_destination });
+    res.json({ destination_url: cta_destination });
   } catch (err) {
     next(err);
   }
