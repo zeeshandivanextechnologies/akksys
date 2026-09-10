@@ -3,7 +3,7 @@ import { FaPlay, FaPlus, FaTrash, FaEdit, FaLink, FaEye, FaEllipsisV, FaVideo, F
 import VideoUploadModal from '../../components/adminUI/VideoUploadModal';
 import EditVideoModal from '../../components/adminUI/EditVideoModal';
 import LinkQRModal from '../../components/adminUI/LinkQRModal';
-import api from '../../services/api';
+import api, { BACKEND_URL } from '../../services/api';
 import Loader from './Loader';
 import { toast } from 'react-toastify';
 import '../../styles/VideoLibrary.css';
@@ -32,7 +32,7 @@ const VideoLibrary = () => {
         status: 'active',
         uploadedDate: new Date(v.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
         thumbnail: v.thumbnail || 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=250&fit=crop',
-        videoUrl: v.video_url,
+        videoUrl: v.video_url?.startsWith('/uploads/') ? `${BACKEND_URL}${v.video_url}` : v.video_url,
         videoType: v.video_type
       }));
       setVideos(formatted);

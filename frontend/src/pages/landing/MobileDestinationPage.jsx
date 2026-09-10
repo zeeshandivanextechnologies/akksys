@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
-import api from '../../services/api';
+import api, { BACKEND_URL } from '../../services/api';
 import {
   FaArrowRight, FaShareAlt, FaHeart, FaExclamationTriangle,
   FaRedo, FaCheckCircle, FaStar, FaFire, FaClock, FaPlay,
@@ -36,6 +36,7 @@ const VideoPlayer = ({ videoUrl }) => {
 
   const getEmbed = (url) => {
     if (!url) return null;
+    if (url.startsWith('/uploads/')) return `${BACKEND_URL}${url}`;
     if (url.includes('/embed/')) return url;
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       const id = url.includes('youtu.be') ? url.split('/').pop() : url.split('v=')[1]?.split('&')[0];
@@ -48,10 +49,22 @@ const VideoPlayer = ({ videoUrl }) => {
   const src = getEmbed(videoUrl);
   if (!src) return <div className="ld-video-empty"><FaPlay /><span>Video not available</span></div>;
 
+  const isMp4 = src.includes('/uploads/') || src.endsWith('.mp4');
+
   return (
     <div className="ld-video">
       <div className="ld-video-inner">
-        <iframe src={src} title="Video" allow="autoplay; encrypted-media" allowFullScreen onLoad={() => setLoaded(true)} />
+        {isMp4 ? (
+          <video 
+            src={src} 
+            controls 
+            playsInline 
+            onLoadedData={() => setLoaded(true)}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          <iframe src={src} title="Video" allow="autoplay; encrypted-media" allowFullScreen onLoad={() => setLoaded(true)} />
+        )}
         {!loaded && <div className="ld-video-loader"><div className="ld-spinner-sm"></div></div>}
       </div>
     </div>

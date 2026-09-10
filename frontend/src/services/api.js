@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-const API_BASE =
+export const API_BASE =
   import.meta.env.VITE_API_URL ||
   (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')
     ? 'https://akksys.onrender.com/api'
     : '/api');
 
+export const BACKEND_URL = API_BASE.endsWith('/api') ? API_BASE.slice(0, -4) : API_BASE;
 
 const api = axios.create({
   baseURL: API_BASE,
