@@ -10,19 +10,30 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
   const [withLogo, setWithLogo] = useState(true);
   const fallbackLogo = useMemo(() => {
     if (!withLogo || logoUrl) return null;
+    const s = 200;
+    const r = 16;
     const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 200;
+    canvas.width = s;
+    canvas.height = s;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#0f1629';
+    ctx.fillStyle = '#00C8FF';
     ctx.beginPath();
-    ctx.roundRect(0, 0, 200, 200, 40);
+    ctx.moveTo(r, 0);
+    ctx.lineTo(s - r, 0);
+    ctx.quadraticCurveTo(s, 0, s, r);
+    ctx.lineTo(s, s - r);
+    ctx.quadraticCurveTo(s, s, s - r, s);
+    ctx.lineTo(r, s);
+    ctx.quadraticCurveTo(0, s, 0, s - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
     ctx.fill();
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 80px Poppins, Arial, sans-serif';
+    ctx.font = 'bold 67px Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('AK', 100, 105);
+    ctx.fillText('AK', s / 2, s / 2 + 2);
     return canvas.toDataURL('image/png');
   }, [withLogo, logoUrl]);
 
