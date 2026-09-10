@@ -22,17 +22,12 @@ const CTAManager = () => {
   const [ctaList, setCtaList] = useState([]);
   const [selectedCtaId, setSelectedCtaId] = useState(null);
   const [qrCodes, setQrCodes] = useState([]);
-  const [presets, setPresets] = useState([
-    { id: 1, name: 'Amazon.in', url: 'https://amazon.in/dp/', icon: 'shopping-cart', color: '#ff9900' },
-    { id: 2, name: 'Flipkart', url: 'https://flipkart.com/p/', icon: 'shopping-bag', color: '#2874f0' },
-    { id: 3, name: 'AKKSYS Website', url: 'https://akksys.in/', icon: 'globe', color: '#6943c8' },
-    { id: 4, name: 'Google Play', url: 'https://play.google.com/store/apps/', icon: 'mobile-alt', color: '#34a853' },
-    { id: 5, name: 'App Store', url: 'https://apps.apple.com/', icon: 'mobile-alt', color: '#007aff' },
-    { id: 6, name: 'Application Form', url: 'https://akksys.in/apply', icon: 'file-alt', color: '#ea4335' },
-  ]);
+  const [presets, setPresets] = useState([]);
   const [overviewData, setOverviewData] = useState({ totalScans: 0, uniqueScans: 0, ctaClicks: 0, activeQr: 0 });
   const [dailyData, setDailyData] = useState([]);
   const [qrAnalytics, setQrAnalytics] = useState([]);
+  const [newPresetName, setNewPresetName] = useState('');
+  const [newPresetUrl, setNewPresetUrl] = useState('');
 
   const [ctaData, setCTAData] = useState({
     buttonText: 'Buy Now',
@@ -68,6 +63,15 @@ const CTAManager = () => {
     }
   }, []);
 
+  const fetchPresets = useCallback(async () => {
+    try {
+      const res = await api.get('/redirect-presets');
+      setPresets(res.data);
+    } catch {
+      // silent fail
+    }
+  }, []);
+
   const fetchOverview = useCallback(async () => {
     try {
       const [overviewRes, dailyRes, qrRes] = await Promise.all([
@@ -87,7 +91,8 @@ const CTAManager = () => {
     fetchCTAs();
     fetchQRs();
     fetchOverview();
-  }, [fetchCTAs, fetchQRs, fetchOverview]);
+    fetchPresets();
+  }, [fetchCTAs, fetchQRs, fetchOverview, fetchPresets]);
 
   const totalScans = overviewData.totalScans || 0;
   const ctaClicks = overviewData.ctaClicks || 0;
@@ -168,6 +173,12 @@ const CTAManager = () => {
     }
   };
 
+  const handleModalSave = async () => {
+    await handleSave();
+    await fetchCTAs();
+    setShowEditModal(false);
+  };
+
   const handleSelectPreset = (index) => {
     setSelectedPreset(index);
     setCTAData({
@@ -177,19 +188,29 @@ const CTAManager = () => {
     });
   };
 
-  const handleAddPreset = () => {
-    const newPreset = {
-      id: presets.length + 1,
-      name: 'New Preset',
-      url: 'https://',
-      icon: 'globe',
-      color: '#6943c8',
-    };
-    setPresets([...presets, newPreset]);
+  const handleAddPreset = async () => {
+    try {
+      const res = await api.post('/redirect-presets/create', {
+        name: 'New Preset',
+        url: 'https://',
+        icon: 'globe',
+        color: '#6943c8',
+      });
+      setPresets(prev => [...prev, res.data]);
+      toast.success('Preset added');
+    } catch {
+      toast.error('Failed to add preset');
+    }
   };
 
-  const handleRemovePreset = (id) => {
-    setPresets(presets.filter(p => p.id !== id));
+  const handleRemovePreset = async (id) => {
+    try {
+      await api.delete(`/redirect-presets/${id}`);
+      setPresets(prev => prev.filter(p => p.id !== id));
+      toast.success('Preset deleted');
+    } catch {
+      toast.error('Failed to delete preset');
+    }
   };
 
   const getIconComponent = (iconName) => {
@@ -373,7 +394,7 @@ const CTAManager = () => {
                           value={ctaData.destinationUrl}
                           onChange={(e) => setCTAData({ ...ctaData, destinationUrl: e.target.value })}
                         />
-                        <button className="cmp-back-btn">
+                        <button className="cmp-back-btn" onClick={() => { navigator.clipboard.writeText(ctaData.destinationUrl); toast.success('URL copied!'); }}>
                           <FaCopy />
                         </button>
                       </div>
@@ -413,7 +434,7 @@ const CTAManager = () => {
                   </div>
                   <div className="modal-footer">
                     <button className="thm-btn outline" onClick={() => setShowEditModal(false)}>Cancel</button>
-                    <button className="thm-btn" onClick={() => { handleSave(); setShowEditModal(false); }}>
+                    <button className="thm-btn" onClick={handleModalSave}>
                       <FaSave className="me-1" /> Save Changes
                     </button>
                   </div>
@@ -505,14 +526,33 @@ const CTAManager = () => {
                     <div className="col-md-5">
                       <div className="custom-frm-bx mb-0">
                         <label className="cta-label">Preset Name</label>
-                        <input type="text" className="form-control" placeholder="e.g., My Website" />
+                        <input type="text" className="form-control" placeholder="e.g., My Website" value={newPresetName} onChange={(e) => setNewPresetName(e.target.value)} />
                       </div>
                     </div>
-                    <div className="col-md-7">
+                    <div className="col-md-5">
                       <div className="custom-frm-bx mb-0">
                         <label className="cta-label">URL</label>
-                        <input type="url" className="form-control" placeholder="https://" />
+                        <input type="url" className="form-control" placeholder="https://" value={newPresetUrl} onChange={(e) => setNewPresetUrl(e.target.value)} />
                       </div>
+                    </div>
+                    <div className="col-md-2 d-flex align-items-end">
+                      <button className="thm-btn outline w-100" onClick={async () => {
+                        if (!newPresetName.trim() || !newPresetUrl.trim()) {
+                          toast.error('Name and URL required');
+                          return;
+                        }
+                        try {
+                          const res = await api.post('/redirect-presets/create', { name: newPresetName, url: newPresetUrl });
+                          setPresets(prev => [...prev, res.data]);
+                          setNewPresetName('');
+                          setNewPresetUrl('');
+                          toast.success('Preset added');
+                        } catch {
+                          toast.error('Failed to add preset');
+                        }
+                      }}>
+                        <FaPlus />
+                      </button>
                     </div>
                   </div>
                 </div>

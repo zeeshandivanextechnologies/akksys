@@ -25,10 +25,10 @@ export const createCTA = async (req, res, next) => {
 export const updateCTA = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { button_text, destination_url, is_active } = req.body;
+    const { button_text, destination_url, is_active, qr_id } = req.body;
     const result = await db.query(
-      'UPDATE cta_buttons SET button_text = COALESCE($1, button_text), destination_url = COALESCE($2, destination_url), is_active = COALESCE($3, is_active), updated_at = NOW() WHERE id = $4 RETURNING *',
-      [button_text, destination_url, is_active, id]
+      'UPDATE cta_buttons SET button_text = COALESCE($1, button_text), destination_url = COALESCE($2, destination_url), is_active = COALESCE($3, is_active), qr_id = COALESCE($4, qr_id), updated_at = NOW() WHERE id = $5 RETURNING *',
+      [button_text, destination_url, is_active, qr_id !== undefined ? qr_id : null, id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'CTA not found' });

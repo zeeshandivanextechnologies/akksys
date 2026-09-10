@@ -14,6 +14,7 @@ import landingContentRoutes from './routes/landingContent.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
 import userRoutes from './routes/user.routes.js';
 import staticQrRoutes from './routes/staticQr.routes.js';
+import redirectPresetsRoutes from './routes/redirectPresets.routes.js';
 
 dotenv.config();
 
@@ -60,6 +61,7 @@ app.use('/api/landing-content', landingContentRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/static-qr', staticQrRoutes);
+app.use('/api/redirect-presets', redirectPresetsRoutes);
 
 app.use(errorHandler);
 
