@@ -20,6 +20,7 @@ import Analytics from '../pages/dashboard/Analytics';
 import CampaignHistory from '../pages/dashboard/CampaignHistory';
 import CampaignDetail from '../pages/dashboard/CampaignDetail';
 import CreateCampaign from '../pages/dashboard/CreateCampaign';
+import EditCampaign from '../pages/dashboard/EditCampaign';
 import CreateVersion from '../pages/dashboard/CreateVersion';
 import LandingContent from '../pages/dashboard/LandingContent';
 import Settings from '../pages/dashboard/Settings';
@@ -48,6 +49,7 @@ const AppRoutes = () => {
           <Route path="campaign-history" element={<CampaignHistory />} />
           <Route path="campaign/:campaignId" element={<CampaignDetail />} />
           <Route path="campaign/create" element={<CreateCampaign />} />
+          <Route path="campaign/edit/:campaignId" element={<EditCampaign />} />
           <Route path="campaign/:campaignId/version/create" element={<CreateVersion />} />
           <Route path="settings" element={<Settings />} />
           <Route path="landing-content" element={<LandingContent />} />

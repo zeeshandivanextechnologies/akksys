@@ -280,7 +280,7 @@ const CampaignHistory = () => {
                           <button onClick={() => { setOpenDropdown(null); navigate(`/admin/campaign/${campaign.id}/version/create`); }}>
                             <FaPlus size={16} /> New Version
                           </button>
-                          <button onClick={() => { setOpenDropdown(null); navigate(`/admin/campaign/${campaign.id}`, { state: { edit: true } }); }}>
+                          <button onClick={() => { setOpenDropdown(null); navigate(`/admin/campaign/edit/${campaign.id}`); }}>
                             <BsPencil size={16} /> Edit 
                           </button>
                           <button className="ch-dropdown-danger" style={{color : "#ef4444"}} onClick={async () => {
