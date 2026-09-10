@@ -264,7 +264,7 @@
 .dq-qr-url {
   font-size: 12px;
   font-weight: 400;
-  color: var(--ov-subheading-text);
+  color: var(--admin-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
