@@ -155,7 +155,7 @@ const CTAManager = () => {
     setSaving(true);
     try {
       if (!selectedCtaId) {
-        const res = await api.post('/cta', {
+        const res = await api.post('/cta/create', {
           button_text: ctaData.buttonText,
           destination_url: ctaData.destinationUrl,
           qr_id: selectedQR ? Number(selectedQR) : null,
