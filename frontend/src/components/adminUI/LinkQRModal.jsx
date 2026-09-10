@@ -39,6 +39,7 @@ const LinkQRModal = ({ show, video, onClose }) => {
       const videoUrlNorm = normalizeUrl(video.videoUrl);
       const mapped = res.data.map(qr => ({
         id: qr.id,
+        qr_id: qr.qr_id,
         name: qr.name,
         type: 'dynamic',
         status: qr.status,
@@ -74,6 +75,17 @@ const LinkQRModal = ({ show, video, onClose }) => {
       setSaving(false);
       setSaved(true);
       toast.success(`Successfully linked ${selectedQRs.length} QR code(s)`);
+
+      const links = selectedQRs.map(id => {
+        const qr = qrCodes.find(q => q.id === id);
+        return qr && qr.qr_id ? `https://${window.location.host}/r/${qr.qr_id}` : '';
+      }).filter(Boolean);
+
+      if (links.length > 0) {
+        navigator.clipboard.writeText(links.join('\n'));
+        toast.info('QR Link(s) copied to clipboard!');
+      }
+
       setTimeout(() => {
         onClose(true); // pass true to refresh
         setSaved(false);
