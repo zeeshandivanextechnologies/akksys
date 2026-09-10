@@ -137,7 +137,7 @@ export const bulkGenerate = async (req, res, next) => {
       if (item.destination_url) {
         const campResult = await db.query(
           `INSERT INTO campaigns (qr_id, name, created_by) VALUES ($1, $2, $3) RETURNING id`,
-          [qr.id, `Campaign for ${item.name}`, req.user.id]
+          [qr.id, item.name, req.user.id]
         );
         await db.query(
           `INSERT INTO campaign_versions (campaign_id, version_number, video_type, video_url, cta_text, cta_destination, is_active)

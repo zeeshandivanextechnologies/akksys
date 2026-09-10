@@ -121,7 +121,7 @@ export const linkVideoToQRs = async (req, res, next) => {
         
         const newCamp = await db.query(
           "INSERT INTO campaigns (qr_id, name, created_by) VALUES ($1, $2, $3) RETURNING id",
-          [qr_id, `Campaign for ${qrName}`, req.user.id]
+          [qr_id, qrName, req.user.id]
         );
         campaignId = newCamp.rows[0].id;
       } else {
