@@ -7,6 +7,7 @@ const ViewQRModal = ({ show, onClose, qr }) => {
   if (!show || !qr) return null;
 
   const qrValue = qr.url ? `https://${qr.url}` : 'https://akksys.io/s/demo';
+  const d = qr.data || {};
 
   const getTypeIcon = (type) => {
     switch (type) {
@@ -26,71 +27,75 @@ const ViewQRModal = ({ show, onClose, qr }) => {
           <div className="sq-view-details">
             <div className="sq-view-row">
               <span className="sq-view-label">Network Name</span>
-              <span className="sq-view-value">Office_Guest</span>
+              <span className="sq-view-value">{d.wifi_network || '—'}</span>
             </div>
             <div className="sq-view-row">
               <span className="sq-view-label">Encryption</span>
-              <span className="sq-view-value">WPA/WPA2</span>
+              <span className="sq-view-value">{d.wifi_encryption || '—'}</span>
             </div>
             <div className="sq-view-row">
               <span className="sq-view-label">Password</span>
-              <span className="sq-view-value">••••••••</span>
+              <span className="sq-view-value">{d.wifi_password ? '••••••••' : '—'}</span>
             </div>
           </div>
         );
-
       case 'vcard':
         return (
           <div className="sq-view-details">
             <div className="sq-view-row">
               <span className="sq-view-label">Full Name</span>
-              <span className="sq-view-value">{qr.name}</span>
+              <span className="sq-view-value">{d.vcard_name || qr.name}</span>
             </div>
             <div className="sq-view-row">
               <span className="sq-view-label">Phone</span>
-              <span className="sq-view-value">+91 98765 43210</span>
+              <span className="sq-view-value">{d.vcard_phone || '—'}</span>
             </div>
             <div className="sq-view-row">
               <span className="sq-view-label">Email</span>
-              <span className="sq-view-value">contact@akksys.in</span>
+              <span className="sq-view-value">{d.vcard_email || '—'}</span>
             </div>
             <div className="sq-view-row">
               <span className="sq-view-label">Company</span>
-              <span className="sq-view-value">AKKSYS</span>
+              <span className="sq-view-value">{d.vcard_company || '—'}</span>
             </div>
+            {d.vcard_title && (
+              <div className="sq-view-row">
+                <span className="sq-view-label">Job Title</span>
+                <span className="sq-view-value">{d.vcard_title}</span>
+              </div>
+            )}
           </div>
         );
-
       case 'email':
         return (
           <div className="sq-view-details">
             <div className="sq-view-row">
               <span className="sq-view-label">Email Address</span>
-              <span className="sq-view-value">support@akksys.in</span>
+              <span className="sq-view-value">{d.email || '—'}</span>
             </div>
-            <div className="sq-view-row">
-              <span className="sq-view-label">Default Subject</span>
-              <span className="sq-view-value">Inquiry from website</span>
-            </div>
+            {d.email_subject && (
+              <div className="sq-view-row">
+                <span className="sq-view-label">Default Subject</span>
+                <span className="sq-view-value">{d.email_subject}</span>
+              </div>
+            )}
           </div>
         );
-
       case 'phone':
         return (
           <div className="sq-view-details">
             <div className="sq-view-row">
               <span className="sq-view-label">Phone Number</span>
-              <span className="sq-view-value">+91 98765 43210</span>
+              <span className="sq-view-value">{d.phone || '—'}</span>
             </div>
           </div>
         );
-
-      default: // url
+      default:
         return (
           <div className="sq-view-details">
             <div className="sq-view-row">
               <span className="sq-view-label">Website URL</span>
-              <span className="sq-view-value">{qr.details}</span>
+              <span className="sq-view-value">{d.url || qr.details || '—'}</span>
             </div>
           </div>
         );
@@ -100,7 +105,6 @@ const ViewQRModal = ({ show, onClose, qr }) => {
   return (
     <div className="qrd-modal-overlay" onClick={onClose}>
       <div className="qrd-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
         <div className="qrd-modal-header">
           <div>
             <h5 className="qrd-modal-title">QR Code Details</h5>
@@ -111,10 +115,8 @@ const ViewQRModal = ({ show, onClose, qr }) => {
           </button>
         </div>
 
-        {/* Body */}
         <div className="qrd-modal-body">
           <div className="row">
-            {/* QR Preview */}
             <div className="col-md-5 mb-3 mb-md-0">
               <div className="qrd-preview-box">
                 <div className="qrd-preview-qr">
@@ -133,12 +135,11 @@ const ViewQRModal = ({ show, onClose, qr }) => {
               </div>
             </div>
 
-            {/* Details */}
             <div className="col-md-7">
               <div className="sq-view-section">
                 <div className="sq-view-header">
                   <span className={`sq-type-badge sq-type-${qr.type}`}>
-                    {getTypeIcon(qr.type)} {qr.typeLabel}
+                    {getTypeIcon(qr.type)} {qr.type}
                   </span>
                   <span className={`dq-status-badge ${qr.active ? 'active' : 'paused'}`}>
                     {qr.active ? 'ACTIVE' : 'INACTIVE'}
@@ -165,7 +166,6 @@ const ViewQRModal = ({ show, onClose, qr }) => {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="qrd-modal-footer">
           <button className="thm-btn outline" onClick={onClose}>
             Close

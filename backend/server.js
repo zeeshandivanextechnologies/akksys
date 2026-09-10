@@ -13,6 +13,7 @@ import landingRoutes from './routes/landing.routes.js';
 import landingContentRoutes from './routes/landingContent.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
 import userRoutes from './routes/user.routes.js';
+import staticQrRoutes from './routes/staticQr.routes.js';
 
 dotenv.config();
 
@@ -58,6 +59,7 @@ app.use('/api/landing', landingRoutes);
 app.use('/api/landing-content', landingContentRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/static-qr', staticQrRoutes);
 
 app.use(errorHandler);
 

@@ -203,7 +203,7 @@ const DynamicQRCodes = () => {
               <tbody>
                 {currentItems.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="text-center py-4" style={{ color: '#8892a4' }}>
+                    <td colSpan="9" className="text-center" style={{ color: '#ddd', height : "250px" }}>
                       No QR codes found
                     </td>
                   </tr>

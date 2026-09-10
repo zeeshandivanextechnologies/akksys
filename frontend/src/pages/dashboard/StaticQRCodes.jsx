@@ -5,11 +5,15 @@ import { QRCodeCanvas } from 'qrcode.react';
 import QRDownloadModal from '../../components/adminUI/QRDownloadModal';
 import ViewQRModal from '../../components/adminUI/ViewQRModal';
 import EditQRModal from '../../components/adminUI/EditQRModal';
+import api from '../../services/api';
+import { toast } from 'react-toastify';
+import Loader from './Loader';
 import '../../styles/DynamicQR.css';
 import '../../styles/StaticQR.css';
 
 const StaticQRCodes = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -18,63 +22,49 @@ const StaticQRCodes = () => {
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('All Types');
-  const [qrList, setQrList] = useState([
-    {
-      id: 'sw1',
-      name: 'Guest WiFi Network',
-      details: 'Network: Office_Guest',
-      url: 'akksys.io/s/sw1',
-      type: 'wifi',
-      typeLabel: 'WiFi',
-      createdDate: '20 Aug 2026',
-      active: true,
-    },
-    {
-      id: 'vc1',
-      name: 'CEO vCard',
-      details: 'Contact Details',
-      url: 'akksys.io/s/vc1',
-      type: 'vcard',
-      typeLabel: 'vCard',
-      createdDate: '15 Aug 2026',
-      active: true,
-    },
-    {
-      id: 'ur1',
-      name: 'Company Website',
-      details: 'https://akksys.in',
-      url: 'akksys.io/s/ur1',
-      type: 'url',
-      typeLabel: 'URL',
-      createdDate: '10 Aug 2026',
-      active: true,
-    },
-    {
-      id: 'em1',
-      name: 'Support Email',
-      details: 'support@akksys.in',
-      url: 'akksys.io/s/em1',
-      type: 'email',
-      typeLabel: 'Email',
-      createdDate: '5 Aug 2026',
-      active: false,
-    },
-    {
-      id: 'ph1',
-      name: 'Sales Contact',
-      details: '+91 98765 43210',
-      url: 'akksys.io/s/ph1',
-      type: 'phone',
-      typeLabel: 'Phone',
-      createdDate: '1 Aug 2026',
-      active: true,
-    },
-  ]);
+  const [qrList, setQrList] = useState([]);
 
-  const toggleActive = (id) => {
-    setQrList(prev => prev.map(qr =>
-      qr.id === id ? { ...qr, active: !qr.active } : qr
-    ));
+  const fetchQRs = async () => {
+    try {
+      const res = await api.get('/static-qr');
+      setQrList(res.data);
+    } catch (err) {
+      toast.error('Failed to load static QR codes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQRs();
+  }, []);
+
+  const filteredList = qrList.filter(qr => {
+    const matchesSearch = !searchTerm || qr.name.toLowerCase().includes(searchTerm.toLowerCase()) || qr.type.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === 'All Types' || qr.type === typeFilter.toLowerCase();
+    return matchesSearch && matchesType;
+  });
+
+  const toggleActive = async (id) => {
+    try {
+      const res = await api.put(`/static-qr/${id}/toggle`);
+      setQrList(prev => prev.map(qr => qr.id === id ? { ...qr, status: res.data.status } : qr));
+      toast.success('Status updated');
+    } catch {
+      toast.error('Failed to update status');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this QR code?')) return;
+    try {
+      await api.delete(`/static-qr/${id}`);
+      setQrList(prev => prev.filter(qr => qr.id !== id));
+      toast.success('QR code deleted');
+    } catch {
+      toast.error('Failed to delete QR code');
+    }
+    setOpenDropdown(null);
   };
 
   const handleView = (qr) => {
@@ -96,9 +86,7 @@ const StaticQRCodes = () => {
   };
 
   const handleSaveEdit = (updatedQR) => {
-    setQrList(prev => prev.map(qr =>
-      qr.id === updatedQR.id ? updatedQR : qr
-    ));
+    setQrList(prev => prev.map(qr => qr.id === updatedQR.id ? updatedQR : qr));
   };
 
   const toggleDropdown = (id, e) => {
@@ -136,8 +124,27 @@ const StaticQRCodes = () => {
     }
   };
 
+  const getQrUrl = (qr) => {
+    if (!qr) return 'akksys.io/s/static';
+    return qr.data?.url || qr.data?.wifi_network || qr.data?.email || qr.data?.phone || 'akksys.io/s/static';
+  };
+
+  const getDetails = (qr) => {
+    if (!qr || !qr.data) return '';
+    switch (qr.type) {
+      case 'wifi': return `Network: ${qr.data.wifi_network || ''}`;
+      case 'vcard': return qr.data.vcard_name || '';
+      case 'url': return qr.data.url || '';
+      case 'email': return qr.data.email || '';
+      case 'phone': return qr.data.phone || '';
+      default: return '';
+    }
+  };
+
   const today = new Date();
   const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  if (loading) return <Loader />;
 
   return (
     <>
@@ -203,52 +210,67 @@ const StaticQRCodes = () => {
                 </tr>
               </thead>
               <tbody>
-                {qrList.map((qr) => (
-                  <tr key={qr.id} className="dq-tr">
-                    <td>{qrList.indexOf(qr) + 1}</td>
-                    <td>
-                      <div className="dq-qr-cell">
-                        <div className="dq-qr-thumb">
-                          <QRCodeCanvas
-                            value={`https://${qr.url}`}
-                            size={44}
-                            level="M"
-                            bgColor="#ffffff"
-                            fgColor="#0f1629"
-                          />
-                          <div className="dq-qr-logo">
-                            <div className="dq-qr-logo-inner">AK</div>
-                          </div>
-                        </div>
-                        <div className="dq-qr-info">
-                          <span className="dq-qr-name">{qr.name}</span>
-                          <span className="dq-qr-url">{qr.details}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="dq-col-type">
-                      <span className={`sq-type-badge sq-type-${qr.type}`}>
-                        {getTypeIcon(qr.type)} {qr.typeLabel}
-                      </span>
-                    </td>
-                    <td className="dq-col-date">{qr.createdDate}</td>
-                    <td className="dq-col-status">
-                      <span className={`dq-status-badge ${qr.active ? 'active' : 'paused'}`}>
-                        {qr.active ? 'ACTIVE' : 'INACTIVE'}
-                      </span>
-                    </td>
-                    <td className="dq-col-action">
-                      <div className="dq-action-cell">
-                        <button
-                          className="dq-edit-btn"
-                          onClick={(e) => toggleDropdown(qr.id, e)}
-                        >
-                          Edit <FaChevronDown size={10} />
-                        </button>
-                      </div>
+                {filteredList.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center" style={{ color: '#ddd', height : "250px" }}>
+                      No static QR codes found.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredList.map((qr, index) => {
+                    const qrUrl = getQrUrl(qr);
+                    const details = getDetails(qr);
+                    const isActive = qr.status === 'active';
+                    return (
+                      <tr key={qr.id} className="dq-tr">
+                        <td>{index + 1}</td>
+                        <td>
+                          <div className="dq-qr-cell">
+                            <div className="dq-qr-thumb">
+                              <QRCodeCanvas
+                                value={`https://${qrUrl}`}
+                                size={44}
+                                level="M"
+                                bgColor="#ffffff"
+                                fgColor="#0f1629"
+                              />
+                              <div className="dq-qr-logo">
+                                <div className="dq-qr-logo-inner">AK</div>
+                              </div>
+                            </div>
+                            <div className="dq-qr-info">
+                              <span className="dq-qr-name">{qr.name}</span>
+                              <span className="dq-qr-url">{details}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="dq-col-type">
+                          <span className={`sq-type-badge sq-type-${qr.type}`}>
+                            {getTypeIcon(qr.type)} {qr.type}
+                          </span>
+                        </td>
+                        <td className="dq-col-date">
+                          {new Date(qr.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </td>
+                        <td className="dq-col-status">
+                          <span className={`dq-status-badge ${isActive ? 'active' : 'paused'}`}>
+                            {isActive ? 'ACTIVE' : 'INACTIVE'}
+                          </span>
+                        </td>
+                        <td className="dq-col-action">
+                          <div className="dq-action-cell">
+                            <button
+                              className="dq-edit-btn"
+                              onClick={(e) => toggleDropdown(qr.id, e)}
+                            >
+                              Edit <FaChevronDown size={10} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -258,21 +280,21 @@ const StaticQRCodes = () => {
               className="dq-dropdown-menu"
               style={{ top: dropdownPos.top, left: dropdownPos.left }}
             >
-              <button onClick={() => handleView(qrList.find(q => q.id === openDropdown))}>
+              <button onClick={() => handleView(filteredList.find(q => q.id === openDropdown))}>
                 <FaEye size={16} /> View Details
               </button>
-              <button onClick={() => handleDownload(qrList.find(q => q.id === openDropdown))}>
+              <button onClick={() => handleDownload(filteredList.find(q => q.id === openDropdown))}>
                 <FaDownload size={16} /> Download QR
               </button>
-              <button onClick={() => handleEdit(qrList.find(q => q.id === openDropdown))}>
+              <button onClick={() => handleEdit(filteredList.find(q => q.id === openDropdown))}>
                 <FaEdit size={16} /> Edit QR
               </button>
               <button onClick={() => { toggleActive(openDropdown); setOpenDropdown(null); }}>
-                {qrList.find(q => q.id === openDropdown)?.active
+                {filteredList.find(q => q.id === openDropdown)?.status === 'active'
                   ? <><FaToggleOff size={12} /> Deactivate</>
                   : <><FaToggleOn size={16} /> Activate</>}
               </button>
-              <button className="sq-dropdown-danger" onClick={() => alert('Delete QR')}>
+              <button className="sq-dropdown-danger" onClick={() => handleDelete(openDropdown)}>
                 <FaTrash size={14} /> Delete
               </button>
             </div>
@@ -284,19 +306,19 @@ const StaticQRCodes = () => {
         show={showDownloadModal}
         onClose={() => setShowDownloadModal(false)}
         qrName={selectedQR?.name}
-        qrUrl={selectedQR?.url}
+        qrUrl={getQrUrl(selectedQR)}
       />
 
       <ViewQRModal
         show={showViewModal}
         onClose={() => setShowViewModal(false)}
-        qr={selectedQR}
+        qr={selectedQR ? { ...selectedQR, url: getQrUrl(selectedQR), details: getDetails(selectedQR), typeLabel: selectedQR.type, active: selectedQR.status === 'active', createdDate: new Date(selectedQR.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) } : null}
       />
 
       <EditQRModal
         show={showEditModal}
         onClose={() => setShowEditModal(false)}
-        qr={selectedQR}
+        qr={selectedQR ? { ...selectedQR, url: getQrUrl(selectedQR), details: getDetails(selectedQR), typeLabel: selectedQR.type, active: selectedQR.status === 'active' } : null}
         onSave={handleSaveEdit}
       />
     </>
