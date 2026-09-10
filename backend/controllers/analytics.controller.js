@@ -103,6 +103,33 @@ export const getLocationAnalytics = async (req, res, next) => {
   }
 };
 
+export const getOverviewDaily = async (req, res, next) => {
+  try {
+    const { days = 7 } = req.query;
+    const result = await db.query(
+      `WITH RECURSIVE dates AS (
+         SELECT current_date - ($1::int - 1) AS date
+         UNION ALL
+         SELECT date + 1 FROM dates WHERE date < current_date
+       )
+       SELECT
+         to_char(d.date, 'Dy') as day,
+         (SELECT COUNT(*) FROM scan_events WHERE date(scanned_at) = d.date) as scans,
+         (SELECT COUNT(*) FROM cta_clicks WHERE date(clicked_at) = d.date) as clicks
+       FROM dates d
+       ORDER BY d.date ASC`,
+      [days]
+    );
+    res.json(result.rows.map(r => ({
+      day: r.day,
+      scans: parseInt(r.scans),
+      clicks: parseInt(r.clicks),
+    })));
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getQRDetailAnalytics = async (req, res, next) => {
   try {
     const { id } = req.params;

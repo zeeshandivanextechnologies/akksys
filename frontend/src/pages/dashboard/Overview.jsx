@@ -27,8 +27,9 @@ const Overview = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [overviewRes, devicesRes, locationsRes, qrRes] = await Promise.all([
+        const [overviewRes, overviewDailyRes, devicesRes, locationsRes, qrRes] = await Promise.all([
           api.get(`/analytics/overview?days=${days}`),
+          api.get(`/analytics/overview/daily?days=${days}`),
           api.get('/analytics/devices'),
           api.get('/analytics/locations'),
           api.get('/qr'),
@@ -78,14 +79,7 @@ const Overview = () => {
           },
         ]);
 
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const weekData = [];
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          weekData.push({ day: dayNames[d.getDay()], scans: 0, clicks: 0 });
-        }
-        setWeeklyData(weekData);
+        setWeeklyData(overviewDailyRes.data);
 
         const totalDevices = devicesRes.data.reduce((sum, d) => sum + parseInt(d.count), 0);
         const devData = devicesRes.data.map(d => ({
@@ -177,7 +171,7 @@ const Overview = () => {
     },
     dataLabels: { enabled: false },
     labels: deviceData.map(d => d.type),
-    colors: deviceData.map(d => d.color),
+    colors: ['#00C8FF', '#0077FF', '#4DDCFF'],
     legend: { show: false },
     tooltip: {
       theme: 'light',
