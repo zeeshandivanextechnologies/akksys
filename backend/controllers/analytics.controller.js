@@ -25,15 +25,18 @@ export const getOverview = async (req, res, next) => {
 
 export const getQRAnalytics = async (req, res, next) => {
   try {
+    const { days } = req.query;
+    const since = days ? new Date(Date.now() - parseInt(days) * 86400000).toISOString() : null;
     const result = await db.query(
       `SELECT q.id, q.qr_id, q.name, q.status,
         COUNT(DISTINCT se.id) as total_scans,
         COUNT(DISTINCT se.session_id) as unique_scans,
         COUNT(DISTINCT cc.id) as cta_clicks
        FROM qr_codes q
-       LEFT JOIN scan_events se ON se.qr_id = q.id
-       LEFT JOIN cta_clicks cc ON cc.qr_id = q.id
-       GROUP BY q.id ORDER BY total_scans DESC`
+       LEFT JOIN scan_events se ON se.qr_id = q.id ${since ? 'AND se.scanned_at >= $1' : ''}
+       LEFT JOIN cta_clicks cc ON cc.qr_id = q.id ${since ? 'AND cc.clicked_at >= $1' : ''}
+       GROUP BY q.id ORDER BY total_scans DESC`,
+      since ? [since] : []
     );
     res.json(result.rows);
   } catch (err) {
@@ -43,6 +46,8 @@ export const getQRAnalytics = async (req, res, next) => {
 
 export const getCampaignAnalytics = async (req, res, next) => {
   try {
+    const { days } = req.query;
+    const since = days ? new Date(Date.now() - parseInt(days) * 86400000).toISOString() : null;
     const result = await db.query(
       `SELECT c.id, c.name, c.status, c.start_date, q.name as qr_name,
         COUNT(DISTINCT se.id) as total_scans,
@@ -50,9 +55,10 @@ export const getCampaignAnalytics = async (req, res, next) => {
        FROM campaigns c
        JOIN qr_codes q ON c.qr_id = q.id
        LEFT JOIN campaign_versions v ON v.campaign_id = c.id
-       LEFT JOIN scan_events se ON se.version_id = v.id
-       LEFT JOIN cta_clicks cc ON cc.version_id = v.id
-       GROUP BY c.id, q.name ORDER BY total_scans DESC`
+       LEFT JOIN scan_events se ON se.version_id = v.id ${since ? 'AND se.scanned_at >= $1' : ''}
+       LEFT JOIN cta_clicks cc ON cc.version_id = v.id ${since ? 'AND cc.clicked_at >= $1' : ''}
+       GROUP BY c.id, q.name ORDER BY total_scans DESC`,
+      since ? [since] : []
     );
     res.json(result.rows);
   } catch (err) {
@@ -62,6 +68,8 @@ export const getCampaignAnalytics = async (req, res, next) => {
 
 export const getVersionAnalytics = async (req, res, next) => {
   try {
+    const { days } = req.query;
+    const since = days ? new Date(Date.now() - parseInt(days) * 86400000).toISOString() : null;
     const result = await db.query(
       `SELECT v.id, v.version_number, c.name as campaign_name, q.name as qr_name,
         v.video_url, v.cta_text, v.cta_destination, v.is_active,
@@ -70,9 +78,10 @@ export const getVersionAnalytics = async (req, res, next) => {
        FROM campaign_versions v
        JOIN campaigns c ON v.campaign_id = c.id
        JOIN qr_codes q ON c.qr_id = q.id
-       LEFT JOIN scan_events se ON se.version_id = v.id
-       LEFT JOIN cta_clicks cc ON cc.version_id = v.id
-       GROUP BY v.id, c.name, q.name ORDER BY total_scans DESC`
+       LEFT JOIN scan_events se ON se.version_id = v.id ${since ? 'AND se.scanned_at >= $1' : ''}
+       LEFT JOIN cta_clicks cc ON cc.version_id = v.id ${since ? 'AND cc.clicked_at >= $1' : ''}
+       GROUP BY v.id, c.name, q.name ORDER BY total_scans DESC`,
+      since ? [since] : []
     );
     res.json(result.rows);
   } catch (err) {
@@ -82,8 +91,11 @@ export const getVersionAnalytics = async (req, res, next) => {
 
 export const getDeviceAnalytics = async (req, res, next) => {
   try {
+    const { days } = req.query;
+    const since = days ? new Date(Date.now() - parseInt(days) * 86400000).toISOString() : null;
     const result = await db.query(
-      `SELECT device_type, COUNT(*) as count FROM scan_events GROUP BY device_type ORDER BY count DESC`
+      `SELECT device_type, COUNT(*) as count FROM scan_events ${since ? 'WHERE scanned_at >= $1' : ''} GROUP BY device_type ORDER BY count DESC`,
+      since ? [since] : []
     );
     res.json(result.rows);
   } catch (err) {
@@ -93,9 +105,12 @@ export const getDeviceAnalytics = async (req, res, next) => {
 
 export const getLocationAnalytics = async (req, res, next) => {
   try {
+    const { days } = req.query;
+    const since = days ? new Date(Date.now() - parseInt(days) * 86400000).toISOString() : null;
     const result = await db.query(
       `SELECT city, country, COUNT(*) as count FROM scan_events 
-       WHERE city != 'Unknown' GROUP BY city, country ORDER BY count DESC LIMIT 20`
+       WHERE city != 'Unknown' ${since ? 'AND scanned_at >= $1' : ''} GROUP BY city, country ORDER BY count DESC LIMIT 20`,
+      since ? [since] : []
     );
     res.json(result.rows);
   } catch (err) {

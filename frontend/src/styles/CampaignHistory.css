@@ -489,7 +489,8 @@
   }
 
   .ch-filter-tabs {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
   }
 }
 

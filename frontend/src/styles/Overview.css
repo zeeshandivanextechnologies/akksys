@@ -1174,7 +1174,6 @@ border: 1px solid #1e2a40;
 
 @media (max-width: 576px) {
   .ov-stat-header {
-    flex-direction: row-reverse;
     justify-content: space-between;
   }
 

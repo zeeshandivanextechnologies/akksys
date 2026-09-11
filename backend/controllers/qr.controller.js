@@ -79,11 +79,20 @@ export const getQRById = async (req, res, next) => {
 export const updateQR = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, logo_url } = req.body;
-    const result = await db.query(
-      'UPDATE qr_codes SET name = COALESCE($1, name), logo_url = COALESCE($2, logo_url), updated_at = NOW() WHERE id = $3 RETURNING *',
-      [name, logo_url, id]
-    );
+    const { name } = req.body;
+    const hasLogo = Object.prototype.hasOwnProperty.call(req.body, 'logo_url');
+    let logoVal = hasLogo ? req.body.logo_url : null;
+    if (hasLogo && (!logoVal || logoVal === '')) logoVal = null;
+
+    const result = hasLogo
+      ? await db.query(
+          'UPDATE qr_codes SET name = COALESCE($1, name), logo_url = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
+          [name, logoVal, id]
+        )
+      : await db.query(
+          'UPDATE qr_codes SET name = COALESCE($1, name), updated_at = NOW() WHERE id = $2 RETURNING *',
+          [name, id]
+        );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'QR code not found' });
     }
@@ -124,13 +133,13 @@ export const deleteQR = async (req, res, next) => {
 
 export const bulkGenerate = async (req, res, next) => {
   try {
-    const { items } = req.body; // [{ name, destination_url }]
+    const { items, logo_url } = req.body; // [{ name, destination_url }], optional shared logo
     const results = [];
     for (const item of items) {
       const qrId = await generateQrId();
       const qrResult = await db.query(
-        'INSERT INTO qr_codes (qr_id, name, created_by) VALUES ($1, $2, $3) RETURNING *',
-        [qrId, item.name, req.user.id]
+        'INSERT INTO qr_codes (qr_id, name, logo_url, created_by) VALUES ($1, $2, $3, $4) RETURNING *',
+        [qrId, item.name, logo_url || null, req.user.id]
       );
       const qr = qrResult.rows[0];
 

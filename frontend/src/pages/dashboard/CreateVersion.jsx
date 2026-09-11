@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  FaArrowLeft, FaSave, FaVideo, FaMousePointer, FaLink, 
+import {
+  FaArrowLeft, FaSave, FaVideo, FaMousePointer, FaLink,
   FaHistory, FaExclamationTriangle
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -31,7 +31,7 @@ const CreateVersion = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
 
   const ctaPresets = [
-    'Buy Now', 'Shop Now', 'Explore', 'Apply Now', 
+    'Buy Now', 'Shop Now', 'Explore', 'Apply Now',
     'Learn More', 'Download', 'Visit Website', 'Register'
   ];
 
@@ -97,17 +97,17 @@ const CreateVersion = () => {
   const activeVersion = campaign?.versions?.find(v => v.is_active) || campaign?.versions?.[0] || null;
 
   if (loading) {
-    return ( 
-        <div className="text-center py-4">
-                    <div className="spinner-border text-info" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                  </div>
+    return (
+      <div className="text-center py-4">
+        <div className="spinner-border text-info" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
     );
   }
 
   if (!campaign) {
-    return <div className="ov-wrapper"><p style={{textAlign:'center',padding:'60px 0',color:'#999'}}>Campaign not found</p></div>;
+    return <div className="ov-wrapper"><p style={{ textAlign: 'center', padding: '60px 0', color: '#999' }}>Campaign not found</p></div>;
   }
 
   return (
@@ -162,9 +162,9 @@ const CreateVersion = () => {
               <div className="row">
                 <div className="col-md-8">
                   <label className="cmp-label">Version Name</label>
-                  <input 
-                    type="text" 
-                    className="cmp-input" 
+                  <input
+                    type="text"
+                    className="cmp-input"
                     placeholder="e.g., v3 - Festive Offer"
                     value={formData.versionName}
                     onChange={(e) => handleChange('versionName', e.target.value)}
@@ -172,9 +172,9 @@ const CreateVersion = () => {
                 </div>
                 <div className="col-md-4">
                   <label className="cmp-label">Campaign</label>
-                  <input 
-                    type="text" 
-                    className="cmp-input" 
+                  <input
+                    type="text"
+                    className="cmp-input"
                     value={campaign.name}
                     readOnly
                     style={{ background: 'var(--ov-new-bg)', cursor: 'not-allowed' }}
@@ -195,19 +195,19 @@ const CreateVersion = () => {
             <div className="ov-card-body">
               {/* Video Type Tabs */}
               <div className="cmp-video-tabs">
-                <button 
+                <button
                   className={`cmp-video-tab ${formData.videoType === 'library' ? 'active' : ''}`}
                   onClick={() => { handleChange('videoType', 'library'); setSelectedVideo(null); }}
                 >
                   <FaVideo /> From Library
                 </button>
-                <button 
+                <button
                   className={`cmp-video-tab ${formData.videoType === 'youtube' ? 'active' : ''}`}
                   onClick={() => { handleChange('videoType', 'youtube'); setSelectedVideo(null); }}
                 >
                   <FaVideo /> YouTube URL
                 </button>
-                <button 
+                <button
                   className={`cmp-video-tab ${formData.videoType === 'vimeo' ? 'active' : ''}`}
                   onClick={() => { handleChange('videoType', 'vimeo'); setSelectedVideo(null); }}
                 >
@@ -223,7 +223,7 @@ const CreateVersion = () => {
                   <div className="row">
                     {videos.map((video, idx) => (
                       <div className="col-md-4 col-sm-6" key={video.id}>
-                        <div 
+                        <div
                           className={`cmp-video-card ${selectedVideo === video.id ? 'selected' : ''}`}
                           onClick={() => handleVideoSelect(video)}
                         >
@@ -246,9 +246,9 @@ const CreateVersion = () => {
                   <label className="cmp-label">
                     {formData.videoType === 'youtube' ? 'YouTube' : 'Vimeo'} Video URL
                   </label>
-                  <input 
-                    type="url" 
-                    className="cmp-input" 
+                  <input
+                    type="url"
+                    className="cmp-input"
                     placeholder={`Paste ${formData.videoType === 'youtube' ? 'YouTube' : 'Vimeo'} URL here`}
                     value={formData.videoUrl}
                     onChange={(e) => handleChange('videoUrl', e.target.value)}
@@ -270,9 +270,9 @@ const CreateVersion = () => {
               <div className="row g-3">
                 <div className="col-md-6">
                   <label className="cmp-label">Headline</label>
-                  <input 
-                    type="text" 
-                    className="cmp-input" 
+                  <input
+                    type="text"
+                    className="cmp-input"
                     placeholder="e.g., Introducing Pro X1"
                     value={formData.headline}
                     onChange={(e) => handleChange('headline', e.target.value)}
@@ -280,9 +280,9 @@ const CreateVersion = () => {
                 </div>
                 <div className="col-md-6">
                   <label className="cmp-label">Badge Text</label>
-                  <input 
-                    type="text" 
-                    className="cmp-input" 
+                  <input
+                    type="text"
+                    className="cmp-input"
                     placeholder="e.g., HOT DEAL / LIMITED TIME"
                     value={formData.badge}
                     onChange={(e) => handleChange('badge', e.target.value)}
@@ -290,9 +290,9 @@ const CreateVersion = () => {
                 </div>
                 <div className="col-12">
                   <label className="cmp-label">Tagline</label>
-                  <input 
-                    type="text" 
-                    className="cmp-input" 
+                  <input
+                    type="text"
+                    className="cmp-input"
                     placeholder="e.g., The Future of Smart Living"
                     value={formData.tagline}
                     onChange={(e) => handleChange('tagline', e.target.value)}
@@ -317,7 +317,7 @@ const CreateVersion = () => {
               <label className="cmp-label">Button Text</label>
               <div className="cmp-btn-options">
                 {ctaPresets.map(preset => (
-                  <button 
+                  <button
                     key={preset}
                     className={`cmp-btn-option ${formData.ctaText === preset ? 'active' : ''}`}
                     onClick={() => handleChange('ctaText', preset)}
@@ -326,18 +326,18 @@ const CreateVersion = () => {
                   </button>
                 ))}
               </div>
-              <input 
-                type="text" 
-                className="cmp-input" 
+              <input
+                type="text"
+                className="cmp-input"
                 placeholder="Or type custom text"
                 value={formData.ctaText}
                 onChange={(e) => handleChange('ctaText', e.target.value)}
               />
 
               <label className="cmp-label" style={{ marginTop: '16px' }}><span className="cmp-label-icon"><FaLink /></span> Destination URL</label>
-              <input 
-                type="url" 
-                className="cmp-input" 
+              <input
+                type="url"
+                className="cmp-input"
                 placeholder="https://amazon.in/your-product"
                 value={formData.ctaDestination}
                 onChange={(e) => handleChange('ctaDestination', e.target.value)}
@@ -356,8 +356,8 @@ const CreateVersion = () => {
               <div className="cv-activation-switch">
                 <span className="cv-switch-label">Activate immediately</span>
                 <label className="cv-switch">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={formData.activateImmediately}
                     onChange={(e) => handleChange('activateImmediately', e.target.checked)}
                   />

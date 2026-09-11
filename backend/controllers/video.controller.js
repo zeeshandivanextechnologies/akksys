@@ -60,6 +60,9 @@ export const updateVideo = async (req, res, next) => {
       finalType = req.file.mimetype.split('/')[1] || 'mp4';
     }
 
+    const oldResult = await db.query('SELECT video_url FROM videos WHERE id = $1', [id]);
+    const oldVideoUrl = oldResult.rows[0]?.video_url;
+
     const result = await db.query(
       'UPDATE videos SET name = COALESCE($1, name), video_url = COALESCE($2, video_url), video_type = COALESCE($3, video_type), duration = COALESCE($4, duration), size = COALESCE($5, size), updated_at = NOW() WHERE id = $6 RETURNING *',
       [
@@ -74,6 +77,12 @@ export const updateVideo = async (req, res, next) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Video not found' });
     }
+
+    if (req.file && oldVideoUrl && oldVideoUrl.startsWith('/uploads/') && oldVideoUrl !== finalVideoUrl) {
+      const oldPath = path.join(__dirname, '..', oldVideoUrl);
+      fs.unlink(oldPath, () => {});
+    }
+
     res.json(result.rows[0]);
   } catch (err) {
     next(err);

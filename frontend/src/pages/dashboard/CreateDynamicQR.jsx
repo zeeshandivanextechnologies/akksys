@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaUpload, FaVideo, FaMousePointer, FaLink, FaArrowLeft, FaSpinner, FaCheck } from 'react-icons/fa';
+import { FaUpload, FaVideo, FaMousePointer, FaLink, FaArrowLeft, FaSpinner, FaCheck, FaTimes } from 'react-icons/fa';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 import '../../styles/DynamicQR.css';
@@ -37,7 +37,7 @@ const CreateDynamicQR = () => {
   useEffect(() => {
     if (editQR) {
       setQrName(editQR.name || '');
-      if (editQR.logoUrl) setLogoPreview(editQR.logoUrl);
+      setLogoPreview(editQR.logoUrl || '');
       if (editQR.ctaDestination && editQR.ctaDestination !== '—') setCtaUrl(editQR.ctaDestination);
       if (editQR.ctaText) setCtaText(editQR.ctaText);
       if (editQR.videoUrl) {
@@ -75,6 +75,13 @@ const CreateDynamicQR = () => {
     }
   };
 
+  const handleRemoveLogo = (e) => {
+    e.stopPropagation();
+    setLogoFile(null);
+    setLogoPreview('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleGenerate = async () => {
     if (!qrName.trim()) {
       toast.error('Please enter a QR campaign name');
@@ -93,7 +100,7 @@ const CreateDynamicQR = () => {
         // Edit mode: update existing QR + campaign
         await api.put(`/qr/${editQR.id}`, {
           name: qrName.trim(),
-          logo_url: logoPreview || null,
+          logo_url: logoPreview,
         });
         if (editQR.campaignId) {
           await api.put(`/campaign/${editQR.campaignId}`, {
@@ -204,8 +211,16 @@ const CreateDynamicQR = () => {
                         alt="Logo Preview"
                         className="dq-logo-preview"
                       />
-                      <p className="dq-upload-text mt-2">{logoFile?.name}</p>
+                      <p className="dq-upload-text mt-2">{logoFile?.name || 'Current logo'}</p>
                       <span className="dq-upload-hint">Click to change</span>
+                      <button
+                        type="button"
+                        className="thm-btn outline mt-2"
+                        style={{ padding: '4px 12px', fontSize: '12px' }}
+                        onClick={handleRemoveLogo}
+                      >
+                        <FaTimes className="me-1" /> Remove Logo
+                      </button>
                     </>
                   ) : (
                     <>

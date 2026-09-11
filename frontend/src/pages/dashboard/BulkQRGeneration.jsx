@@ -84,7 +84,10 @@ const BulkQRGeneration = () => {
     setGenerating(true);
     try {
       const items = bulkData.map(d => ({ name: d.name, destination_url: d.destination_url }));
-      const res = await api.post('/qr/bulk', { items });
+      const logoUrl = brandLogo === 'AKKSYS Logo'
+        ? 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="12" fill="#00C8FF"/><text x="50" y="62" font-family="Arial,sans-serif" font-size="36" font-weight="bold" fill="white" text-anchor="middle">AK</text></svg>')
+        : brandLogo === 'Custom Logo' ? customLogo : null;
+      const res = await api.post('/qr/bulk', { items, logo_url: logoUrl });
       const created = res.data.qr_codes;
       setBulkData(prev => prev.map((item, i) => ({
         ...item,
