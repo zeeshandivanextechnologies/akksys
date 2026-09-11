@@ -96,7 +96,7 @@ const ViewQRModal = ({ show, onClose, qr }) => {
           <div className="sq-view-details">
             <div className="sq-view-row">
               <span className="sq-view-label">Website URL</span>
-              <NavLink to={d.url || qr.details || '#'} className="sq-view-value" target="_blank">
+              <NavLink to={d.url || qr.details || '#'} className="sq-view-value" state={{color : "var(--admin-primary)"}} target="_blank">
                 {d.url || qr.details || '—'}
               </NavLink>
             </div>
