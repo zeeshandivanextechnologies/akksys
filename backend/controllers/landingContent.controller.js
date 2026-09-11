@@ -19,6 +19,7 @@ export const getLandingContent = async (req, res, next) => {
       faq: row.faq,
       cta: row.cta,
       footer: row.footer,
+      legal_pages: row.legal_pages,
       updated_at: row.updated_at,
     });
   } catch (err) {
@@ -28,7 +29,7 @@ export const getLandingContent = async (req, res, next) => {
 
 export const updateLandingContent = async (req, res, next) => {
   try {
-    const { hero, brand, impact_stats, features, how_it_works, industry_solutions, pricing, testimonials, faq, cta, footer } = req.body;
+    const { hero, brand, impact_stats, features, how_it_works, industry_solutions, pricing, testimonials, faq, cta, footer, legal_pages } = req.body;
 
     const result = await db.query(
       `UPDATE landing_content SET
@@ -43,6 +44,7 @@ export const updateLandingContent = async (req, res, next) => {
         footer = COALESCE($9, footer),
         brand = COALESCE($10, brand),
         impact_stats = COALESCE($11, impact_stats),
+        legal_pages = COALESCE($12, legal_pages),
         updated_at = NOW()
       WHERE id = 1
       RETURNING *`,
@@ -58,6 +60,7 @@ export const updateLandingContent = async (req, res, next) => {
         footer ? JSON.stringify(footer) : null,
         brand ? JSON.stringify(brand) : null,
         impact_stats ? JSON.stringify(impact_stats) : null,
+        legal_pages ? JSON.stringify(legal_pages) : null
       ]
     );
 

@@ -25,6 +25,10 @@ import CreateVersion from '../pages/dashboard/CreateVersion';
 import LandingContent from '../pages/dashboard/LandingContent';
 import Settings from '../pages/dashboard/Settings';
 import Notifications from '../pages/dashboard/Notifications';
+import ContactMessages from '../pages/dashboard/ContactMessages';
+import PrivacyPolicy from '../pages/landing/PrivacyPolicy';
+import TermsAndConditions from '../pages/landing/TermsAndConditions';
+import ContactUs from '../pages/landing/ContactUs';
 
 const AppRoutes = () => {
   return (
@@ -34,6 +38,9 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/preview" element={<MobileDestinationPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+        <Route path="/contact" element={<ContactUs />} />
         <Route path="/r/:qrId" element={<MobileDestinationPage />} />
 
         <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
@@ -55,6 +62,7 @@ const AppRoutes = () => {
           <Route path="settings" element={<Settings />} />
           <Route path="landing-content" element={<LandingContent />} />
           <Route path="notifications" element={<Notifications />} />
+          <Route path="contact-messages" element={<ContactMessages />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

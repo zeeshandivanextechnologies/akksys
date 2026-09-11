@@ -332,7 +332,7 @@
 .lc-preview-subheadline {
   font-size: 14px;
   opacity: 0.9;
-  margin-bottom: 0px;
+  margin-bottom: 5px;
   line-height: 1.5;
   color: #000;
 }
@@ -483,4 +483,16 @@
   .lc-feature-content{
     width: 100%;
   }
+}
+
+/* Section Title */
+.lc-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ov-heading-text, #fff);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ov-new-border, #1e2a40);
 }

@@ -49,6 +49,60 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.post('/api/contact', async (req, res) => {
+  const { name, email, phone, subject, message } = req.body;
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Name, email, and message are required' });
+  }
+  try {
+    await db.query(
+      'INSERT INTO contact_messages (name, email, phone, subject, message) VALUES ($1, $2, $3, $4, $5)',
+      [name, email, phone || null, subject || 'general', message]
+    );
+    res.status(200).json({ success: true, message: 'Message received successfully' });
+  } catch (err) {
+    console.error('Contact form error:', err);
+    res.status(500).json({ error: 'Failed to save message' });
+  }
+});
+
+app.get('/api/contact', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM contact_messages ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Fetch contact messages error:', err);
+    res.status(500).json({ error: 'Failed to fetch messages' });
+  }
+});
+
+app.put('/api/contact/:id/read', async (req, res) => {
+  try {
+    await db.query('UPDATE contact_messages SET status = $1 WHERE id = $2', ['read', req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update status' });
+  }
+});
+
+app.put('/api/contact/:id/unread', async (req, res) => {
+  try {
+    await db.query('UPDATE contact_messages SET status = $1 WHERE id = $2', ['unread', req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update status' });
+  }
+});
+
+app.delete('/api/contact/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM contact_messages WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete message' });
+  }
+});
+
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use('/api/auth', authRoutes);

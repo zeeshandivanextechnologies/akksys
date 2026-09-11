@@ -290,6 +290,10 @@
   background: rgba(105, 67, 200, 0.02);
 }
 
+.ch-tr-selected {
+  background: rgba(0, 200, 255, 0.06) !important;
+}
+
 /* Table Cell Content — dq-qr-name/dq-qr-url */
 .ch-td-title {
   font-weight: 600;
@@ -531,6 +535,11 @@
 .notif-box-item:hover {
   border-color: var(--ov-primary, #00C8FF);
   background: rgba(0, 200, 255, 0.04);
+}
+
+.notif-box-item.selected {
+  border-color: var(--ov-primary, #00C8FF);
+  background: rgba(0, 200, 255, 0.08);
 }
 
 .notif-box-icon {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import {
@@ -15,6 +15,7 @@ import {
 import Splide from '@splidejs/splide';
 import '@splidejs/splide/css';
 import Loader from '../dashboard/Loader';
+import Footer from '../../components/landing/Footer';
 import './MarketingWebsite.css';
 
 const iconMap = { 
@@ -705,60 +706,7 @@ const CTASection = ({ ctaData = {} }) => {
   );
 };
 
-const Footer = ({ footerData = {} }) => {
-  const socialIcons = {
-    twitter: <FaTwitter />,
-    linkedin: <FaLinkedin />,
-    github: <FaGithub />,
-    facebook: <FaFacebook />,
-    instagram: <FaInstagram />,
-    youtube: <FaYoutube />,
-  };
 
-  return (
-  <footer className="mk-footer">
-    <div className="container">
-      <div className="row ">
-        <div className="col-lg-4 mb-0 mb-lg-5">
-          <div className="d-flex align-items-center gap-2 mb-3">
-            <div className="mk-footer-logo"><FaQrcode /></div>
-            <span className="mk-footer-brand">{footerData.brandName || 'AKKSYS'}</span>
-          </div>
-          <p className="mk-footer-desc">{footerData.description || 'Business engagement and intelligence platform. Connect physical touchpoints with measurable digital experiences.'}</p>
-          <div className="d-flex gap-3 mb-3 mb-lg-0">
-            {(footerData.socialLinks || []).map((link, i) => (
-              <a key={i} href={link.url || '#'} className="mk-social" target="_blank" rel="noopener noreferrer">
-                {socialIcons[link.platform] || <FaGlobe />}
-              </a>
-            ))}
-          </div>
-        </div>
-        {(footerData.columns || []).map((col, i) => (
-          <div key={i} className="col-md-6 col-lg-2 col-sm-12">
-            <h6 className="mk-footer-heading">{col.heading}</h6>
-            <ul className="mk-footer-links">
-              {col.links.map((link, j) => (
-                <li key={j}><a href={link.url || '#'}>{link.label}</a></li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <div className="mk-footer-bottom">
-        <div className="row align-items-center">
-          <div className="col-md-6">
-            <p className="mk-footer-copy">&copy; {footerData.copyright || '2026 AKKSYS. All rights reserved.'}</p>
-          </div>
-          <div className="col-md-6 text-md-end">
-            <span className="mk-footer-contact"><FaEnvelope className="me-1" /> {footerData.email || 'hello@akksys.in'}</span>
-            <span className="mk-footer-contact ms-3"><FaPhone className="me-1" /> {footerData.phone || '+91 98765 43210'}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
-  );
-};
 
 const CountUp = ({ end, duration = 2000, suffix = '', prefix = '' }) => {
   const [count, setCount] = useState(0);

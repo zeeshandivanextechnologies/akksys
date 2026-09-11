@@ -506,6 +506,11 @@ input[type=number] {
   .ov-wrapper {
     padding: 12px;
   }
+
+ .ov-cta-info{
+  align-items: start !important;
+ }
+
 }
 
 /* ============================================
@@ -536,6 +541,7 @@ input[type=number] {
 }
 
 @media (max-width: 576px) {
+
 
 }
 
@@ -1156,6 +1162,14 @@ border: 1px solid #1e2a40;
     width: 100%;
   }
 
+  .qr-ov-section{
+    flex-direction: column;
+  }
+
+  .qr-ov-section .thm-btn, .qr-ov-section .thm-lg-btn{
+    width: 100%;
+  }
+
   .ov-date-select {
     width: 100%;
   }
@@ -1184,6 +1198,10 @@ border: 1px solid #1e2a40;
 
   .ov-qr-type-item {
     padding: 10px;
+  }
+
+  .ov-tabs{
+    overflow-x: scroll !important;
   }
 
  }
@@ -1435,6 +1453,7 @@ border: 1px solid var(--ov-new-border);
   font-size: 14px;
   font-weight: 700;
   color: #fff;
+  flex-shrink: 0;
 }
 
 .ov-cta-text {
@@ -1446,6 +1465,8 @@ border: 1px solid var(--ov-new-border);
 .ov-cta-dest {
   font-size: 12px;
   color: var(--ov-subheading-text);
+  font-weight: 400;
+  word-break: break-all;
 }
 
 .ov-cta-clicks {

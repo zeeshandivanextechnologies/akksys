@@ -382,7 +382,7 @@ const Settings = () => {
                         </button>
                         {avatar && (
                           <button
-                            className="thm-lg-btn ov-btn-danger mt-2 ms-2"
+                            className="thm-lg-btn ov-btn-danger ms-2 mt-2"
                             style={{padding : "6px 12px"}}
                             onClick={removeAvatar}
                           >

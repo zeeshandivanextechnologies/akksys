@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import Chart from 'react-apexcharts';
+import { toast } from 'react-toastify';
 import api from '../../services/api';
 import {
   FaImage, FaHeading, FaLink, FaSave, FaUpload, FaEye, FaPalette,
   FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaGlobe, FaPhone,
   FaEnvelope, FaMapMarkerAlt, FaPlus, FaTrash, FaCheck, FaArrowUp,
   FaQrcode, FaChartLine, FaMousePointer, FaSyncAlt, FaChartBar,
-  FaVideo, FaPalette as FaPaletteIcon, FaSpinner, FaStar
+  FaVideo, FaPalette as FaPaletteIcon, FaSpinner, FaStar, FaFileContract
 } from 'react-icons/fa';
+import LegalPagesEditor from '../../components/landing/LegalPagesEditor';
+import { defaultPrivacyPolicy, defaultTermsAndConditions } from '../landing/legalDefaults';
 import '../../styles/Overview.css';
 import '../../styles/LandingContent.css';
 
@@ -80,6 +83,11 @@ const LandingContent = () => {
     phone: '',
   });
 
+  const [legalPages, setLegalPages] = useState({
+    privacyPolicy: defaultPrivacyPolicy,
+    termsAndConditions: defaultTermsAndConditions
+  });
+
   useEffect(() => {
     fetchContent();
     fetchStats();
@@ -124,6 +132,12 @@ const LandingContent = () => {
         }
         if (data.footer.email) setContactData(prev => ({ ...prev, email: data.footer.email }));
         if (data.footer.phone) setContactData(prev => ({ ...prev, phone: data.footer.phone }));
+      }
+      if (data.legal_pages) {
+        setLegalPages({
+          privacyPolicy: data.legal_pages.privacyPolicy || defaultPrivacyPolicy,
+          termsAndConditions: data.legal_pages.termsAndConditions || defaultTermsAndConditions
+        });
       }
       if (data.hero?.showSecondaryButton !== undefined) setShowSecondaryBtn(data.hero.showSecondaryButton);
     } catch (err) {
@@ -189,14 +203,16 @@ const LandingContent = () => {
           email: contactData.email,
           phone: contactData.phone,
         },
+        legal_pages: legalPages
       };
 
       await api.put('/landing-content/content', payload);
       setSaved(true);
+      toast.success('Landing page content saved successfully!');
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       console.error('Failed to save:', err);
-      alert('Failed to save. Please try again.');
+      toast.error('Failed to save. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -269,8 +285,8 @@ const LandingContent = () => {
     { id: 'testimonials', label: 'Testimonials', icon: <FaStar /> },
     { id: 'faq', label: 'FAQ', icon: <FaGlobe /> },
     { id: 'cta', label: 'Call to Action', icon: <FaLink /> },
-    { id: 'contact', label: 'Contact', icon: <FaPhone /> },
-    { id: 'social', label: 'Social Media', icon: <FaGlobe /> },
+    { id: 'footer', label: 'Footer', icon: <FaGlobe /> },
+    { id: 'cms', label: 'CMS', icon: <FaFileContract /> },
   ];
 
   const iconOptions = [
@@ -737,26 +753,49 @@ const LandingContent = () => {
             </div>
           )}
 
-          {activeTab === 'contact' && (
+          {activeTab === 'footer' && (
             <div className="ov-card h-auto">
-              <div className="ov-card-header"><div><h6 className="ov-card-title"><FaPhone className="me-2" />Contact Information</h6><p className="ov-card-subtitle">Display contact details on your landing page</p></div></div>
+              <div className="ov-card-header"><div><h6 className="ov-card-title"><FaGlobe className="me-2" />Footer Settings</h6><p className="ov-card-subtitle">Manage footer branding, contact info, social links and columns</p></div></div>
               <div className="ov-card-body">
-                <div className="custom-frm-bx"><label className="lc-label">Email Address</label><div className="lc-input-with-icon"><FaEnvelope className="lc-input-icon" /><input type="email" className="form-control" value={contactData.email} onChange={(e) => setContactData({ ...contactData, email: e.target.value })} /></div></div>
-                <div className="custom-frm-bx"><label className="lc-label">Phone Number</label><div className="lc-input-with-icon"><FaPhone className="lc-input-icon" /><input type="tel" className="form-control" value={contactData.phone} onChange={(e) => setContactData({ ...contactData, phone: e.target.value })} /></div></div>
-                <div className="custom-frm-bx mb-0"><label className="lc-label">Address</label><div className="lc-input-with-icon"><FaMapMarkerAlt className="lc-input-icon" /><input type="text" className="form-control" value={contactData.address} onChange={(e) => setContactData({ ...contactData, address: e.target.value })} /></div></div>
+
+                {/* Brand Section */}
+                <h6 className="lc-section-title">Brand</h6>
+                <div className="row">
+                  <div className="col-md-6"><div className="custom-frm-bx mb-0"><label className="lc-label">Brand Name</label><input type="text" className="form-control" value={footerData.brandName || ''} onChange={(e) => setFooterData({ ...footerData, brandName: e.target.value })} /></div></div>
+                  <div className="col-md-6"><div className="custom-frm-bx mb-0"><label className="lc-label">Copyright Text</label><input type="text" className="form-control" value={footerData.copyright || ''} onChange={(e) => setFooterData({ ...footerData, copyright: e.target.value })} placeholder="2026 AKKSYS. All rights reserved." /></div></div>
+                </div>
+                <div className="custom-frm-bx"><label className="lc-label">Description</label><textarea className="form-control" rows="2" value={footerData.description || ''} onChange={(e) => setFooterData({ ...footerData, description: e.target.value })} /></div>
+
+                <div className="ov-divider"></div>
+
+                {/* Contact Section */}
+                <h6 className="lc-section-title">Contact Information</h6>
+                <div className="row">
+                  <div className="col-md-6"><div className="custom-frm-bx mb-0"><label className="lc-label">Email Address</label><div className="lc-input-with-icon"><FaEnvelope className="lc-input-icon" /><input type="email" className="form-control" value={contactData.email} onChange={(e) => setContactData({ ...contactData, email: e.target.value })} /></div></div></div>
+                  <div className="col-md-6"><div className="custom-frm-bx mb-0"><label className="lc-label">Phone Number</label><div className="lc-input-with-icon"><FaPhone className="lc-input-icon" /><input type="tel" className="form-control" value={contactData.phone} onChange={(e) => setContactData({ ...contactData, phone: e.target.value })} /></div></div></div>
+                </div>
+
+                <div className="ov-divider"></div>
+
+                {/* Social Media Section */}
+                <h6 className="lc-section-title">Social Media Links</h6>
+                <div className="custom-frm-bx"><label className="lc-label">Facebook</label><div className="lc-input-with-icon"><FaFacebook className="lc-input-icon facebook" /><input type="url" className="form-control" placeholder="https://facebook.com/yourpage" value={socialData.facebook || ''} onChange={(e) => setSocialData({ ...socialData, facebook: e.target.value })} /></div></div>
+                <div className="custom-frm-bx"><label className="lc-label">Twitter</label><div className="lc-input-with-icon"><FaTwitter className="lc-input-icon twitter" /><input type="url" className="form-control" placeholder="https://twitter.com/yourhandle" value={socialData.twitter || ''} onChange={(e) => setSocialData({ ...socialData, twitter: e.target.value })} /></div></div>
+                <div className="row">
+                  <div className="col-md-6"><div className="custom-frm-bx mb-0"><label className="lc-label">Instagram</label><div className="lc-input-with-icon"><FaInstagram className="lc-input-icon instagram" /><input type="url" className="form-control" placeholder="https://instagram.com/yourprofile" value={socialData.instagram || ''} onChange={(e) => setSocialData({ ...socialData, instagram: e.target.value })} /></div></div></div>
+                  <div className="col-md-6"><div className="custom-frm-bx mb-0"><label className="lc-label">YouTube</label><div className="lc-input-with-icon"><FaYoutube className="lc-input-icon youtube" /><input type="url" className="form-control" placeholder="https://youtube.com/yourchannel" value={socialData.youtube || ''} onChange={(e) => setSocialData({ ...socialData, youtube: e.target.value })} /></div></div></div>
+                </div>
+                <div className="custom-frm-bx mb-0"><label className="lc-label">Website</label><div className="lc-input-with-icon"><FaGlobe className="lc-input-icon" /><input type="url" className="form-control" placeholder="https://yourwebsite.com" value={socialData.website || ''} onChange={(e) => setSocialData({ ...socialData, website: e.target.value })} /></div></div>
+
               </div>
             </div>
           )}
 
-          {activeTab === 'social' && (
+          {activeTab === 'cms' && (
             <div className="ov-card h-auto">
-              <div className="ov-card-header"><div><h6 className="ov-card-title"><FaGlobe className="me-2" />Social Media Links</h6><p className="ov-card-subtitle">Add your social media profiles</p></div></div>
+              <div className="ov-card-header"><div><h6 className="ov-card-title"><FaFileContract className="me-2" />Content Management System</h6><p className="ov-card-subtitle">Manage legal pages like Privacy Policy and Terms</p></div></div>
               <div className="ov-card-body">
-                <div className="custom-frm-bx"><label className="lc-label">Facebook</label><div className="lc-input-with-icon"><FaFacebook className="lc-input-icon facebook" /><input type="url" className="form-control" placeholder="https://facebook.com/yourpage" value={socialData.facebook || ''} onChange={(e) => setSocialData({ ...socialData, facebook: e.target.value })} /></div></div>
-                <div className="custom-frm-bx"><label className="lc-label">Twitter</label><div className="lc-input-with-icon"><FaTwitter className="lc-input-icon twitter" /><input type="url" className="form-control" placeholder="https://twitter.com/yourhandle" value={socialData.twitter || ''} onChange={(e) => setSocialData({ ...socialData, twitter: e.target.value })} /></div></div>
-                <div className="custom-frm-bx"><label className="lc-label">Instagram</label><div className="lc-input-with-icon"><FaInstagram className="lc-input-icon instagram" /><input type="url" className="form-control" placeholder="https://instagram.com/yourprofile" value={socialData.instagram || ''} onChange={(e) => setSocialData({ ...socialData, instagram: e.target.value })} /></div></div>
-                <div className="custom-frm-bx"><label className="lc-label">YouTube</label><div className="lc-input-with-icon"><FaYoutube className="lc-input-icon youtube" /><input type="url" className="form-control" placeholder="https://youtube.com/yourchannel" value={socialData.youtube || ''} onChange={(e) => setSocialData({ ...socialData, youtube: e.target.value })} /></div></div>
-                <div className="custom-frm-bx mb-0"><label className="lc-label">Website</label><div className="lc-input-with-icon"><FaGlobe className="lc-input-icon" /><input type="url" className="form-control" placeholder="https://yourwebsite.com" value={socialData.website || ''} onChange={(e) => setSocialData({ ...socialData, website: e.target.value })} /></div></div>
+                <LegalPagesEditor legalPages={legalPages} setLegalPages={setLegalPages} />
               </div>
             </div>
           )}

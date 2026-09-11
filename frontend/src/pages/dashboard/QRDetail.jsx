@@ -390,7 +390,7 @@ const QRDetail = () => {
               </div>
             </div>
           </div>
-          <div className="ov-header-actions">
+          <div className="ov-header-actions qr-ov-section">
             <button className="thm-btn outline" onClick={() => setShowDownloadModal(true)}>
               <FaDownload /> Download QR
             </button>
