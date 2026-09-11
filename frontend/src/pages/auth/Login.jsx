@@ -101,7 +101,7 @@ const Login = () => {
                 </div>
 
                 <div className='mb-3 text-end'>
-                  <button type="button" className="login-forgot-btn" onClick={() => navigate('/forgot-password')}>Forgot password?</button>
+                  {/* <button type="button" className="login-forgot-btn" onClick={() => navigate('/forgot-password')}>Forgot password?</button> */}
                 </div>
 
                 <button
