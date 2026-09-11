@@ -368,7 +368,7 @@ const Analytics = () => {
               </thead>
               <tbody>
                 {qrAnalytics.length === 0 ? (
-                  <tr><td colSpan="8" className="text-center py-4" style={{ color: '#999' }}>No QR data yet</td></tr>
+                  <tr><td colSpan="8" className="text-center" style={{ color: '#ddd', height : "250px" }}>No QR data yet</td></tr>
                 ) : (
                   qrAnalytics.map((qr, i) => (
                     <tr key={i} className="an-tr">
@@ -414,7 +414,7 @@ const Analytics = () => {
               </thead>
               <tbody>
                 {campaignAnalytics.length === 0 ? (
-                  <tr><td colSpan="8" className="text-center py-4" style={{ color: '#999' }}>No campaign data yet</td></tr>
+                  <tr><td colSpan="8" className="text-center py-4" style={{  color: '#ddd', height : "250px" }}>No campaign data yet</td></tr>
                 ) : (
                   campaignAnalytics.map((cmp, i) => (
                     <tr key={i} className="an-tr">
@@ -458,7 +458,7 @@ const Analytics = () => {
               </thead>
               <tbody>
                 {versionAnalytics.length === 0 ? (
-                  <tr><td colSpan="9" className="text-center py-4" style={{ color: '#999' }}>No version data yet</td></tr>
+                  <tr><td colSpan="9" className="text-center py-4" style={{ color: '#ddd', height : "250px" }}>No version data yet</td></tr>
                 ) : (
                   versionAnalytics.map((v, i) => (
                     <tr key={i} className="an-tr">
@@ -513,7 +513,7 @@ const Analytics = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-4" style={{ color: '#999' }}>No device data yet</div>
+                  <div className="text-center py-4" style={{ color: '#ddd' }}>No device data yet</div>
                 )}
               </div>
             </div>
@@ -547,7 +547,7 @@ const Analytics = () => {
                     </div>
                   </>
                 ) : (
-                  <div className="text-center py-4" style={{ color: '#999' }}>No device data yet</div>
+                  <div className="text-center py-4" style={{ color: '#ddd' }}>No device data yet</div>
                 )}
               </div>
             </div>
@@ -593,7 +593,7 @@ const Analytics = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-4" style={{ color: '#999' }}>No location data yet</div>
+                  <div className="text-center py-4" style={{ color: '#ddd' }}>No location data yet</div>
                 )}
               </div>
             </div>
