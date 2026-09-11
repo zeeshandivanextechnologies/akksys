@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import { 
-  FaChartLine, FaQrcode, FaMobileAlt, FaDesktop, 
+  FaChartLine, FaQrcode, FaMobileAlt, FaDesktop, FaTabletAlt,
   FaGlobeAsia, FaCalendarAlt, FaFilter, FaDownload, FaEye, FaMousePointer 
 } from 'react-icons/fa';
 import api from '../../services/api';
@@ -502,7 +502,9 @@ const Analytics = () => {
                           device.color === '#3b82f6' ? 'blue' : 
                           device.color === '#f59e0b' ? 'orange' : 'purple'
                         }`}>
-                          {device.type === 'Android' || device.type === 'iOS' ? <FaMobileAlt /> : <FaDesktop />}
+                          {device.type.toLowerCase().includes('tablet') || device.type.toLowerCase().includes('ipad') ? <FaTabletAlt /> : 
+                           device.type.toLowerCase().includes('mobile') || device.type.toLowerCase().includes('android') || device.type.toLowerCase().includes('ios') || device.type.toLowerCase().includes('iphone') ? <FaMobileAlt /> : 
+                           <FaDesktop />}
                         </div>
                         <div className="an-device-info">
                           <div className="an-device-name">{device.type}</div>

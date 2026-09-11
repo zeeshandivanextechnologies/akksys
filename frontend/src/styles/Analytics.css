@@ -619,8 +619,8 @@ display: inline-flex;
 }
 
 .an-device-icon.purple {
-  background: rgba(105, 67, 200, 0.1);
-  color: #6943c8;
+  background: rgba(0, 200, 255, 0.1);
+  color: #00C8FF;
 }
 
 .an-device-info {
