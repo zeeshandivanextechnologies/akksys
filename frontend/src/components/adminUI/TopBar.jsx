@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FaSearch, FaBell, FaAngleDown, FaBars, FaTruck, FaQrcode, FaCalendarCheck, FaChartLine, FaUserPlus, FaUser, FaCog, FaSignOutAlt, FaQuestionCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
 const TopBar = ({ _title, onToggleSidebar }) => {
   const navigate = useNavigate();
@@ -11,6 +12,10 @@ const TopBar = ({ _title, onToggleSidebar }) => {
   const [avatar, setAvatar] = useState(null);
   const notifRef = useRef(null);
   const profileRef = useRef(null);
+  const searchRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     const loadAvatar = () => {
@@ -26,16 +31,75 @@ const TopBar = ({ _title, onToggleSidebar }) => {
     };
   }, []);
 
-  const notifications = [
-    { id: 1, icon: <FaQrcode />, iconBg: '#00C8FF', text: 'New scan on "Pro X1 Launch" QR code from Mumbai', time: '2 min ago' },
-    { id: 2, icon: <FaCalendarCheck />, iconBg: '#10b981', text: 'Campaign "Festive Offer 2026" is now active', time: '15 min ago' },
-    { id: 3, icon: <FaTruck />, iconBg: '#3b82f6', text: 'New order #ORD123456 has been placed by John Doe', time: '1 hour ago' },
-    { id: 4, icon: <FaChartLine />, iconBg: '#f59e0b', text: 'Monthly analytics report is ready for download', time: '3 hours ago' },
-    { id: 5, icon: <FaUserPlus />, iconBg: '#00C8FF', text: 'New user registered: John Doe', time: '5 hours ago' },
-    { id: 6, icon: <FaQrcode />, iconBg: '#00C8FF', text: 'QR code "Summer Campaign" crossed 3000 scans', time: '6 hours ago' },
-  ];
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const unreadCount = 3;
+  const getSeenIds = () => {
+    try {
+      return JSON.parse(localStorage.getItem('akksys_seen_notifs') || '[]');
+    } catch {
+      return [];
+    }
+  };
+
+  const markAsSeen = (id) => {
+    const seen = getSeenIds();
+    if (!seen.includes(id)) {
+      seen.push(id);
+      localStorage.setItem('akksys_seen_notifs', JSON.stringify(seen));
+    }
+  };
+
+  const markAllAsSeen = () => {
+    const ids = notifications.map(n => n.id);
+    localStorage.setItem('akksys_seen_notifs', JSON.stringify(ids));
+    setUnreadCount(0);
+  };
+
+  useEffect(() => {
+    const fetchNotifs = async () => {
+      try {
+        const res = await api.get('/user/admin-notifications');
+        const formatted = res.data.map((item, idx) => {
+          let icon, iconBg, text;
+          if (item.type === 'scan') {
+            icon = <FaQrcode />;
+            iconBg = '#00C8FF';
+            text = `New scan on "${item.qr_name}" QR code${item.city ? ` from ${item.city}` : ''}`;
+          } else {
+            icon = <FaCalendarCheck />;
+            iconBg = '#10b981';
+            text = `New Campaign "${item.qr_name}" was created`;
+          }
+
+          const diffMs = Date.now() - new Date(item.time).getTime();
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMins / 60);
+          const diffDays = Math.floor(diffHours / 24);
+
+          let timeStr = 'Just now';
+          if (diffMins > 0 && diffMins < 60) timeStr = `${diffMins} min ago`;
+          else if (diffHours > 0 && diffHours < 24) timeStr = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+          else if (diffDays > 0) timeStr = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+
+          return {
+            id: `${item.type}-${item.id}-${idx}`,
+            icon,
+            iconBg,
+            text,
+            time: timeStr
+          };
+        });
+        setNotifications(formatted);
+        const seenIds = getSeenIds();
+        const unread = formatted.filter(n => !seenIds.includes(n.id)).length;
+        setUnreadCount(unread);
+      } catch (err) {
+        console.error('Failed to load notifications', err);
+      }
+    };
+    fetchNotifs();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -45,10 +109,32 @@ const TopBar = ({ _title, onToggleSidebar }) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setShowProfile(false);
       }
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowResults(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.trim() === '') {
+        setSearchResults([]);
+        setShowResults(false);
+        return;
+      }
+      try {
+        const res = await api.get(`/search?q=${encodeURIComponent(searchQuery)}`);
+        setSearchResults(res.data);
+        setShowResults(true);
+      } catch (err) {
+        console.error('Search failed', err);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const getInitials = (name) => {
     if (!name) return 'U';
@@ -72,23 +158,57 @@ const TopBar = ({ _title, onToggleSidebar }) => {
         >
           <FaBars />
         </button>
-           <div className="topbar-search-wrapper d-none d-md-block">
+           <div className="topbar-search-wrapper d-none d-md-block" ref={searchRef}>
           <FaSearch className="topbar-search-icon" size={14} />
           <input 
             type="text" 
             className="topbar-search-input" 
             placeholder="Search..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => { if (searchQuery.trim()) setShowResults(true); }}
           />
+          {showResults && (
+            <div className="search-dropdown-menu">
+              {searchResults.length > 0 ? (
+                searchResults.map(res => (
+                  <div key={`${res.type}-${res.id}`} 
+                       className="search-dropdown-item" 
+                       onClick={() => {
+                         setShowResults(false);
+                         setSearchQuery('');
+                         if (res.type === 'campaign') navigate('/admin/campaign-history');
+                         else navigate(`/admin/dynamic-qr/${res.id}`);
+                       }}
+                       >
+                    <div className="topbar-search-item-info">
+                      <div className="topbar-search-item-name">{res.name}</div>
+                      <div className="topbar-search-item-type">{res.type}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="search-dropdown-empty">
+                  No results found
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
       
       {/* Right: Actions, Search, Profile */}
       <div className="d-flex align-items-center gap-3">
         
-        <div className="d-flex align-items-center gap-3">
+        <div className="d-flex align-items-center gap-2">
           {/* Notification Bell Dropdown */}
           <div className="notif-bell-wrapper" ref={notifRef}>
-            <div className="notif-bell" onClick={() => setShowNotifications(!showNotifications)}>
+            <div className="notif-bell" onClick={() => {
+              setShowNotifications(!showNotifications);
+              if (!showNotifications) {
+                markAllAsSeen();
+              }
+            }}>
               <FaBell size={18} className="text-white" />
               {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
             </div>
@@ -101,7 +221,10 @@ const TopBar = ({ _title, onToggleSidebar }) => {
                 </div>
                 <div className="notif-dropdown-list">
                   {notifications.map((notif) => (
-                    <div key={notif.id} className="notif-dropdown-item">
+                    <div key={notif.id} className="notif-dropdown-item" onClick={() => {
+                      markAsSeen(notif.id);
+                      setUnreadCount(prev => Math.max(0, prev - 1));
+                    }}>
                       <div className="notif-item-icon" style={{ background: `${notif.iconBg}15`, color: notif.iconBg }}>
                         {notif.icon}
                       </div>
@@ -113,7 +236,15 @@ const TopBar = ({ _title, onToggleSidebar }) => {
                   ))}
                 </div>
                 <div className="notif-dropdown-footer">
-                  <button className="thm-btn w-100">See All Notifications</button>
+                  <button 
+                    className="thm-btn w-100"
+                    onClick={() => {
+                      setShowNotifications(false);
+                      navigate('/admin/notifications');
+                    }}
+                  >
+                    See All Notifications
+                  </button>
                 </div>
               </div>
             )}

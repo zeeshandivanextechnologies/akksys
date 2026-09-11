@@ -51,7 +51,28 @@ const Analytics = () => {
       ]);
 
       setOverviewStats(overviewRes.data);
-      setDailyData(dailyRes.data);
+
+      // Aggregate daily data into weekly buckets for 30+ days to avoid overcrowded chart
+      const rawDaily = dailyRes.data || [];
+      if (dateRange > 7 && rawDaily.length > 0) {
+        const weekSize = dateRange <= 30 ? 7 : dateRange <= 90 ? 15 : 30;
+        const aggregated = [];
+        for (let i = 0; i < rawDaily.length; i += weekSize) {
+          const chunk = rawDaily.slice(i, i + weekSize);
+          const scans = chunk.reduce((sum, d) => sum + d.scans, 0);
+          const clicks = chunk.reduce((sum, d) => sum + d.clicks, 0);
+          const firstDay = chunk[0].day;
+          const lastDay = chunk[chunk.length - 1].day;
+          aggregated.push({
+            day: `${firstDay}-${lastDay}`,
+            scans,
+            clicks,
+          });
+        }
+        setDailyData(aggregated);
+      } else {
+        setDailyData(rawDaily);
+      }
 
       const qrRows = qrRes.data || [];
       setQrAnalytics(qrRows.map(qr => ({
@@ -122,7 +143,6 @@ const Analytics = () => {
     setDateRange(e.target.value);
   };
 
-  const isDense = dailyData.length > 30;
 
   const chartOptions = {
     chart: {
@@ -133,22 +153,22 @@ const Analytics = () => {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: isDense ? '85%' : '55%',
-        borderRadius: isDense ? 0 : 4,
+        columnWidth: '55%',
+        borderRadius: 4,
         borderRadiusApplication: 'end',
       },
     },
     dataLabels: { enabled: false },
-    stroke: { show: true, width: isDense ? 0 : 2, colors: ['transparent'] },
+    stroke: { show: true, width: 0 },
     xaxis: {
       categories: dailyData.map(d => d.day),
       labels: { 
         style: { fontSize: '11px', fontWeight: 500, colors: '#49636F' },
+        rotate: dailyData.length > 10 ? -30 : 0,
         hideOverlappingLabels: true,
       },
       axisBorder: { show: false },
       axisTicks: { show: false },
-      tickAmount: isDense ? 10 : undefined,
     },
     yaxis: {
       labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },

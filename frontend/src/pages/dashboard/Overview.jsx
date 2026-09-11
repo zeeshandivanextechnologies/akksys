@@ -82,6 +82,26 @@ const Overview = () => {
 
         setWeeklyData(overviewDailyRes.data);
 
+        // Aggregate daily data into weekly buckets for 30/90 days to avoid overcrowded chart
+        if (days > 7 && overviewDailyRes.data.length > 0) {
+          const daily = overviewDailyRes.data;
+          const weekSize = days <= 30 ? 7 : 15;
+          const aggregated = [];
+          for (let i = 0; i < daily.length; i += weekSize) {
+            const chunk = daily.slice(i, i + weekSize);
+            const scans = chunk.reduce((sum, d) => sum + d.scans, 0);
+            const clicks = chunk.reduce((sum, d) => sum + d.clicks, 0);
+            const firstDay = chunk[0].day;
+            const lastDay = chunk[chunk.length - 1].day;
+            aggregated.push({
+              day: `${firstDay}-${lastDay}`,
+              scans,
+              clicks,
+            });
+          }
+          setWeeklyData(aggregated);
+        }
+
         const totalDevices = devicesRes.data.reduce((sum, d) => sum + parseInt(d.count), 0);
         const devData = devicesRes.data.map(d => ({
           type: d.device_type || 'Unknown',
@@ -131,7 +151,13 @@ const Overview = () => {
     stroke: { show: true, width: 0 },
     xaxis: {
       categories: weeklyData.map(d => d.day),
-      labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
+      labels: {
+        style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' },
+        rotate: days > 30 ? -30 : 0,
+        rotateAlways: false,
+        hideOverlappingLabels: true,
+      },
+      tickPlacement: 'on',
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
@@ -254,7 +280,7 @@ const Overview = () => {
                   options={chartOptions}
                   series={chartSeries}
                   type="bar"
-                  height={270}
+                  height={days > 30 ? 320 : 270}
                 />
               </div>
             </div>

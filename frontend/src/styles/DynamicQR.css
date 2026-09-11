@@ -9,10 +9,20 @@
   background: var(--ov-main-bg);
 }
 
-@media (max-width: 576px) {
+@media (max-width: 991px) {
   .dq-page-wrapper {
     padding: 12px;
   }
+
+  .topbar-header{
+    padding: 12px;
+  }
+
+
+}
+
+@media (max-width: 576px) {
+ 
 }
 
 /* ============================================

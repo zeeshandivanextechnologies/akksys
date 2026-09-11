@@ -3,7 +3,7 @@ import { body } from 'express-validator';
 import { validate } from '../middleware/validate.js';
 import { auth } from '../middleware/auth.js';
 import { apiLimiter } from '../middleware/rateLimiter.js';
-import { getProfile, updateProfile, changePassword, getTwoFactor, updateTwoFactor, getNotifications, updateNotifications } from '../controllers/user.controller.js';
+import { getProfile, updateProfile, changePassword, getTwoFactor, updateTwoFactor, getNotifications, updateNotifications, getAdminNotifications } from '../controllers/user.controller.js';
 
 const router = Router();
 router.use(apiLimiter);
@@ -23,5 +23,6 @@ router.get('/two-factor', auth, getTwoFactor);
 router.put('/two-factor', auth, updateTwoFactor);
 router.get('/notifications', auth, getNotifications);
 router.put('/notifications', auth, updateNotifications);
+router.get('/admin-notifications', auth, getAdminNotifications);
 
 export default router;

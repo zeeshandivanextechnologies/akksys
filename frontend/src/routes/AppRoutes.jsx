@@ -24,6 +24,7 @@ import EditCampaign from '../pages/dashboard/EditCampaign';
 import CreateVersion from '../pages/dashboard/CreateVersion';
 import LandingContent from '../pages/dashboard/LandingContent';
 import Settings from '../pages/dashboard/Settings';
+import Notifications from '../pages/dashboard/Notifications';
 
 const AppRoutes = () => {
   return (
@@ -53,6 +54,7 @@ const AppRoutes = () => {
           <Route path="campaign/:campaignId/version/create" element={<CreateVersion />} />
           <Route path="settings" element={<Settings />} />
           <Route path="landing-content" element={<LandingContent />} />
+          <Route path="notifications" element={<Notifications />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

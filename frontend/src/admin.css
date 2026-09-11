@@ -643,6 +643,63 @@
   background: var(--ov-new-bg);
 }
 
+.search-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  min-width: 250px;
+ background: var(--ov-new-bg);
+    border: 1px solid var(--ov-new-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  margin-top: 8px;
+  z-index: 1000;
+  overflow: hidden;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.search-dropdown-item {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--ov-new-border);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.search-dropdown-item:hover {
+  background: rgba(0, 200, 255, 0.1);
+}
+
+.topbar-search-item-info {
+  text-align: left;
+}
+
+.topbar-search-item-name {
+  font-size: 14px;
+  color: var(--ov-heading-text);
+  font-weight: 500;
+}
+
+.topbar-search-item-type {
+  font-size: 12px;
+  color: var(--ov-subheading-text);
+  text-transform: capitalize;
+}
+
+.search-dropdown-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--ov-subheading-text);
+  font-size: 13px;
+}
+
 .topbar-segmented-control {
   border: 1px solid var(--admin-border);
   background: var(--admin-bg-main);
@@ -667,7 +724,7 @@
 .topbar-profile-container {
   cursor: pointer;
   border-left: 1px solid var(--ov-new-border);
-  padding-left: 1rem;
+  padding-left: 10px;
 }
 
 .topbar-profile-avatar {

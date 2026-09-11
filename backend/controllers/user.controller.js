@@ -1,6 +1,30 @@
 import { db } from '../config/db.js';
 import { comparePassword, hashPassword } from '../utils/hashPassword.js';
 
+export const getAdminNotifications = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 6;
+    const scans = await db.query(
+      `SELECT se.id, 'scan' as type, se.scanned_at as time, q.name as qr_name, se.city 
+       FROM scan_events se 
+       JOIN qr_codes q ON se.qr_id = q.id 
+       ORDER BY se.scanned_at DESC LIMIT $1`, [limit]
+    );
+
+    const campaigns = await db.query(
+      `SELECT id, 'campaign' as type, created_at as time, name as qr_name, null as city
+       FROM campaigns 
+       ORDER BY created_at DESC LIMIT $1`, [limit]
+    );
+
+    const all = [...scans.rows, ...campaigns.rows].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, limit);
+    
+    res.json(all);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getProfile = async (req, res, next) => {
   try {
     const result = await db.query(
