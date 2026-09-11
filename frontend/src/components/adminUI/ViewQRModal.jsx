@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { FaTimes, FaWifi, FaAddressCard, FaLink, FaEnvelope, FaPhone, FaQrcode, FaCalendar } from 'react-icons/fa';
 import '../../styles/QRDownloadModal.css';
@@ -95,7 +96,9 @@ const ViewQRModal = ({ show, onClose, qr }) => {
           <div className="sq-view-details">
             <div className="sq-view-row">
               <span className="sq-view-label">Website URL</span>
-              <span className="sq-view-value">{d.url || qr.details || '—'}</span>
+              <NavLink to={d.url || qr.details || '#'} className="sq-view-value" target="_blank">
+                {d.url || qr.details || '—'}
+              </NavLink>
             </div>
           </div>
         );
