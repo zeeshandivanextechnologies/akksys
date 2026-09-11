@@ -20,7 +20,7 @@ const Analytics = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [dateRange, setDateRange] = useState('30');
+  const [dateRange, setDateRange] = useState('7');
 
   const [overviewStats, setOverviewStats] = useState({ totalScans: 0, uniqueScans: 0, ctaClicks: 0, activeQr: 0 });
   const [qrAnalytics, setQrAnalytics] = useState([]);
