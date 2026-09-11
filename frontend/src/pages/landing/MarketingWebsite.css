@@ -2120,8 +2120,8 @@ color: #00C8FF;
 .mk-legal-card p {
   font-size: 14px;
   line-height: 1.8;
-  color: #9ca3b0;
-  margin-bottom: 10px;
+  color: var(--ov-subheading-text);
+  margin-bottom: 0px;
 }
 
 .mk-legal-list {
@@ -2133,7 +2133,7 @@ color: #00C8FF;
 .mk-legal-list li {
   font-size: 14px;
   line-height: 1.8;
-  color: #9ca3b0;
+  color: var(--ov-subheading-text);
   padding-left: 20px;
   position: relative;
   margin-bottom: 4px;
