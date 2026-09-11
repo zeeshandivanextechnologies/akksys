@@ -568,7 +568,7 @@ const Analytics = () => {
                 <h6 className="an-card-title"><FaGlobeAsia className="me-2" />Scan Locations (Global)</h6>
                 {locationData.length > 0 ? (
                   <>
-                    <div style={{ width: "100%", height: "400px", marginBottom: "24px", background: "var(--ov-card-bg)", borderRadius: "8px", overflow: "hidden" }}>
+                    <div style={{ width: "100%", height: "400px", marginBottom: "24px", background: "var(--ov-mian-bg)", borderRadius: "8px", overflow: "hidden" }}>
                       <ComposableMap
                         projectionConfig={{ scale: 147 }}
                         style={{ width: "100%", height: "100%" }}
