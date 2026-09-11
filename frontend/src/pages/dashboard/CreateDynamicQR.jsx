@@ -104,7 +104,7 @@ const CreateDynamicQR = () => {
         });
         if (editQR.campaignId) {
           await api.put(`/campaign/${editQR.campaignId}`, {
-            name: `Campaign for ${qrName.trim()}`,
+            name: qrName.trim(),
             video_type: videoSource ? 'library' : (videoUrl.includes('youtube') ? 'youtube' : videoUrl.includes('vimeo') ? 'vimeo' : 'mp4'),
             video_url: finalVideoUrl,
             cta_text: ctaText.trim() || 'Learn More',
@@ -123,7 +123,7 @@ const CreateDynamicQR = () => {
         const videoType = videoSource ? 'library' : (videoUrl.includes('youtube') ? 'youtube' : videoUrl.includes('vimeo') ? 'vimeo' : 'mp4');
         await api.post('/campaign/create', {
           qr_id: newQR.id,
-          name: `Campaign for ${qrName.trim()}`,
+          name: qrName.trim(),
           video_type: videoType,
           video_url: finalVideoUrl,
           cta_text: ctaText.trim() || 'Learn More',
