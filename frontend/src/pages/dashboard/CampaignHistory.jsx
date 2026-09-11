@@ -233,6 +233,7 @@ const CampaignHistory = () => {
                       </div>
                     </div>
                   </td>
+                  
                   <td className="ch-td">
                     <div className="ch-td-meta">
                       <FaPlay className="ch-td-meta-icon" size={10} />
@@ -245,6 +246,7 @@ const CampaignHistory = () => {
                       <span className="ch-td-meta-text">{campaign.cta_text || '—'}</span>
                     </div>
                   </td>
+
                   <td className="ch-td ch-td-number">{parseInt(campaign.total_scans || 0).toLocaleString()}</td>
                   <td className="ch-td ch-td-number">{parseInt(campaign.cta_clicks || 0).toLocaleString()}</td>
                   <td className="ch-td">

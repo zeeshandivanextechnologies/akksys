@@ -343,6 +343,7 @@
     border-bottom: 1px solid var(--ov-new-border);
     vertical-align: middle;
     color: var(--ov-heading-text);
+    white-space: nowrap;
 }
 
 .an-tr:last-child td {

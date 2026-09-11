@@ -56,7 +56,13 @@ export const listCampaigns = async (req, res, next) => {
          WHERE v.campaign_id = c.id) as total_scans,
         (SELECT COUNT(*) FROM cta_clicks cc 
          JOIN campaign_versions v ON cc.version_id = v.id 
-         WHERE v.campaign_id = c.id) as cta_clicks
+         WHERE v.campaign_id = c.id) as cta_clicks,
+        (SELECT v.video_type FROM campaign_versions v 
+         WHERE v.campaign_id = c.id AND v.is_active = true 
+         ORDER BY v.created_at DESC LIMIT 1) as video_type,
+        (SELECT v.cta_text FROM campaign_versions v 
+         WHERE v.campaign_id = c.id AND v.is_active = true 
+         ORDER BY v.created_at DESC LIMIT 1) as cta_text
        FROM campaigns c 
        JOIN qr_codes q ON c.qr_id = q.id 
        ORDER BY c.created_at DESC`

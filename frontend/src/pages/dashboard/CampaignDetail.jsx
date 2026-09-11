@@ -165,7 +165,19 @@ const CampaignDetail = () => {
                 </div>
                 <div className="cd-info-item">
                   <span className="cd-info-label">Destination</span>
-                  <span className="cd-info-value purple">{activeVersion.cta_destination || '—'}</span>
+                  {activeVersion.cta_destination ? (
+                    <a
+                      href={activeVersion.cta_destination}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="cd-info-value purple"
+                      style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                    >
+                      {activeVersion.cta_destination}
+                    </a>
+                  ) : (
+                    <span className="cd-info-value purple">—</span>
+                  )}
                 </div>
                 <div className="cd-info-item">
                   <span className="cd-info-label">Headline</span>

@@ -11,6 +11,7 @@ import '../../styles/Analytics.css';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
+import { toast } from 'react-toastify';
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
@@ -26,6 +27,12 @@ const Analytics = () => {
   const [qrAnalytics, setQrAnalytics] = useState([]);
   const [campaignAnalytics, setCampaignAnalytics] = useState([]);
   const [versionAnalytics, setVersionAnalytics] = useState([]);
+  const [versionCurrentPage, setVersionCurrentPage] = useState(1);
+  const versionItemsPerPage = 10;
+  const [campaignCurrentPage, setCampaignCurrentPage] = useState(1);
+  const campaignItemsPerPage = 10;
+  const [qrCurrentPage, setQrCurrentPage] = useState(1);
+  const qrItemsPerPage = 10;
   const [deviceData, setDeviceData] = useState([]);
   const [locationData, setLocationData] = useState([]);
   const [dailyData, setDailyData] = useState([]);
@@ -115,6 +122,8 @@ const Analytics = () => {
     setDateRange(e.target.value);
   };
 
+  const isDense = dailyData.length > 30;
+
   const chartOptions = {
     chart: {
       type: 'bar',
@@ -124,18 +133,22 @@ const Analytics = () => {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: '55%',
-        borderRadius: 4,
+        columnWidth: isDense ? '85%' : '55%',
+        borderRadius: isDense ? 0 : 4,
         borderRadiusApplication: 'end',
       },
     },
     dataLabels: { enabled: false },
-    stroke: { show: true, width: 0 },
+    stroke: { show: true, width: isDense ? 0 : 2, colors: ['transparent'] },
     xaxis: {
       categories: dailyData.map(d => d.day),
-      labels: { style: { fontSize: '11px', fontWeight: 500, colors: '#49636F' } },
+      labels: { 
+        style: { fontSize: '11px', fontWeight: 500, colors: '#49636F' },
+        hideOverlappingLabels: true,
+      },
       axisBorder: { show: false },
       axisTicks: { show: false },
+      tickAmount: isDense ? 10 : undefined,
     },
     yaxis: {
       labels: { style: { fontSize: '12px', fontWeight: 500, colors: '#49636F' } },
@@ -185,6 +198,108 @@ const Analytics = () => {
     { name: 'CTA Clicks', data: dailyData.map(d => d.clicks) },
   ];
 
+  const indexOfLastVersionItem = versionCurrentPage * versionItemsPerPage;
+  const indexOfFirstVersionItem = indexOfLastVersionItem - versionItemsPerPage;
+  const currentVersionItems = versionAnalytics.slice(indexOfFirstVersionItem, indexOfLastVersionItem);
+  const totalVersionPages = Math.ceil(versionAnalytics.length / versionItemsPerPage);
+
+  const indexOfLastCampaignItem = campaignCurrentPage * campaignItemsPerPage;
+  const indexOfFirstCampaignItem = indexOfLastCampaignItem - campaignItemsPerPage;
+  const currentCampaignItems = campaignAnalytics.slice(indexOfFirstCampaignItem, indexOfLastCampaignItem);
+  const totalCampaignPages = Math.ceil(campaignAnalytics.length / campaignItemsPerPage);
+
+  const indexOfLastQrItem = qrCurrentPage * qrItemsPerPage;
+  const indexOfFirstQrItem = indexOfLastQrItem - qrItemsPerPage;
+  const currentQrItems = qrAnalytics.slice(indexOfFirstQrItem, indexOfLastQrItem);
+  const totalQrPages = Math.ceil(qrAnalytics.length / qrItemsPerPage);
+
+  useEffect(() => {
+    setVersionCurrentPage(1);
+    setCampaignCurrentPage(1);
+    setQrCurrentPage(1);
+  }, [dateRange]);
+
+  const handleExport = () => {
+    let dataToExport = [];
+    let filename = `export_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`;
+
+    if (activeTab === 'overview') {
+      toast.info('Please select a specific tab (QR, Campaign, etc.) to export its data.');
+      return;
+    } else if (activeTab === 'qr') {
+      dataToExport = qrAnalytics.map(qr => ({
+        'QR Name': qr.name,
+        'QR URL': qr.url,
+        'Total Scans': qr.scans,
+        'Unique Scans': qr.unique,
+        'CTA Clicks': qr.ctaClicks,
+        'CTR (%)': qr.ctr,
+        'Status': qr.status
+      }));
+    } else if (activeTab === 'campaign') {
+      dataToExport = campaignAnalytics.map(c => ({
+        'Campaign Name': c.name,
+        'QR Code': c.qr,
+        'Scans': c.scans,
+        'CTA Clicks': c.ctaClicks,
+        'Start Date': c.startDate,
+        'Status': c.status
+      }));
+    } else if (activeTab === 'version') {
+      dataToExport = versionAnalytics.map(v => ({
+        'Campaign': v.campaign,
+        'Version': v.version,
+        'QR Code': v.qr,
+        'Video': v.video,
+        'CTA': v.cta,
+        'Scans': v.scans,
+        'CTA Clicks': v.ctaClicks,
+        'Status': v.status
+      }));
+    } else if (activeTab === 'devices') {
+      dataToExport = deviceData.map(d => ({
+        'Device Type': d.type,
+        'Scans': d.scans,
+        'Percentage (%)': d.percent
+      }));
+    } else if (activeTab === 'locations') {
+      dataToExport = locationData.map(l => ({
+        'City': l.city,
+        'Country': l.country,
+        'Scans': l.scans,
+        'Percentage (%)': l.percent
+      }));
+    }
+
+    if (dataToExport.length === 0) {
+      toast.info('No data available to export.');
+      return;
+    }
+
+    const headers = Object.keys(dataToExport[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+
+    for (const row of dataToExport) {
+      const values = headers.map(header => {
+        const val = row[header];
+        return `"${String(val).replace(/"/g, '""')}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+
+    const csvData = csvRows.join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`${activeTab} data exported successfully!`);
+  };
+
   const tabs = [
     { key: 'overview', icon: <FaChartLine />, label: 'Overview' },
     { key: 'qr', icon: <FaQrcode />, label: 'QR-wise' },
@@ -214,8 +329,8 @@ const Analytics = () => {
             <option value="90">Last 90 Days</option>
             <option value="365">This Year</option>
           </select>
-          <button className="thm-btn">
-            <FaDownload /> Export
+          <button className="thm-btn" onClick={handleExport}>
+            <FaDownload /> Export CSV
           </button>
         </div>
       </div>
@@ -372,12 +487,12 @@ const Analytics = () => {
                 </tr>
               </thead>
               <tbody>
-                {qrAnalytics.length === 0 ? (
+                {currentQrItems.length === 0 ? (
                   <tr><td colSpan="8" className="text-center" style={{ color: '#ddd', height : "250px" }}>No QR data yet</td></tr>
                 ) : (
-                  qrAnalytics.map((qr, i) => (
+                  currentQrItems.map((qr, i) => (
                     <tr key={i} className="an-tr">
-                      <td>{i + 1}</td>
+                      <td>{indexOfFirstQrItem + i + 1}</td>
                       <td>
                         <span className="an-td-title">{qr.name}</span>
                         <span className="an-td-subtitle">{qr.url}</span>
@@ -394,6 +509,23 @@ const Analytics = () => {
               </tbody>
             </table>
           </div>
+          {totalQrPages > 1 && (
+            <div className="d-flex justify-content-end pagination-main-box" style={{ padding: "16px", borderTop: "1px solid var(--ov-new-border)" }}>
+              <ul className="pagination custom-pagination mb-0">
+                <li className={`page-item ${qrCurrentPage === 1 ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => setQrCurrentPage(p => Math.max(1, p - 1))}>Previous</button>
+                </li>
+                {[...Array(totalQrPages)].map((_, i) => (
+                  <li key={i} className={`page-item ${qrCurrentPage === i + 1 ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => setQrCurrentPage(i + 1)}>{i + 1}</button>
+                  </li>
+                ))}
+                <li className={`page-item ${qrCurrentPage === totalQrPages ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => setQrCurrentPage(p => Math.min(totalQrPages, p + 1))}>Next</button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
           </div>
         </div>
@@ -418,12 +550,12 @@ const Analytics = () => {
                 </tr>
               </thead>
               <tbody>
-                {campaignAnalytics.length === 0 ? (
+                {currentCampaignItems.length === 0 ? (
                   <tr><td colSpan="8" className="text-center py-4" style={{  color: '#ddd', height : "250px" }}>No campaign data yet</td></tr>
                 ) : (
-                  campaignAnalytics.map((cmp, i) => (
+                  currentCampaignItems.map((cmp, i) => (
                     <tr key={i} className="an-tr">
-                      <td>{i + 1}</td>
+                      <td>{indexOfFirstCampaignItem + i + 1}</td>
                       <td><span className="an-td-title">{cmp.name}</span></td>
                       <td>{cmp.qr}</td>
                       <td className="fw-semibold">{cmp.scans.toLocaleString()}</td>
@@ -437,6 +569,23 @@ const Analytics = () => {
               </tbody>
             </table>
           </div>
+          {totalCampaignPages > 1 && (
+            <div className="d-flex justify-content-end pagination-main-box" style={{ padding: "16px", borderTop: "1px solid var(--ov-new-border)" }}>
+              <ul className="pagination custom-pagination mb-0">
+                <li className={`page-item ${campaignCurrentPage === 1 ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => setCampaignCurrentPage(p => Math.max(1, p - 1))}>Previous</button>
+                </li>
+                {[...Array(totalCampaignPages)].map((_, i) => (
+                  <li key={i} className={`page-item ${campaignCurrentPage === i + 1 ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => setCampaignCurrentPage(i + 1)}>{i + 1}</button>
+                  </li>
+                ))}
+                <li className={`page-item ${campaignCurrentPage === totalCampaignPages ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => setCampaignCurrentPage(p => Math.min(totalCampaignPages, p + 1))}>Next</button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
           </div>
         </div>
@@ -462,12 +611,12 @@ const Analytics = () => {
                 </tr>
               </thead>
               <tbody>
-                {versionAnalytics.length === 0 ? (
+                {currentVersionItems.length === 0 ? (
                   <tr><td colSpan="9" className="text-center py-4" style={{ color: '#ddd', height : "250px" }}>No version data yet</td></tr>
                 ) : (
-                  versionAnalytics.map((v, i) => (
+                  currentVersionItems.map((v, i) => (
                     <tr key={i} className="an-tr">
-                      <td>{i + 1}</td>
+                      <td>{indexOfFirstVersionItem + i + 1}</td>
                       <td><span className="an-td-title">{v.campaign}</span></td>
                       <td><span className="an-version-badge">{v.version}</span></td>
                       <td>{v.qr}</td>
@@ -482,6 +631,23 @@ const Analytics = () => {
               </tbody>
             </table>
           </div>
+          {totalVersionPages > 1 && (
+            <div className="d-flex justify-content-end pagination-main-box" style={{ padding: "16px", borderTop: "1px solid var(--ov-new-border)" }}>
+              <ul className="pagination custom-pagination mb-0">
+                <li className={`page-item ${versionCurrentPage === 1 ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => setVersionCurrentPage(p => Math.max(1, p - 1))}>Previous</button>
+                </li>
+                {[...Array(totalVersionPages)].map((_, i) => (
+                  <li key={i} className={`page-item ${versionCurrentPage === i + 1 ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => setVersionCurrentPage(i + 1)}>{i + 1}</button>
+                  </li>
+                ))}
+                <li className={`page-item ${versionCurrentPage === totalVersionPages ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => setVersionCurrentPage(p => Math.min(totalVersionPages, p + 1))}>Next</button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
             </div>
           </div>
