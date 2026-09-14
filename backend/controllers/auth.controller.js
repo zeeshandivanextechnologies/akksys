@@ -21,7 +21,8 @@ export const login = async (req, res, next) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    if (user.email_auth) {
+    // Temporarily stopped OTP logic for Render as requested
+    if (false && user.email_auth) {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       global.otpCache[email] = otp;
       
