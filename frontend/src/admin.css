@@ -103,7 +103,7 @@
 }
 
 .admin-logo-container {
-  padding: 12px 0;
+  padding: 0px 0 12px 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -215,7 +215,7 @@
 /* Collapsed Sidebar */
 .admin-sidebar.collapsed {
   width: 50px;
-  padding: 0px;
+  padding: 12px 0px 0px 0px;
   margin-bottom: 0;
 }
 
