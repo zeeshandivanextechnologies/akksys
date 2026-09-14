@@ -137,3 +137,13 @@ export const forgotPassword = async (req, res, next) => {
     next(err);
   }
 };
+
+// EMERGENCY ROUTE TO DISABLE 2FA (Since you are locked out on Render)
+export const emergencyDisable2FA = async (req, res, next) => {
+  try {
+    await db.query('UPDATE users SET email_auth = false, sms_auth = false');
+    res.send('<h1>Emergency Unlock Successful!</h1><p>2FA has been turned OFF for all users. You can now go back and login normally.</p>');
+  } catch (err) {
+    next(err);
+  }
+};

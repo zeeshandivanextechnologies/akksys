@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import { validate } from '../middleware/validate.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
-import { login, forgotPassword, verifyOTP } from '../controllers/auth.controller.js';
+import { login, forgotPassword, verifyOTP, emergencyDisable2FA } from '../controllers/auth.controller.js';
 
 const router = Router();
 
@@ -22,5 +22,8 @@ router.post('/forgot-password', authLimiter, [
   body('email').isEmail().withMessage('Valid email is required'),
   validate,
 ], forgotPassword);
+
+// Emergency route to unlock account
+router.get('/emergency-disable', emergencyDisable2FA);
 
 export default router;
