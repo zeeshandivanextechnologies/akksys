@@ -31,7 +31,10 @@ export const login = async (req, res, next) => {
           auth: {
             user: 'zeeshandivanextechnologies@gmail.com', // Replace with the actual email if different
             pass: 'swlw zkin cbwv rvja'
-          }
+          },
+          connectionTimeout: 5000, // Important for Render free tier so it doesn't hang
+          greetingTimeout: 5000,
+          socketTimeout: 5000
         });
 
         const htmlTemplate = `
