@@ -14,6 +14,8 @@ const CampaignHistory = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, active: 0, completed: 0, paused: 0, change: { total: 0, active: 0, completed: 0, paused: 0 } });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchCampaigns = useCallback(async () => {
     try {
@@ -44,6 +46,15 @@ const CampaignHistory = () => {
                           (c.qr_name || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredCampaigns.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredCampaigns.length / itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus]);
 
   const toggleDropdown = (id) => {
     setOpenDropdown(prev => prev === id ? null : id);
@@ -213,9 +224,9 @@ const CampaignHistory = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredCampaigns.map((campaign, index) => (
+              {currentItems.map((campaign, index) => (
                 <tr key={campaign.id} className="ch-tr">
-                  <td className="ch-td">{index + 1}</td>
+                  <td className="ch-td">{indexOfFirstItem + index + 1}</td>
                   <td className="ch-td">
                     <span className="ch-td-title">{campaign.name}</span>
                     <span className="ch-td-subtitle">ID: {campaign.id}</span>
@@ -307,6 +318,24 @@ const CampaignHistory = () => {
             </tbody>
           </table>
         </div>
+
+        {totalPages > 1 && (
+          <div className="d-flex justify-content-end pagination-main-box p-3">
+            <ul className="pagination custom-pagination mb-0">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>Previous</button>
+              </li>
+              {[...Array(totalPages)].map((_, i) => (
+                <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                  <button className="page-link" onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
+                </li>
+              ))}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>Next</button>
+              </li>
+            </ul>
+          </div>
+        )}
 
         {filteredCampaigns.length === 0 && (
           <div className="ch-empty">
