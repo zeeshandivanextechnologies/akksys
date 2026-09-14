@@ -71,7 +71,7 @@ const LegalPagesEditor = ({ legalPages, setLegalPages }) => {
       </div>
 
       <div>
-        <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-column-reverse">
           <div className="custom-frm-bx mb-0" style={{ width: '300px' }}>
             <label className="lc-label">Last Updated Date</label>
             <input
