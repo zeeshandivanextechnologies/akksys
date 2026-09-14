@@ -1434,13 +1434,14 @@ border: 1px solid var(--ov-new-border);
    ============================================ */
 .ov-cta-info {
   display: flex;
-  align-items: center;
+  align-items: start;
   gap: 12px;
   padding: 16px;
   border: 1px solid var(--admin-primary);
     background: rgba(0, 200, 255, 0.3);
   border-radius: 10px;
   margin-bottom: 16px;
+  
 }
 
 .ov-cta-logo {

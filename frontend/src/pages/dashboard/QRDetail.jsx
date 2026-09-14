@@ -584,7 +584,7 @@ const QRDetail = () => {
                     <span className="ov-cta-clicks-label">clicks</span>
                   </div>
                 </div>
-                <div className="ov-apex-chart" style={{ height: '120px' }}>
+                <div className="ov-apex-chart" style={{ height: '150px' }}>
                   <Chart
                     options={{
                       ...chartOptions,
