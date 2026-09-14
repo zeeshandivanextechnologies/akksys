@@ -141,6 +141,7 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--ov-heading-text);
+  word-break: break-all;
 }
 
 .cd-info-value.purple {

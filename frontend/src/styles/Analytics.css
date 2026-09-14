@@ -13,6 +13,10 @@
   .an-page-wrapper {
     padding: 12px;
   }
+  .an-chart-legend{
+    flex-wrap: wrap;
+    gap: 0px;
+  }
 }
 
 /* ============================================

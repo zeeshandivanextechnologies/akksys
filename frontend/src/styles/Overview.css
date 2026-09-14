@@ -1414,6 +1414,7 @@ border: 1px solid var(--ov-new-border);
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  word-break: break-all;
 }
 
 .ov-timeline-detail {

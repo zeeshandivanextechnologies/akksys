@@ -404,7 +404,7 @@ const CTAManager = () => {
                               </span>
                             </td>
                             <td className="dq-td text-center">
-                              <button className="thm-btn outline" onClick={() => handleEditClick(cta)} style={{ padding: '6px 12px', fontSize: '12px', minHeight: 'unset' }}>
+                              <button className="thm-btn outline" onClick={() => handleEditClick(cta)} style={{ padding: '6px 12px', fontSize: '12px', minHeight: 'unset', whiteSpace : "nowrap" }}>
                                 <FaEdit className="me-1" /> Edit
                               </button>
                             </td>
