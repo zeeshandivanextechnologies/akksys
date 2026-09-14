@@ -40,6 +40,21 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
+    if (res.data.requires2FA) {
+      toast.info(res.data.message);
+      return res.data;
+    }
+    const { token: newToken, user: userData } = res.data;
+    localStorage.setItem('akksys_token', newToken);
+    localStorage.setItem('akksys_user', JSON.stringify(userData));
+    setToken(newToken);
+    setUser(userData);
+    toast.success(`Welcome back, ${userData.name}!`);
+    return userData;
+  };
+
+  const verifyOTP = async (email, otp) => {
+    const res = await api.post('/auth/verify-otp', { email, otp });
     const { token: newToken, user: userData } = res.data;
     localStorage.setItem('akksys_token', newToken);
     localStorage.setItem('akksys_user', JSON.stringify(userData));
@@ -58,7 +73,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, verifyOTP, setUser }}>
       {children}
     </AuthContext.Provider>
   );

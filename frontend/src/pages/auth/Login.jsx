@@ -7,9 +7,11 @@ import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, loading: authLoading } = useAuth();
+  const { login, verifyOTP, loading: authLoading } = useAuth();
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,19 +22,38 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await login(email, password);
-      navigate('/admin');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
-    } finally {
-      setLoading(false);
+    if (step === 1) {
+      if (!email || !password) {
+        setError('Please fill in all fields');
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await login(email, password);
+        if (res?.requires2FA) {
+          setStep(2);
+        } else {
+          navigate('/admin');
+        }
+      } catch (err) {
+        setError(err.response?.data?.error || 'Login failed. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    } else if (step === 2) {
+      if (!otp) {
+        setError('Please enter the OTP');
+        return;
+      }
+      setLoading(true);
+      try {
+        await verifyOTP(email, otp);
+        navigate('/admin');
+      } catch (err) {
+        setError(err.response?.data?.error || 'Invalid OTP. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -53,7 +74,9 @@ const Login = () => {
                   </div>
                 </div>
                 <h2 className="login-title">AKKSYS Admin</h2>
-                <p className="login-subtitle">Sign in to manage your business campaigns</p>
+                <p className="login-subtitle">
+                  {step === 1 ? 'Sign in to manage your business campaigns' : 'Enter the verification code sent to your email'}
+                </p>
               </div>
 
               {error && (
@@ -63,42 +86,64 @@ const Login = () => {
               )}
 
               <form onSubmit={handleLogin}>
-                <div className="login-field mb-3">
-                  <label className="login-label">Email Address</label>
-                  <div className="login-input-wrapper">
-                    <input
-                      type="email"
-                      className="login-input"
-                      placeholder="admin@akksys.in"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
+                {step === 1 ? (
+                  <>
+                    <div className="login-field mb-3">
+                      <label className="login-label">Email Address</label>
+                      <div className="login-input-wrapper">
+                        <input
+                          type="email"
+                          className="login-input"
+                          placeholder="admin@akksys.in"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
 
-                <div className="login-field mb-3">
-                  <label className="login-label d-flex justify-content-between">
-                    <span>Password</span>
-                  </label>
-                  <div className="login-input-wrapper">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      className="login-input"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="login-eye-btn"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
-                    </button>
-                  </div>
-                </div>
+                    <div className="login-field mb-3">
+                      <label className="login-label d-flex justify-content-between">
+                        <span>Password</span>
+                      </label>
+                      <div className="login-input-wrapper">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          className="login-input"
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="login-eye-btn"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="login-field mb-3">
+                      <label className="login-label">Verification Code (OTP)</label>
+                      <div className="login-input-wrapper">
+                        <input
+                          type="text"
+                          className="login-input text-center"
+                          style={{ letterSpacing: '8px', fontSize: '18px', fontWeight: 'bold' }}
+                          placeholder="------"
+                          maxLength={6}
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <div className='mb-3 text-end'>
                   {/* <button type="button" className="login-forgot-btn" onClick={() => navigate('/forgot-password')}>Forgot password?</button> */}
@@ -112,12 +157,23 @@ const Login = () => {
                 >
                   {loading ? (
                     <>
-                      <FaSpinner className="spinner" /> Signing in...
+                      <FaSpinner className="spinner spin me-2" /> {step === 1 ? 'Signing in...' : 'Verifying...'}
                     </>
                   ) : (
-                    'Sign In'
+                    step === 1 ? 'Sign In' : 'Verify & Login'
                   )}
                 </button>
+                {step === 2 && (
+                  <div className="text-center mt-3">
+                    <button 
+                      type="button" 
+                      className="login-link-btn" 
+                      onClick={() => { setStep(1); setError(''); setOtp(''); }}
+                    >
+                      Back to login
+                    </button>
+                  </div>
+                )}
               </form>
               <div className="login-divider">
                 <span>or</span>
