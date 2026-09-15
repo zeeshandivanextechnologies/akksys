@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { FaQrcode, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
@@ -15,6 +15,31 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (step === 2 && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [step, resendTimer]);
+
+  const handleResendOTP = async () => {
+    if (resendTimer > 0) return;
+    setError('');
+    setLoading(true);
+    try {
+      await login(email, password);
+      setResendTimer(30);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to resend OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (authLoading) return <Loader />;
 
@@ -32,6 +57,7 @@ const Login = () => {
         const res = await login(email, password);
         if (res?.requires2FA) {
           setStep(2);
+          setResendTimer(30);
         } else {
           navigate('/admin');
         }
@@ -164,11 +190,25 @@ const Login = () => {
                   )}
                 </button>
                 {step === 2 && (
-                  <div className="text-center mt-3">
+                  <div className="text-center mt-3 d-flex flex-column gap-2 align-items-center">
+                    <div>
+                      {resendTimer > 0 ? (
+                        <span style={{ fontSize: '14px', color: '#6c757d' }}>Resend code in {resendTimer}s</span>
+                      ) : (
+                        <button 
+                          type="button" 
+                          className="login-link-btn" 
+                          onClick={handleResendOTP}
+                          disabled={loading}
+                        >
+                          Resend OTP
+                        </button>
+                      )}
+                    </div>
                     <button 
                       type="button" 
                       className="login-link-btn" 
-                      onClick={() => { setStep(1); setError(''); setOtp(''); }}
+                      onClick={() => { setStep(1); setError(''); setOtp(''); setResendTimer(0); }}
                     >
                       Back to login
                     </button>

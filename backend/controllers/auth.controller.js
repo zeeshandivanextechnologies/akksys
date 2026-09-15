@@ -22,7 +22,7 @@ export const login = async (req, res, next) => {
     }
 
     // Temporarily stopped OTP logic for Render as requested
-    if (false && user.email_auth) {
+    if (false &&  user.email_auth) {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       global.otpCache[email] = otp;
       
@@ -39,7 +39,7 @@ export const login = async (req, res, next) => {
         });
 
         const htmlTemplate = `
-        <div style="font-family: 'Inter', Arial, sans-serif; background-color: #f4f7f6; padding: 40px 20px; margin: 0;">
+        <div style="font-family: 'Inter', Arial, sans-serif; background-color: #f4f7f6; padding: 20px; margin: 0;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.05);">
             <div style="background: linear-gradient(135deg, #00C8FF, #4DDCFF); padding: 30px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 2px;">AKKSYS</h1>
