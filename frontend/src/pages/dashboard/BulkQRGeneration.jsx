@@ -156,14 +156,15 @@ const BulkQRGeneration = () => {
         : customLogo;
 
       if (qrFormat === 'SVG') {
-        for (const item of bulkData) {
+        for (let i = 0; i < bulkData.length; i++) {
+          const item = bulkData[i];
           const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="${size}" height="${size}">` +
             `<rect width="200" height="200" fill="white"/>` +
             `<g id="qr"></g>` +
             (logoSrc ? `<rect x="70" y="70" width="60" height="60" rx="8" fill="white"/><image x="74" y="74" width="52" height="52" href="${logoSrc}"/>` : '') +
             `</svg>`;
           const safeName = item.name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '_');
-          folder.file(`${safeName}.svg`, svgStr);
+          folder.file(`${safeName}_${i + 1}.svg`, svgStr);
         }
       } else if (qrFormat === 'PDF') {
         const batchSize = 10;
@@ -192,7 +193,7 @@ const BulkQRGeneration = () => {
               const y = (pdfHeight - h) / 2;
               pdf.addImage(dataUrl, 'PNG', x, y, w, h);
               const pdfBase64 = pdf.output('datauristring').split(',')[1];
-              folder.file(`${safeName}.pdf`, pdfBase64, { base64: true });
+              folder.file(`${safeName}_${b + i + 1}.pdf`, pdfBase64, { base64: true });
             }
           });
         }
@@ -208,7 +209,7 @@ const BulkQRGeneration = () => {
           results.forEach((dataUrl, i) => {
             if (dataUrl) {
               const safeName = batch[i].name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '_');
-              folder.file(`${safeName}.png`, dataUrl.split(',')[1], { base64: true });
+              folder.file(`${safeName}_${b + i + 1}.png`, dataUrl.split(',')[1], { base64: true });
             }
           });
         }
