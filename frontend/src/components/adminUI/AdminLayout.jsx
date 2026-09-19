@@ -30,6 +30,7 @@ const AdminLayout = () => {
   else if (location.pathname.includes("campaign-history")) title = "Campaign History";
   else if (location.pathname.includes("landing-content")) title = "Landing Content";
   else if (location.pathname.includes("settings")) title = "Settings";
+  else if (location.pathname.includes("pack-mode")) title = "Pack Mode";
   else if (location.pathname.includes("campaign/create")) title = "Create Campaign";
   else if (location.pathname.includes("version/create")) title = "Create Version";
 

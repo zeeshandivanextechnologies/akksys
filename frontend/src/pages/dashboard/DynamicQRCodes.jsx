@@ -15,6 +15,7 @@ const DynamicQRCodes = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
+  const [lifecycleFilter, setLifecycleFilter] = useState('All');
   const [qrList, setQrList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,6 +42,8 @@ const DynamicQRCodes = () => {
         videoUrl: qr.current_video_url || null,
         videoType: qr.video_type || null,
         ctaText: qr.cta_text || null,
+        lifecycleStatus: qr.lifecycle_status || 'generated',
+        boxNumber: qr.box_number || null,
       }));
       setQrList(mapped);
     } catch (err) {
@@ -107,11 +110,14 @@ const DynamicQRCodes = () => {
   const filteredList = qrList.filter(qr => {
     const matchSearch = qr.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         qr.qrId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (qr.qrSerialNumber && qr.qrSerialNumber.toLowerCase().includes(searchTerm.toLowerCase()));
+                        (qr.qrSerialNumber && qr.qrSerialNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (qr.boxNumber && qr.boxNumber.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchStatus = statusFilter === 'All Status' ||
                         (statusFilter === 'Active' && qr.active) ||
                         (statusFilter === 'Paused' && !qr.active);
-    return matchSearch && matchStatus;
+    const matchLifecycle = lifecycleFilter === 'All' ||
+                          qr.lifecycleStatus === lifecycleFilter.toLowerCase();
+    return matchSearch && matchStatus && matchLifecycle;
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -181,6 +187,21 @@ const DynamicQRCodes = () => {
                 </select>
               </div>
             </div>
+            <div className="col-md-3 col-lg-2">
+              <div className="custom-frm-bx mb-3 mb-md-0">
+                <select
+                  className="form-select"
+                  value={lifecycleFilter}
+                  onChange={(e) => setLifecycleFilter(e.target.value)}
+                >
+                  <option>All</option>
+                  <option>Generated</option>
+                  <option>Printed</option>
+                  <option>Packed</option>
+                  <option>Sold</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
           </div>
@@ -199,6 +220,8 @@ const DynamicQRCodes = () => {
                   <th className="dq-th dq-col-clicks">CTA Clicks</th>
                   <th className="dq-th dq-col-ctr">CTR</th>
                   <th className="dq-th dq-col-dest">CTA Destination</th>
+                  <th className="dq-th">Lifecycle</th>
+                  <th className="dq-th">Box</th>
                   <th className="dq-th dq-col-status">Status</th>
                   <th className="dq-th dq-col-action">Action</th>
                 </tr>
@@ -206,7 +229,7 @@ const DynamicQRCodes = () => {
               <tbody>
                 {currentItems.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="text-center" style={{ color: '#ddd', height : "250px" }}>
+                    <td colSpan="12" className="text-center" style={{ color: '#ddd', height : "250px" }}>
                       No QR codes found
                     </td>
                   </tr>
@@ -249,6 +272,13 @@ const DynamicQRCodes = () => {
                       <td className="dq-col-clicks">{qr.ctaClicks.toLocaleString()}</td>
                       <td className="dq-ctr dq-col-ctr">{qr.ctr}%</td>
                       <td className="dq-cta-dest dq-col-dest">{qr.ctaDestination}</td>
+                      <td>
+                        <span className={`dq-status-badge ${qr.lifecycleStatus === 'sold' ? 'active' : qr.lifecycleStatus === 'packed' ? 'paused' : qr.lifecycleStatus === 'printed' ? '' : ''}`}
+                          style={qr.lifecycleStatus === 'printed' ? { backgroundColor: '#f59e0b', color: '#fff' } : qr.lifecycleStatus === 'generated' ? { backgroundColor: '#6b7280', color: '#fff' } : {}}>
+                          {qr.lifecycleStatus?.toUpperCase() || 'GENERATED'}
+                        </span>
+                      </td>
+                      <td>{qr.boxNumber || '—'}</td>
                       <td className="dq-col-status">
                         <span className={`dq-status-badge ${qr.active ? 'active' : 'paused'}`}>
                           {qr.active ? 'ACTIVE' : 'PAUSED'}

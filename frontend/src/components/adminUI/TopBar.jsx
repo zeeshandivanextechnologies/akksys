@@ -178,6 +178,7 @@ const TopBar = ({ _title, onToggleSidebar }) => {
                          setShowResults(false);
                          setSearchQuery('');
                          if (res.type === 'campaign') navigate('/admin/campaign-history');
+                         else if (res.type === 'box') navigate('/admin/pack-mode');
                          else navigate(`/admin/dynamic-qr/${res.id}`);
                        }}
                        >

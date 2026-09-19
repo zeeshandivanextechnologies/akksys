@@ -16,6 +16,7 @@ import userRoutes from './routes/user.routes.js';
 import staticQrRoutes from './routes/staticQr.routes.js';
 import redirectPresetsRoutes from './routes/redirectPresets.routes.js';
 import searchRoutes from './routes/search.routes.js';
+import packRoutes from './routes/pack.routes.js';
 
 dotenv.config();
 
@@ -119,6 +120,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/static-qr', staticQrRoutes);
 app.use('/api/redirect-presets', redirectPresetsRoutes);
+app.use('/api/pack', packRoutes);
 
 app.use(errorHandler);
 

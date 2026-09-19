@@ -12,6 +12,7 @@ import DynamicQRCodes from '../pages/dashboard/DynamicQRCodes';
 import CreateDynamicQR from '../pages/dashboard/CreateDynamicQR';
 import QRDetail from '../pages/dashboard/QRDetail';
 import BulkQRGeneration from '../pages/dashboard/BulkQRGeneration';
+import PackMode from '../pages/dashboard/PackMode';
 import VideoLibrary from '../pages/dashboard/VideoLibrary';
 import CTAManager from '../pages/dashboard/CTAManager';
 import StaticQRCodes from '../pages/dashboard/StaticQRCodes';
@@ -48,6 +49,7 @@ const AppRoutes = () => {
           <Route path="dynamic-qr" element={<DynamicQRCodes />} />
           <Route path="dynamic-qr/create" element={<CreateDynamicQR />} />
           <Route path="dynamic-qr/bulk" element={<BulkQRGeneration />} />
+          <Route path="pack-mode" element={<PackMode />} />
           <Route path="dynamic-qr/:qrId" element={<QRDetail />} />
           <Route path="static-qr" element={<StaticQRCodes />} />
           <Route path="static-qr/create" element={<CreateStaticQR />} />

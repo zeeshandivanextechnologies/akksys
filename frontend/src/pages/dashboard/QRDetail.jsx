@@ -4,7 +4,7 @@ import Chart from 'react-apexcharts';
 import {
   FaDownload, FaEdit, FaTrash, FaArrowLeft, FaCopy, FaEye,
   FaChartLine, FaMousePointer, FaGlobeAsia,
-  FaHistory, FaToggleOn, FaToggleOff, FaArrowUp
+  FaHistory, FaToggleOn, FaToggleOff, FaArrowUp, FaBox
 } from 'react-icons/fa';
 import { QRCodeCanvas } from 'qrcode.react';
 import QRDownloadModal from '../../components/adminUI/QRDownloadModal';
@@ -95,6 +95,13 @@ const QRDetail = () => {
         currentVideoUrl: qr.current_video_url || '—',
         ctaDestination: qr.cta_destination || '—',
         logoUrl: qr.logo_url || null,
+        lifecycleStatus: qr.lifecycle_status || 'generated',
+        firstScanAt: qr.first_scan_at || null,
+        printedAt: qr.printed_at || null,
+        packedAt: qr.packed_at || null,
+        soldAt: qr.sold_at || null,
+        boxNumber: qr.box_number || null,
+        qrSerialNumber: qr.qr_serial_number || null,
       });
       setNewName(qr.name);
 
@@ -217,6 +224,23 @@ const QRDetail = () => {
       toast.success('Logo removed');
     } catch {
       toast.error('Failed to remove logo');
+    }
+  };
+
+  const handleLifecycleUpdate = async (newStatus) => {
+    if (!qrData) return;
+    try {
+      await api.put(`/pack/lifecycle/${qrData.id}`, { status: newStatus });
+      setQrData(prev => ({
+        ...prev,
+        lifecycleStatus: newStatus,
+        ...(newStatus === 'printed' ? { printedAt: new Date().toISOString() } : {}),
+        ...(newStatus === 'packed' ? { packedAt: new Date().toISOString() } : {}),
+        ...(newStatus === 'sold' ? { soldAt: new Date().toISOString() } : {}),
+      }));
+      toast.success(`Status updated to ${newStatus.toUpperCase()}`);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to update status');
     }
   };
 
@@ -437,6 +461,85 @@ const QRDetail = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Lifecycle Status */}
+        <div className="ov-card mb-3 h-auto">
+          <div className="ov-card-header">
+            <div>
+              <h6 className="ov-card-title"><FaBox className="me-2" /> Lifecycle Status</h6>
+              <div className="lc-info-row">
+                {qrData.qrSerialNumber && (
+                  <span className="lc-info-item">Serial: <strong>{qrData.qrSerialNumber}</strong></span>
+                )}
+                {qrData.boxNumber && (
+                  <span className="lc-info-item">Box: <strong>{qrData.boxNumber}</strong></span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="ov-card-body">
+            <div className="lc-stages">
+              {['generated', 'printed', 'packed', 'sold'].map((stage, i) => {
+                const stageOrder = ['generated', 'printed', 'packed', 'sold'];
+                const currentIdx = stageOrder.indexOf(qrData.lifecycleStatus);
+                const isActive = i <= currentIdx;
+                const isCurrent = stageOrder[i] === qrData.lifecycleStatus;
+                const timestamps = {
+                  generated: null,
+                  printed: qrData.printedAt,
+                  packed: qrData.packedAt,
+                  sold: qrData.soldAt,
+                };
+                return (
+                  <React.Fragment key={stage}>
+
+                    
+
+                    <div className="lc-stage">
+                       {/* {timestamps[stage] && (
+                        <span className="lc-stage-time">
+                          {new Date(timestamps[stage]).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                        </span>
+                      )} */}
+
+                      <div className={`lc-stage-circle ${isCurrent ? 'current' : isActive ? 'active' : ''}`}>
+                        {i + 1}
+                      </div>
+                      <span className={`lc-stage-label ${isCurrent ? 'current' : isActive ? 'active' : ''}`}>
+                        {stage.toUpperCase()}
+                      </span>
+                      {/* {timestamps[stage] && (
+                        <span className="lc-stage-time">
+                          {new Date(timestamps[stage]).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                        </span>
+                      )} */}
+                    </div>
+                    {i < 3 && (
+                      <div className={`lc-connector ${i < currentIdx ? 'active' : ''}`}></div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+            <div className="lc-actions">
+              {qrData.lifecycleStatus === 'generated' && (
+                <button className="thm-btn" onClick={() => handleLifecycleUpdate('printed')}>
+                  Mark as Printed
+                </button>
+              )}
+              {qrData.lifecycleStatus === 'printed' && (
+                <button className="thm-btn" onClick={() => handleLifecycleUpdate('packed')}>
+                  Mark as Packed
+                </button>
+              )}
+              {qrData.lifecycleStatus === 'packed' && (
+                <button className="thm-btn" onClick={() => handleLifecycleUpdate('sold')}>
+                  Mark as Sold
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -806,6 +909,7 @@ const QRDetail = () => {
         qrName={qrData.name}
         qrUrl={qrData.url}
         logoUrl={qrData.logoUrl}
+        qrSerialNumber={qrData.qrSerialNumber}
       />
     </>
   );

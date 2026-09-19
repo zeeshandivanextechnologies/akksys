@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaFileCsv, FaQrcode, FaDownload, FaTrash, FaCheckCircle, FaExclamationCircle, FaArrowLeft, FaSpinner, FaUpload } from 'react-icons/fa';
+import { FaFileCsv, FaQrcode, FaDownload, FaTrash, FaCheckCircle, FaExclamationCircle, FaArrowLeft, FaSpinner, FaUpload, FaPrint } from 'react-icons/fa';
 import { BsQrCodeScan } from 'react-icons/bs';
 import { QRCodeCanvas, QRCodeSVG } from 'qrcode.react';
 import JSZip from 'jszip';
@@ -25,6 +25,7 @@ const BulkQRGeneration = () => {
   const [errorCorrection, setErrorCorrection] = useState('Medium (15%)');
   const [brandLogo, setBrandLogo] = useState('No Logo');
   const [customLogo, setCustomLogo] = useState(null);
+  const [printingA4, setPrintingA4] = useState(false);
 
   const getQrSizeValue = () => {
     if (qrSize.includes('200')) return 200;
@@ -137,7 +138,7 @@ const BulkQRGeneration = () => {
             if (serialNumber) {
               const finalCanvas = document.createElement('canvas');
               const ctx = finalCanvas.getContext('2d');
-              const textHeight = Math.max(30, size * 0.1);
+              const textHeight = Math.max(40, size * 0.12);
               
               finalCanvas.width = qrCanvas.width;
               finalCanvas.height = qrCanvas.height + textHeight;
@@ -147,7 +148,7 @@ const BulkQRGeneration = () => {
               ctx.drawImage(qrCanvas, 0, 0);
               
               ctx.fillStyle = "#0f1629";
-              ctx.font = `bold ${Math.max(14, size * 0.05)}px Arial, sans-serif`;
+              ctx.font = `bold ${Math.max(18, size * 0.08)}px Arial, sans-serif`;
               ctx.textAlign = "center";
               ctx.textBaseline = "middle";
               ctx.fillText(serialNumber, finalCanvas.width / 2, qrCanvas.height + (textHeight / 2));
@@ -259,6 +260,57 @@ const BulkQRGeneration = () => {
     }
   };
 
+  const handlePrintA4 = async () => {
+    if (!generated || bulkData.length === 0) return;
+    setPrintingA4(true);
+
+    try {
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = 210;
+      const pageH = 297;
+      const margin = 10;
+      const cellW = 55;
+      const cellH = 65;
+      const cols = Math.floor((pageW - 2 * margin) / cellW);
+      const rows = Math.floor((pageH - 2 * margin) / cellH);
+      const perPage = cols * rows;
+
+      const level = getLevel();
+      const logoSrc = brandLogo === 'AKKSYS Logo'
+        ? 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="12" fill="#00C8FF"/><text x="50" y="62" font-family="Arial,sans-serif" font-size="36" font-weight="bold" fill="white" text-anchor="middle">AK</text></svg>')
+        : customLogo;
+
+      for (let page = 0; page < bulkData.length; page += perPage) {
+        if (page > 0) pdf.addPage();
+
+        const batch = bulkData.slice(page, page + perPage);
+        const promises = batch.map(item => {
+          const url = item.qr_url ? `https://${item.qr_url}` : '';
+          return generateQRDataUrl(url, 300, level, logoSrc, item.qr_serial_number);
+        });
+        const results = await Promise.all(promises);
+
+        results.forEach((dataUrl, i) => {
+          if (!dataUrl) return;
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          const x = margin + col * cellW;
+          const y = margin + row * cellH;
+
+          pdf.addImage(dataUrl, 'PNG', x + 2, y + 2, cellW - 4, cellH - 4);
+        });
+      }
+
+      pdf.save('akksys_qr_a4_sheet.pdf');
+      toast.success('A4 PDF downloaded!');
+    } catch (err) {
+      console.error('A4 print failed', err);
+      toast.error('Failed to generate A4 sheet');
+    } finally {
+      setPrintingA4(false);
+    }
+  };
+
   const handleDownloadSample = () => {
     const csv = `name,destination_url
 Pro X1 Launch - Mumbai,https://amazon.in/dp/example1
@@ -309,13 +361,22 @@ Warranty Registration,https://akksys.in/warranty/register`;
         <div className="dq-header-actions">
           <button className="thm-btn outline" onClick={() => navigate('/admin/dynamic-qr')}>Cancel</button>
           {generated && (
-            <button className="thm-btn" onClick={handleDownloadAll} disabled={downloading}>
-              {downloading ? (
-                <><FaSpinner className="spin me-2" /> Downloading...</>
-              ) : (
-                <><FaDownload className="me-2" /> Download All ({qrFormat})</>
-              )}
-            </button>
+            <>
+              <button className="thm-btn" onClick={handlePrintA4} disabled={printingA4}>
+                {printingA4 ? (
+                  <><FaSpinner className="spin me-2" /> Printing...</>
+                ) : (
+                  <><FaPrint className="me-2" /> Print A4 Sheet</>
+                )}
+              </button>
+              <button className="thm-btn outline" onClick={handleDownloadAll} disabled={downloading}>
+                {downloading ? (
+                  <><FaSpinner className="spin me-2" /> Downloading...</>
+                ) : (
+                  <><FaDownload className="me-2" /> Download All ({qrFormat})</>
+                )}
+              </button>
+            </>
           )}
         </div>
       </div>

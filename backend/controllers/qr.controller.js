@@ -40,8 +40,11 @@ export const listQRCodes = async (req, res, next) => {
         (SELECT v.cta_destination FROM campaign_versions v 
          JOIN campaigns c ON v.campaign_id = c.id 
          WHERE c.qr_id = q.id AND c.status = 'active' AND v.is_active = true 
-         ORDER BY v.created_at DESC LIMIT 1) as cta_destination
-       FROM qr_codes q ORDER BY q.created_at DESC`
+         ORDER BY v.created_at DESC LIMIT 1) as cta_destination,
+        b.box_number
+       FROM qr_codes q 
+       LEFT JOIN boxes b ON q.box_id = b.id
+       ORDER BY q.created_at DESC`
     );
     res.json(result.rows);
   } catch (err) {

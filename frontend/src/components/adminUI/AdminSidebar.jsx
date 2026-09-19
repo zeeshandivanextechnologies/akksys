@@ -14,7 +14,8 @@ import {
   FaTimes,
   FaCog,
   FaSignOutAlt,
-  FaEnvelope
+  FaEnvelope,
+  FaBox
 } from 'react-icons/fa';
 
 const AdminSidebar = ({ isMobileOpen, onCloseMobileSidebar }) => {
@@ -88,6 +89,9 @@ const AdminSidebar = ({ isMobileOpen, onCloseMobileSidebar }) => {
         </NavLink>
         <NavLink to="/admin/static-qr" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"} title="Static QR" onClick={handleNavClick}>
           <FaQrcode className="sidebar-link-icon" /> <span className="link-text">Static QR</span>
+        </NavLink>
+        <NavLink to="/admin/pack-mode" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"} title="Pack Mode" onClick={handleNavClick}>
+          <FaBox className="sidebar-link-icon" /> <span className="link-text">Pack Mode</span>
         </NavLink>
       </div>
 

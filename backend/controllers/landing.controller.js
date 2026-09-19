@@ -49,6 +49,16 @@ export const getLandingData = async (req, res, next) => {
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
           [qr.id, version.id, sessionId, ip, device.type, device.os, device.browser, location.city, location.country]
         );
+
+        if (!qr.first_scan_at) {
+          await db.query(
+            `UPDATE qr_codes SET first_scan_at = NOW(), 
+             lifecycle_status = CASE WHEN lifecycle_status = 'packed' THEN 'sold' ELSE lifecycle_status END,
+             sold_at = CASE WHEN lifecycle_status = 'packed' THEN NOW() ELSE sold_at END,
+             updated_at = NOW() WHERE id = $1`,
+            [qr.id]
+          );
+        }
       } catch (scanErr) {
         console.error('Failed to record scan:', scanErr.message);
       }
