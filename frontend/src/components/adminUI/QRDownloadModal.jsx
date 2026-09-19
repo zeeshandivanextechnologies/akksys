@@ -223,7 +223,7 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl, qrSerialNumber
                     )}
                   </div>
                   {qrSerialNumber && (
-                    <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '16px', marginTop: '8px', color: '#fff' }}>
+                    <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '14px', marginTop: '8px', color: '#fff' }}>
                       {qrSerialNumber}
                     </div>
                   )}
