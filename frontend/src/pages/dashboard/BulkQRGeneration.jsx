@@ -93,6 +93,7 @@ const BulkQRGeneration = () => {
         ...item,
         status: 'generated',
         qr_url: created[i] ? `${window.location.host}/r/${created[i].qr_id}` : item.qr_url,
+        qr_serial_number: created[i] ? created[i].qr_serial_number : null,
       })));
       setGenerated(true);
       toast.success(`${created.length} QR codes generated successfully!`);
@@ -103,7 +104,7 @@ const BulkQRGeneration = () => {
     }
   };
 
-  const generateQRDataUrl = (url, size, level, logoSrc) => {
+  const generateQRDataUrl = (url, size, level, logoSrc, serialNumber) => {
     return new Promise((resolve) => {
       const container = document.createElement('div');
       container.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
@@ -129,11 +130,37 @@ const BulkQRGeneration = () => {
         );
 
         setTimeout(() => {
-          const canvas = container.querySelector('canvas');
-          const dataUrl = canvas ? canvas.toDataURL('image/png') : null;
+          const qrCanvas = container.querySelector('canvas');
+          let finalDataUrl = null;
+          
+          if (qrCanvas) {
+            if (serialNumber) {
+              const finalCanvas = document.createElement('canvas');
+              const ctx = finalCanvas.getContext('2d');
+              const textHeight = Math.max(30, size * 0.1);
+              
+              finalCanvas.width = qrCanvas.width;
+              finalCanvas.height = qrCanvas.height + textHeight;
+              
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+              ctx.drawImage(qrCanvas, 0, 0);
+              
+              ctx.fillStyle = "#0f1629";
+              ctx.font = `bold ${Math.max(14, size * 0.05)}px Arial, sans-serif`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(serialNumber, finalCanvas.width / 2, qrCanvas.height + (textHeight / 2));
+              
+              finalDataUrl = finalCanvas.toDataURL('image/png');
+            } else {
+              finalDataUrl = qrCanvas.toDataURL('image/png');
+            }
+          }
+          
           root.unmount();
           document.body.removeChild(container);
-          resolve(dataUrl);
+          resolve(finalDataUrl);
         }, 100);
       }).catch(() => {
         document.body.removeChild(container);
@@ -158,10 +185,11 @@ const BulkQRGeneration = () => {
       if (qrFormat === 'SVG') {
         for (let i = 0; i < bulkData.length; i++) {
           const item = bulkData[i];
-          const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="${size}" height="${size}">` +
-            `<rect width="200" height="200" fill="white"/>` +
+          const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 ${item.qr_serial_number ? '220' : '200'}" width="${size}" height="${item.qr_serial_number ? size * 1.1 : size}">` +
+            `<rect width="200" height="${item.qr_serial_number ? '220' : '200'}" fill="white"/>` +
             `<g id="qr"></g>` +
             (logoSrc ? `<rect x="70" y="70" width="60" height="60" rx="8" fill="white"/><image x="74" y="74" width="52" height="52" href="${logoSrc}"/>` : '') +
+            (item.qr_serial_number ? `<text x="100" y="212" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0f1629" text-anchor="middle">${item.qr_serial_number}</text>` : '') +
             `</svg>`;
           const safeName = item.name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '_');
           folder.file(`${safeName}_${i + 1}.svg`, svgStr);
@@ -172,7 +200,7 @@ const BulkQRGeneration = () => {
           const batch = bulkData.slice(b, b + batchSize);
           const promises = batch.map(item => {
             const url = item.qr_url ? `https://${item.qr_url}` : '';
-            return generateQRDataUrl(url, size, level, logoSrc);
+            return generateQRDataUrl(url, size, level, logoSrc, item.qr_serial_number);
           });
           const results = await Promise.all(promises);
           results.forEach((dataUrl, i) => {
@@ -203,7 +231,7 @@ const BulkQRGeneration = () => {
           const batch = bulkData.slice(b, b + batchSize);
           const promises = batch.map(item => {
             const url = item.qr_url ? `https://${item.qr_url}` : '';
-            return generateQRDataUrl(url, size, level, logoSrc);
+            return generateQRDataUrl(url, size, level, logoSrc, item.qr_serial_number);
           });
           const results = await Promise.all(promises);
           results.forEach((dataUrl, i) => {

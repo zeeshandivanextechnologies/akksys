@@ -18,6 +18,8 @@ dist-ssr
 
 # Backend
 backend/node_modules
+backend/backend.zip*
+frontend/frontend.zip*
 
 # Editor directories and files
 .vscode/*

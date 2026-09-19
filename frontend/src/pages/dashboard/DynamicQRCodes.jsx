@@ -26,6 +26,7 @@ const DynamicQRCodes = () => {
       const mapped = res.data.map(qr => ({
         id: qr.id,
         qrId: qr.qr_id,
+        qrSerialNumber: qr.qr_serial_number,
         name: qr.name,
         url: `${window.location.host}/r/${qr.qr_id}`,
         scans: parseInt(qr.total_scans) || 0,
@@ -105,7 +106,8 @@ const DynamicQRCodes = () => {
 
   const filteredList = qrList.filter(qr => {
     const matchSearch = qr.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        qr.qrId.toLowerCase().includes(searchTerm.toLowerCase());
+                        qr.qrId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (qr.qrSerialNumber && qr.qrSerialNumber.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchStatus = statusFilter === 'All Status' ||
                         (statusFilter === 'Active' && qr.active) ||
                         (statusFilter === 'Paused' && !qr.active);
@@ -191,6 +193,7 @@ const DynamicQRCodes = () => {
                 <tr>
                   <th className="dq-th">SR. No.</th>
                   <th className="dq-th">QR Code</th>
+                  <th className="dq-th">QR Serial No.</th>
                   <th className="dq-th dq-col-scans">Scans</th>
                   <th className="dq-th dq-col-unique">Unique</th>
                   <th className="dq-th dq-col-clicks">CTA Clicks</th>
@@ -211,6 +214,7 @@ const DynamicQRCodes = () => {
                   currentItems.map((qr, index) => (
                     <tr key={qr.id} className="dq-tr">
                       <td>{indexOfFirstItem + index + 1}</td>
+                      
                       <td>
                         <div className="dq-qr-cell">
                           <div className="dq-qr-thumb">
@@ -239,6 +243,7 @@ const DynamicQRCodes = () => {
                           </div>
                         </div>
                       </td>
+                      <td>{qr.qrSerialNumber || '—'}</td>
                       <td className="dq-col-scans">{qr.scans.toLocaleString()}</td>
                       <td className="dq-col-unique">{qr.unique.toLocaleString()}</td>
                       <td className="dq-col-clicks">{qr.ctaClicks.toLocaleString()}</td>
