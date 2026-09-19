@@ -15,7 +15,7 @@ export const globalSearch = async (req, res, next) => {
     );
 
     const qrs = await db.query(
-      `SELECT id, name, status, qr_serial_number, box_id, lifecycle_status, 'qr' as type 
+      `SELECT qr_id as id, name, status, qr_serial_number, box_id, lifecycle_status, 'qr' as type 
        FROM qr_codes 
        WHERE name ILIKE $1 OR qr_id ILIKE $1 OR qr_serial_number ILIKE $1 
        LIMIT 5`,
