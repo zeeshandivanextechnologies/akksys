@@ -4,7 +4,7 @@ import { FaDownload, FaImage, FaFilePdf, FaFileCode, FaTimes, FaCheck } from 're
 import { jsPDF } from 'jspdf';
 import '../../styles/QRDownloadModal.css';
 
-const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
+const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl, qrSerialNumber }) => {
   const [format, setFormat] = useState('png');
   const [size, setSize] = useState('400');
   const [withLogo, setWithLogo] = useState(true);
@@ -73,9 +73,34 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
         setTimeout(() => {
           const canvas = container.querySelector('canvas');
           if (canvas) {
-            const dataUrl = canvas.toDataURL('image/png');
-            const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${sizeNum}" height="${sizeNum}" viewBox="0 0 ${sizeNum} ${sizeNum}">` +
-              `<image href="${dataUrl}" width="${sizeNum}" height="${sizeNum}"/>` +
+            let finalDataUrl = canvas.toDataURL('image/png');
+            let finalHeight = sizeNum;
+            
+            if (qrSerialNumber) {
+              const textHeight = Math.max(30, sizeNum * 0.1);
+              finalHeight = sizeNum + textHeight;
+              
+              const finalCanvas = document.createElement('canvas');
+              const ctx = finalCanvas.getContext('2d');
+              finalCanvas.width = canvas.width;
+              finalCanvas.height = canvas.height + textHeight;
+              
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+              ctx.drawImage(canvas, 0, 0);
+              
+              ctx.fillStyle = "#0f1629";
+              ctx.font = `bold ${Math.max(14, sizeNum * 0.05)}px Arial, sans-serif`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(qrSerialNumber, finalCanvas.width / 2, canvas.height + (textHeight / 2));
+              
+              finalDataUrl = finalCanvas.toDataURL('image/png');
+            }
+            
+            const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${sizeNum}" height="${finalHeight}" viewBox="0 0 ${sizeNum} ${finalHeight}">` +
+              `<rect width="${sizeNum}" height="${finalHeight}" fill="white"/>` +
+              `<image href="${finalDataUrl}" width="${sizeNum}" height="${finalHeight}"/>` +
               `</svg>`;
             downloadSvg(svgStr, safeName);
           }
@@ -110,21 +135,40 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
         setTimeout(() => {
           const canvas = container.querySelector('canvas');
           if (canvas) {
+            let finalDataUrl = canvas.toDataURL('image/png');
+            if (qrSerialNumber) {
+              const textHeight = Math.max(30, sizeNum * 0.1);
+              const finalCanvas = document.createElement('canvas');
+              const ctx = finalCanvas.getContext('2d');
+              finalCanvas.width = canvas.width;
+              finalCanvas.height = canvas.height + textHeight;
+              
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+              ctx.drawImage(canvas, 0, 0);
+              
+              ctx.fillStyle = "#0f1629";
+              ctx.font = `bold ${Math.max(14, sizeNum * 0.05)}px Arial, sans-serif`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(qrSerialNumber, finalCanvas.width / 2, canvas.height + (textHeight / 2));
+              
+              finalDataUrl = finalCanvas.toDataURL('image/png');
+            }
+            
             if (format === 'pdf') {
-              const dataUrl = canvas.toDataURL('image/png');
               const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [80, 80] });
-              const imgProps = pdf.getImageProperties(dataUrl);
+              const imgProps = pdf.getImageProperties(finalDataUrl);
               const pdfW = pdf.internal.pageSize.getWidth();
               const pdfH = pdf.internal.pageSize.getHeight();
               const ratio = Math.min(pdfW / imgProps.width, pdfH / imgProps.height);
               const w = imgProps.width * ratio;
               const h = imgProps.height * ratio;
-              pdf.addImage(dataUrl, 'PNG', (pdfW - w) / 2, (pdfH - h) / 2, w, h);
+              pdf.addImage(finalDataUrl, 'PNG', (pdfW - w) / 2, (pdfH - h) / 2, w, h);
               pdf.save(`${safeName}.pdf`);
             } else {
-              const dataUrl = canvas.toDataURL('image/png');
               const link = document.createElement('a');
-              link.href = dataUrl;
+              link.href = finalDataUrl;
               link.download = `${safeName}.png`;
               link.click();
             }
@@ -178,6 +222,11 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl }) => {
                       </div>
                     )}
                   </div>
+                  {qrSerialNumber && (
+                    <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '14px', marginTop: '8px', color: '#0f1629' }}>
+                      {qrSerialNumber}
+                    </div>
+                  )}
                   <p className="qrd-preview-url">
                     <a href={`https://${qrUrl || 'akksys.io/q/xk9p2m'}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }} className='preview-click-btn'>
                       {qrUrl || 'akksys.io/q/xk9p2m'}

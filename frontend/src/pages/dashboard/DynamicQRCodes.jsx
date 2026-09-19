@@ -345,6 +345,7 @@ const DynamicQRCodes = () => {
         qrName={selectedQR?.name}
         qrUrl={selectedQR?.url}
         logoUrl={selectedQR?.logoUrl}
+        qrSerialNumber={selectedQR?.qrSerialNumber}
       />
     </>
   );
