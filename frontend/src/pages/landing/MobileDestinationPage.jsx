@@ -277,7 +277,7 @@ const MobileDestinationPage = () => {
                 />
               </div>
 
-              <button type="submit" className="thm-btn ld-form-submit" disabled={formSubmitting || !leadForm.name.trim()}>
+              <button type="submit" className="thm-btn mb-2" disabled={formSubmitting || !leadForm.name.trim()}>
                 {formSubmitting ? 'Submitting...' : 'Submit'}
               </button>
             </form>

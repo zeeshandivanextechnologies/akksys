@@ -638,7 +638,7 @@ border: 1px solid #1e2a40;
   font-weight: 500;
   color: #ddd;
   flex-shrink: 0;
-  margin-top: 12px;
+  margin-top: auto;
 }
 
 .ld-footer strong {
