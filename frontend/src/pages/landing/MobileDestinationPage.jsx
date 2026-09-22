@@ -200,7 +200,7 @@ const MobileDestinationPage = () => {
   if (error) return <ErrorScreen message={error} onRetry={() => window.location.reload()} />;
   if (!data) return <ErrorScreen message="Not found" />;
 
-  if (!formEnabled && !formSubmitted && !formSkipped) {
+  if (formEnabled && !formSubmitted && !formSkipped) {
     return (
       <div className="ld-page">
         <div className="ld-glow ld-glow-1"></div>
