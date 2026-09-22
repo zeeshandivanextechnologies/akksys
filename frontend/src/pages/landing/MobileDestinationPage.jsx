@@ -220,7 +220,7 @@ const MobileDestinationPage = () => {
             <p className="ld-form-subtitle">This is optional — you can also skip</p>
 
             <form onSubmit={handleLeadSubmit} className="ld-lead-form">
-              <div className="ld-form-group custom-frm-bx">
+              <div className=" custom-frm-bx">
                 <FaUser className="ld-form-icon" />
                 <input
                   type="text"
@@ -229,7 +229,7 @@ const MobileDestinationPage = () => {
                   value={leadForm.name}
                   onChange={handleLeadChange}
                   required
-                  className="ld-form-input form-control"
+                  className="form-control ps-5"
                 />
               </div>
               <div className="ld-form-group">
