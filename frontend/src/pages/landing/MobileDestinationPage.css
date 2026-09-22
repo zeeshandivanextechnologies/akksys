@@ -784,8 +784,6 @@ border: 1px solid #1e2a40;
 }
 
 .ld-form-icon {
-  position: absolute;
-  left: 14px;
   color: #00C8FF;
   font-size: 14px;
   pointer-events: none;

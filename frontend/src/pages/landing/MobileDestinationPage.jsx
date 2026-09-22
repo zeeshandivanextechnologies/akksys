@@ -215,13 +215,13 @@ const MobileDestinationPage = () => {
             </div>
           </div>
 
-          <div className="ld-form-container">
+          <div className="">
             <h2 className="ld-form-title">Welcome! Please fill in your details</h2>
             <p className="ld-form-subtitle">This is optional — you can also skip</p>
 
-            <form onSubmit={handleLeadSubmit} className="ld-lead-form">
+            <form onSubmit={handleLeadSubmit} >
               <div className=" custom-frm-bx">
-                <FaUser className="ld-form-icon" />
+                 <label className=""><FaUser className="me-1 ld-form-icon" />Your Name </label>
                 <input
                   type="text"
                   name="name"
@@ -229,55 +229,60 @@ const MobileDestinationPage = () => {
                   value={leadForm.name}
                   onChange={handleLeadChange}
                   required
-                  className="form-control ps-5"
+                  className="form-control"
                 />
               </div>
-              <div className="ld-form-group">
-                <FaPhone className="ld-form-icon" />
+
+              <div className="custom-frm-bx">
+                 <label className=""><FaPhone className="me-1 ld-form-icon" /> Your  Phone </label>
                 <input
                   type="tel"
                   name="phone"
                   placeholder="Phone Number"
                   value={leadForm.phone}
                   onChange={handleLeadChange}
-                  className="ld-form-input"
+                  className="form-control"
                 />
               </div>
-              <div className="ld-form-group">
-                <FaEnvelope className="ld-form-icon" />
+
+              <div className="custom-frm-bx">
+               
+                 <label className=""><FaEnvelope className="me-1 ld-form-icon" /> Your Email </label>
                 <input
                   type="email"
                   name="email"
                   placeholder="Email Address"
                   value={leadForm.email}
                   onChange={handleLeadChange}
-                  className="ld-form-input"
+                  className="form-control"
                 />
               </div>
-              <div className="ld-form-group">
-                <FaBuilding className="ld-form-icon" />
+
+              <div className="custom-frm-bx">
+                <label className=""><FaBuilding className="me-1 ld-form-icon" /> Your Company </label>
                 <input
                   type="text"
                   name="company"
                   placeholder="Company / Business"
                   value={leadForm.company}
                   onChange={handleLeadChange}
-                  className="ld-form-input"
+                  className="form-control"
                 />
               </div>
-              <div className="ld-form-group">
-                <FaMapMarkerAlt className="ld-form-icon" />
+
+              <div className="custom-frm-bx">
+                <label className=""><FaMapMarkerAlt className="me-1 ld-form-icon" /> Your City </label>
                 <input
                   type="text"
                   name="city"
                   placeholder="City"
                   value={leadForm.city}
                   onChange={handleLeadChange}
-                  className="ld-form-input"
+                  className="form-control"
                 />
               </div>
 
-              <button type="submit" className="thm-btn mb-2" disabled={formSubmitting || !leadForm.name.trim()}>
+              <button type="submit" className="thm-btn mt-2 mb-3 w-100" disabled={formSubmitting || !leadForm.name.trim()}>
                 {formSubmitting ? 'Submitting...' : 'Submit'}
               </button>
             </form>
