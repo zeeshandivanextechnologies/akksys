@@ -259,7 +259,7 @@ const CreateDynamicQR = () => {
             <div className='dq-card-body'>
                <div className="custom-frm-bx mb-0">
                 <div className="dq-toggle-row py-0">
-                  <span className="dq-toggle-label fz-16">Show form after QR scan</span>
+                  <lable className="">Show form after QR scan</lable>
                   <label className="dq-toggle-switch">
                     <input type="checkbox" checked={formEnabled} onChange={(e) => setFormEnabled(e.target.checked)} />
                     <span className="dq-toggle-slider"></span>

@@ -39,7 +39,14 @@ const VideoPlayer = ({ videoUrl }) => {
     if (url.startsWith('/uploads/')) return `${BACKEND_URL}${url}`;
     if (url.includes('/embed/')) return url;
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      const id = url.includes('youtu.be') ? url.split('/').pop() : url.split('v=')[1]?.split('&')[0];
+      let id = null;
+      if (url.includes('youtu.be')) {
+        id = url.split('/').pop();
+      } else if (url.includes('/shorts/')) {
+        id = url.split('/shorts/')[1]?.split('?')[0];
+      } else {
+        id = url.split('v=')[1]?.split('&')[0];
+      }
       return id ? `https://www.youtube.com/embed/${id}?rel=0` : null;
     }
     if (url.includes('vimeo.com')) return `https://player.vimeo.com/video/${url.split('/').pop()}`;
@@ -213,7 +220,7 @@ const MobileDestinationPage = () => {
             <p className="ld-form-subtitle">This is optional — you can also skip</p>
 
             <form onSubmit={handleLeadSubmit} className="ld-lead-form">
-              <div className="ld-form-group">
+              <div className="ld-form-group custom-frm-bx">
                 <FaUser className="ld-form-icon" />
                 <input
                   type="text"
@@ -222,7 +229,7 @@ const MobileDestinationPage = () => {
                   value={leadForm.name}
                   onChange={handleLeadChange}
                   required
-                  className="ld-form-input"
+                  className="ld-form-input form-control"
                 />
               </div>
               <div className="ld-form-group">
