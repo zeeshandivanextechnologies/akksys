@@ -161,7 +161,8 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl, qrSerialNumber
               const imgProps = pdf.getImageProperties(finalDataUrl);
               const pdfW = pdf.internal.pageSize.getWidth();
               const pdfH = pdf.internal.pageSize.getHeight();
-              const ratio = Math.min(pdfW / imgProps.width, pdfH / imgProps.height);
+              const pad = 4;
+              const ratio = Math.min((pdfW - pad * 2) / imgProps.width, (pdfH - pad * 2) / imgProps.height);
               const w = imgProps.width * ratio;
               const h = imgProps.height * ratio;
               pdf.addImage(finalDataUrl, 'PNG', (pdfW - w) / 2, (pdfH - h) / 2, w, h);

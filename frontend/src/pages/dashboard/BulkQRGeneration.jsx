@@ -215,7 +215,8 @@ const BulkQRGeneration = () => {
               const imgProps = pdf.getImageProperties(dataUrl);
               const pdfWidth = pdf.internal.pageSize.getWidth();
               const pdfHeight = pdf.internal.pageSize.getHeight();
-              const ratio = Math.min(pdfWidth / imgProps.width, pdfHeight / imgProps.height);
+              const pad = 4;
+              const ratio = Math.min((pdfWidth - pad * 2) / imgProps.width, (pdfHeight - pad * 2) / imgProps.height);
               const w = imgProps.width * ratio;
               const h = imgProps.height * ratio;
               const x = (pdfWidth - w) / 2;
