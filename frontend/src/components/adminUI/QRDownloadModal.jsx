@@ -74,26 +74,38 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl, qrSerialNumber
           const canvas = container.querySelector('canvas');
           if (canvas) {
             let finalDataUrl = canvas.toDataURL('image/png');
-            let finalHeight = sizeNum;
+            const imgPad2 = Math.round(sizeNum * 0.05);
+            let finalHeight = sizeNum + imgPad2 * 2;
             
             if (qrSerialNumber) {
               const textHeight = Math.max(30, sizeNum * 0.1);
-              finalHeight = sizeNum + textHeight;
+              finalHeight = sizeNum + textHeight + imgPad2;
               
               const finalCanvas = document.createElement('canvas');
               const ctx = finalCanvas.getContext('2d');
               finalCanvas.width = canvas.width;
-              finalCanvas.height = canvas.height + textHeight;
+              finalCanvas.height = canvas.height + textHeight + imgPad2;
               
               ctx.fillStyle = "#ffffff";
               ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-              ctx.drawImage(canvas, 0, 0);
+              ctx.drawImage(canvas, 0, imgPad2);
               
               ctx.fillStyle = "#0f1629";
               ctx.font = `bold ${Math.max(14, sizeNum * 0.05)}px Arial, sans-serif`;
               ctx.textAlign = "center";
               ctx.textBaseline = "middle";
-              ctx.fillText(qrSerialNumber, finalCanvas.width / 2, canvas.height + (textHeight / 2));
+              ctx.fillText(qrSerialNumber, finalCanvas.width / 2, imgPad2 + canvas.height + (textHeight / 2));
+              
+              finalDataUrl = finalCanvas.toDataURL('image/png');
+            } else {
+              const finalCanvas = document.createElement('canvas');
+              const ctx = finalCanvas.getContext('2d');
+              finalCanvas.width = canvas.width;
+              finalCanvas.height = canvas.height + imgPad2 * 2;
+              
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+              ctx.drawImage(canvas, 0, imgPad2);
               
               finalDataUrl = finalCanvas.toDataURL('image/png');
             }
@@ -136,22 +148,34 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl, qrSerialNumber
           const canvas = container.querySelector('canvas');
           if (canvas) {
             let finalDataUrl = canvas.toDataURL('image/png');
+            const imgPad = Math.round(sizeNum * 0.05);
             if (qrSerialNumber) {
               const textHeight = Math.max(30, sizeNum * 0.1);
               const finalCanvas = document.createElement('canvas');
               const ctx = finalCanvas.getContext('2d');
               finalCanvas.width = canvas.width;
-              finalCanvas.height = canvas.height + textHeight;
+              finalCanvas.height = canvas.height + textHeight + imgPad;
               
               ctx.fillStyle = "#ffffff";
               ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-              ctx.drawImage(canvas, 0, 0);
+              ctx.drawImage(canvas, 0, imgPad);
               
               ctx.fillStyle = "#0f1629";
               ctx.font = `bold ${Math.max(14, sizeNum * 0.05)}px Arial, sans-serif`;
               ctx.textAlign = "center";
               ctx.textBaseline = "middle";
-              ctx.fillText(qrSerialNumber, finalCanvas.width / 2, canvas.height + (textHeight / 2));
+              ctx.fillText(qrSerialNumber, finalCanvas.width / 2, imgPad + canvas.height + (textHeight / 2));
+              
+              finalDataUrl = finalCanvas.toDataURL('image/png');
+            } else {
+              const finalCanvas = document.createElement('canvas');
+              const ctx = finalCanvas.getContext('2d');
+              finalCanvas.width = canvas.width;
+              finalCanvas.height = canvas.height + imgPad * 2;
+              
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+              ctx.drawImage(canvas, 0, imgPad);
               
               finalDataUrl = finalCanvas.toDataURL('image/png');
             }
@@ -161,8 +185,7 @@ const QRDownloadModal = ({ show, onClose, qrName, qrUrl, logoUrl, qrSerialNumber
               const imgProps = pdf.getImageProperties(finalDataUrl);
               const pdfW = pdf.internal.pageSize.getWidth();
               const pdfH = pdf.internal.pageSize.getHeight();
-              const pad = 4;
-              const ratio = Math.min((pdfW - pad * 2) / imgProps.width, (pdfH - pad * 2) / imgProps.height);
+              const ratio = Math.min(pdfW / imgProps.width, pdfH / imgProps.height);
               const w = imgProps.width * ratio;
               const h = imgProps.height * ratio;
               pdf.addImage(finalDataUrl, 'PNG', (pdfW - w) / 2, (pdfH - h) / 2, w, h);

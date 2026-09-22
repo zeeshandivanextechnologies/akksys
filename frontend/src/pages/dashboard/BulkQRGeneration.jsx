@@ -135,27 +135,37 @@ const BulkQRGeneration = () => {
           let finalDataUrl = null;
           
           if (qrCanvas) {
+            const imgPad = Math.round(size * 0.05);
             if (serialNumber) {
               const finalCanvas = document.createElement('canvas');
               const ctx = finalCanvas.getContext('2d');
               const textHeight = Math.max(40, size * 0.12);
               
               finalCanvas.width = qrCanvas.width;
-              finalCanvas.height = qrCanvas.height + textHeight;
+              finalCanvas.height = qrCanvas.height + textHeight + imgPad;
               
               ctx.fillStyle = "#ffffff";
               ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-              ctx.drawImage(qrCanvas, 0, 0);
+              ctx.drawImage(qrCanvas, 0, imgPad);
               
               ctx.fillStyle = "#0f1629";
               ctx.font = `bold ${Math.max(18, size * 0.08)}px Arial, sans-serif`;
               ctx.textAlign = "center";
               ctx.textBaseline = "middle";
-              ctx.fillText(serialNumber, finalCanvas.width / 2, qrCanvas.height + (textHeight / 2));
+              ctx.fillText(serialNumber, finalCanvas.width / 2, imgPad + qrCanvas.height + (textHeight / 2));
               
               finalDataUrl = finalCanvas.toDataURL('image/png');
             } else {
-              finalDataUrl = qrCanvas.toDataURL('image/png');
+              const finalCanvas = document.createElement('canvas');
+              const ctx = finalCanvas.getContext('2d');
+              finalCanvas.width = qrCanvas.width;
+              finalCanvas.height = qrCanvas.height + imgPad * 2;
+              
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+              ctx.drawImage(qrCanvas, 0, imgPad);
+              
+              finalDataUrl = finalCanvas.toDataURL('image/png');
             }
           }
           
@@ -215,8 +225,7 @@ const BulkQRGeneration = () => {
               const imgProps = pdf.getImageProperties(dataUrl);
               const pdfWidth = pdf.internal.pageSize.getWidth();
               const pdfHeight = pdf.internal.pageSize.getHeight();
-              const pad = 4;
-              const ratio = Math.min((pdfWidth - pad * 2) / imgProps.width, (pdfHeight - pad * 2) / imgProps.height);
+              const ratio = Math.min(pdfWidth / imgProps.width, pdfHeight / imgProps.height);
               const w = imgProps.width * ratio;
               const h = imgProps.height * ratio;
               const x = (pdfWidth - w) / 2;
