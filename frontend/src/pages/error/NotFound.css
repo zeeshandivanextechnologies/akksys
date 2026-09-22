@@ -52,13 +52,13 @@
 .nf-badge {
   display: inline-block;
   padding: 6px 16px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(0, 200, 255, 0.1);
+    border: 1px solid rgba(0, 200, 255, 0.2);
   border-radius: 20px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: #ef4444;
+  color: #00C8FF;
   margin-bottom: 24px;
 }
 

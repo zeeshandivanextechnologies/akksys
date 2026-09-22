@@ -535,11 +535,31 @@ const Analytics = () => {
                 <li className={`page-item ${qrCurrentPage === 1 ? 'disabled' : ''}`}>
                   <button className="page-link" onClick={() => setQrCurrentPage(p => Math.max(1, p - 1))}>Previous</button>
                 </li>
-                {[...Array(totalQrPages)].map((_, i) => (
-                  <li key={i} className={`page-item ${qrCurrentPage === i + 1 ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => setQrCurrentPage(i + 1)}>{i + 1}</button>
-                  </li>
-                ))}
+                {(() => {
+                  const pages = [];
+                  if (totalQrPages <= 7) {
+                    for (let i = 1; i <= totalQrPages; i++) pages.push(i);
+                  } else {
+                    pages.push(1);
+                    if (qrCurrentPage > 3) pages.push('...');
+                    const start = Math.max(2, qrCurrentPage - 1);
+                    const end = Math.min(totalQrPages - 1, qrCurrentPage + 1);
+                    for (let i = start; i <= end; i++) pages.push(i);
+                    if (qrCurrentPage < totalQrPages - 2) pages.push('...');
+                    pages.push(totalQrPages);
+                  }
+                  return pages.map((page, idx) =>
+                    page === '...' ? (
+                      <li key={`ellipsis-${idx}`} className="page-item disabled">
+                        <span className="page-link pagination-ellipsis">...</span>
+                      </li>
+                    ) : (
+                      <li key={page} className={`page-item ${qrCurrentPage === page ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => setQrCurrentPage(page)}>{page}</button>
+                      </li>
+                    )
+                  );
+                })()}
                 <li className={`page-item ${qrCurrentPage === totalQrPages ? 'disabled' : ''}`}>
                   <button className="page-link" onClick={() => setQrCurrentPage(p => Math.min(totalQrPages, p + 1))}>Next</button>
                 </li>
@@ -595,11 +615,31 @@ const Analytics = () => {
                 <li className={`page-item ${campaignCurrentPage === 1 ? 'disabled' : ''}`}>
                   <button className="page-link" onClick={() => setCampaignCurrentPage(p => Math.max(1, p - 1))}>Previous</button>
                 </li>
-                {[...Array(totalCampaignPages)].map((_, i) => (
-                  <li key={i} className={`page-item ${campaignCurrentPage === i + 1 ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => setCampaignCurrentPage(i + 1)}>{i + 1}</button>
-                  </li>
-                ))}
+                {(() => {
+                  const pages = [];
+                  if (totalCampaignPages <= 7) {
+                    for (let i = 1; i <= totalCampaignPages; i++) pages.push(i);
+                  } else {
+                    pages.push(1);
+                    if (campaignCurrentPage > 3) pages.push('...');
+                    const start = Math.max(2, campaignCurrentPage - 1);
+                    const end = Math.min(totalCampaignPages - 1, campaignCurrentPage + 1);
+                    for (let i = start; i <= end; i++) pages.push(i);
+                    if (campaignCurrentPage < totalCampaignPages - 2) pages.push('...');
+                    pages.push(totalCampaignPages);
+                  }
+                  return pages.map((page, idx) =>
+                    page === '...' ? (
+                      <li key={`ellipsis-${idx}`} className="page-item disabled">
+                        <span className="page-link pagination-ellipsis">...</span>
+                      </li>
+                    ) : (
+                      <li key={page} className={`page-item ${campaignCurrentPage === page ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => setCampaignCurrentPage(page)}>{page}</button>
+                      </li>
+                    )
+                  );
+                })()}
                 <li className={`page-item ${campaignCurrentPage === totalCampaignPages ? 'disabled' : ''}`}>
                   <button className="page-link" onClick={() => setCampaignCurrentPage(p => Math.min(totalCampaignPages, p + 1))}>Next</button>
                 </li>
@@ -657,11 +697,31 @@ const Analytics = () => {
                 <li className={`page-item ${versionCurrentPage === 1 ? 'disabled' : ''}`}>
                   <button className="page-link" onClick={() => setVersionCurrentPage(p => Math.max(1, p - 1))}>Previous</button>
                 </li>
-                {[...Array(totalVersionPages)].map((_, i) => (
-                  <li key={i} className={`page-item ${versionCurrentPage === i + 1 ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => setVersionCurrentPage(i + 1)}>{i + 1}</button>
-                  </li>
-                ))}
+                {(() => {
+                  const pages = [];
+                  if (totalVersionPages <= 7) {
+                    for (let i = 1; i <= totalVersionPages; i++) pages.push(i);
+                  } else {
+                    pages.push(1);
+                    if (versionCurrentPage > 3) pages.push('...');
+                    const start = Math.max(2, versionCurrentPage - 1);
+                    const end = Math.min(totalVersionPages - 1, versionCurrentPage + 1);
+                    for (let i = start; i <= end; i++) pages.push(i);
+                    if (versionCurrentPage < totalVersionPages - 2) pages.push('...');
+                    pages.push(totalVersionPages);
+                  }
+                  return pages.map((page, idx) =>
+                    page === '...' ? (
+                      <li key={`ellipsis-${idx}`} className="page-item disabled">
+                        <span className="page-link pagination-ellipsis">...</span>
+                      </li>
+                    ) : (
+                      <li key={page} className={`page-item ${versionCurrentPage === page ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => setVersionCurrentPage(page)}>{page}</button>
+                      </li>
+                    )
+                  );
+                })()}
                 <li className={`page-item ${versionCurrentPage === totalVersionPages ? 'disabled' : ''}`}>
                   <button className="page-link" onClick={() => setVersionCurrentPage(p => Math.min(totalVersionPages, p + 1))}>Next</button>
                 </li>

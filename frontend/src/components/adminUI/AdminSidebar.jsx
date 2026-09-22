@@ -15,7 +15,8 @@ import {
   FaCog,
   FaSignOutAlt,
   FaEnvelope,
-  FaBox
+  FaBox,
+  FaUserFriends
 } from 'react-icons/fa';
 
 const AdminSidebar = ({ isMobileOpen, onCloseMobileSidebar }) => {
@@ -114,6 +115,9 @@ const AdminSidebar = ({ isMobileOpen, onCloseMobileSidebar }) => {
         </NavLink>
         <NavLink to="/admin/contact-messages" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"} title="Contact Messages" onClick={handleNavClick}>
           <FaEnvelope className="sidebar-link-icon" /> <span className="link-text">Contact Messages</span>
+        </NavLink>
+        <NavLink to="/admin/leads" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"} title="Leads" onClick={handleNavClick}>
+          <FaUserFriends className="sidebar-link-icon" /> <span className="link-text">Leads</span>
         </NavLink>
         <NavLink to="/admin/settings" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"} title="Settings" onClick={handleNavClick}>
           <FaCog className="sidebar-link-icon" /> <span className="link-text">Settings</span>

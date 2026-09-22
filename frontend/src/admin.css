@@ -857,6 +857,32 @@
   background: rgba(0, 200, 255, 0.1);
 }
 
+.notif-dropdown-item-unread {
+  border-left: 3px solid #00C8FF;
+  background: rgba(0, 200, 255, 0.03);
+}
+
+.notif-dropdown-item-unread .notif-item-text {
+  font-weight: 600;
+  color: var(--ov-heading-text);
+}
+
+.notif-dropdown-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00C8FF;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.notif-dropdown-empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 16px;
+  color: var(--ov-subheading-text);
+}
+
 .notif-item-icon {
   width: 40px;
   height: 40px;

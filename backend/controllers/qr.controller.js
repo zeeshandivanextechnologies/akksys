@@ -54,11 +54,11 @@ export const listQRCodes = async (req, res, next) => {
 
 export const createQR = async (req, res, next) => {
   try {
-    const { name, logo_url } = req.body;
+    const { name, logo_url, form_enabled } = req.body;
     const qrId = await generateQrId();
     const result = await db.query(
-      'INSERT INTO qr_codes (qr_id, name, logo_url, created_by) VALUES ($1, $2, $3, $4) RETURNING *',
-      [qrId, name, logo_url || null, req.user.id]
+      'INSERT INTO qr_codes (qr_id, name, logo_url, form_enabled, created_by) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [qrId, name, logo_url || null, form_enabled || false, req.user.id]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -82,24 +82,42 @@ export const getQRById = async (req, res, next) => {
 export const updateQR = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, form_enabled } = req.body;
     const hasLogo = Object.prototype.hasOwnProperty.call(req.body, 'logo_url');
     let logoVal = hasLogo ? req.body.logo_url : null;
     if (hasLogo && (!logoVal || logoVal === '')) logoVal = null;
 
-    const result = hasLogo
-      ? await db.query(
-          'UPDATE qr_codes SET name = COALESCE($1, name), logo_url = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
-          [name, logoVal, id]
-        )
-      : await db.query(
-          'UPDATE qr_codes SET name = COALESCE($1, name), updated_at = NOW() WHERE id = $2 RETURNING *',
-          [name, id]
-        );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'QR code not found' });
+    const hasFormEnabled = Object.prototype.hasOwnProperty.call(req.body, 'form_enabled');
+
+    if (hasLogo && hasFormEnabled) {
+      const result = await db.query(
+        'UPDATE qr_codes SET name = COALESCE($1, name), logo_url = $2, form_enabled = $3, updated_at = NOW() WHERE id = $4 RETURNING *',
+        [name, logoVal, form_enabled, id]
+      );
+      if (result.rows.length === 0) return res.status(404).json({ error: 'QR code not found' });
+      res.json(result.rows[0]);
+    } else if (hasLogo) {
+      const result = await db.query(
+        'UPDATE qr_codes SET name = COALESCE($1, name), logo_url = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
+        [name, logoVal, id]
+      );
+      if (result.rows.length === 0) return res.status(404).json({ error: 'QR code not found' });
+      res.json(result.rows[0]);
+    } else if (hasFormEnabled) {
+      const result = await db.query(
+        'UPDATE qr_codes SET name = COALESCE($1, name), form_enabled = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
+        [name, form_enabled, id]
+      );
+      if (result.rows.length === 0) return res.status(404).json({ error: 'QR code not found' });
+      res.json(result.rows[0]);
+    } else {
+      const result = await db.query(
+        'UPDATE qr_codes SET name = COALESCE($1, name), updated_at = NOW() WHERE id = $2 RETURNING *',
+        [name, id]
+      );
+      if (result.rows.length === 0) return res.status(404).json({ error: 'QR code not found' });
+      res.json(result.rows[0]);
     }
-    res.json(result.rows[0]);
   } catch (err) {
     next(err);
   }

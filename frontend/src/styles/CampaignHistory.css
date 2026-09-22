@@ -605,3 +605,36 @@
     font-size: 13px;
   }
 }
+
+/* ============================================
+   Notifications — Read / Unread States
+   ============================================ */
+
+.notif-box-item.notif-unread {
+  border-left: 3px solid var(--ov-primary, #00C8FF);
+  background: rgba(0, 200, 255, 0.04);
+}
+
+.notif-box-item.notif-unread .notif-box-text {
+  font-weight: 600;
+}
+
+.notif-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ov-primary, #00C8FF);
+  flex-shrink: 0;
+  margin-left: -8px;
+}
+
+.notif-mark-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.notif-mark-all-btn svg {
+  font-size: 13px;
+}

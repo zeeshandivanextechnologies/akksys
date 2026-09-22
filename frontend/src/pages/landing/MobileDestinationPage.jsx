@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api, { BACKEND_URL } from '../../services/api';
 import {
   FaArrowRight, FaShareAlt, FaHeart, FaExclamationTriangle,
   FaRedo, FaCheckCircle, FaStar, FaFire, FaClock, FaPlay,
-  FaCheck, FaShieldAlt, FaQrcode
+  FaCheck, FaShieldAlt, FaQrcode, FaUser, FaPhone, FaEnvelope, FaBuilding, FaMapMarkerAlt
 } from 'react-icons/fa';
 import './MobileDestinationPage.css';
 
@@ -80,27 +80,58 @@ const MobileDestinationPage = () => {
   });
   const [copied, setCopied] = useState(false);
   const [data, setData] = useState(null);
+  const [formEnabled, setFormEnabled] = useState(false);
+  const [formSkipped, setFormSkipped] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [leadForm, setLeadForm] = useState({ name: '', phone: '', email: '', company: '', city: '' });
+
+  const handleLeadChange = (e) => {
+    setLeadForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleLeadSubmit = async (e) => {
+    e.preventDefault();
+    if (!leadForm.name.trim()) return;
+    setFormSubmitting(true);
+    try {
+      await api.post(`/leads/submit/${qrId}`, leadForm);
+      setFormSubmitted(true);
+    } catch {
+      setFormSubmitted(true);
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
+
+  const handleSkip = () => {
+    setFormSkipped(true);
+  };
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await api.get(`/landing/${qrId}`);
+        const [landingRes, formRes] = await Promise.all([
+          api.get(`/landing/${qrId}`),
+          api.get(`/leads/form/${qrId}`).catch(() => ({ data: { form_enabled: false } }))
+        ]);
+        setFormEnabled(formRes.data.form_enabled);
         setData({
-          brand: res.data.brand || 'AKKSYS',
-          video: res.data.video_url || '',
-          headline: res.data.headline || 'Welcome',
-          tagline: res.data.tagline || '',
-          desc: res.data.description || '',
-          cta: res.data.cta_text || 'Learn More',
-          ctaLink: res.data.cta_url || '#',
-          scans: parseInt(res.data.scans) || 0,
-          likes: parseInt(res.data.likes) || 0,
-          rating: res.data.rating || 5.0,
-          reviews: res.data.reviews || 0,
-          badge: res.data.badge || '',
-          features: res.data.features || [],
-          versionId: res.data.version_id
+          brand: landingRes.data.brand || 'AKKSYS',
+          video: landingRes.data.video_url || '',
+          headline: landingRes.data.headline || 'Welcome',
+          tagline: landingRes.data.tagline || '',
+          desc: landingRes.data.description || '',
+          cta: landingRes.data.cta_text || 'Learn More',
+          ctaLink: landingRes.data.cta_url || '#',
+          scans: parseInt(landingRes.data.scans) || 0,
+          likes: parseInt(landingRes.data.likes) || 0,
+          rating: landingRes.data.rating || 5.0,
+          reviews: landingRes.data.reviews || 0,
+          badge: landingRes.data.badge || '',
+          features: landingRes.data.features || [],
+          versionId: landingRes.data.version_id
         });
       } catch (err) {
         setError(err.response?.data?.error || 'Failed to load');
@@ -111,7 +142,6 @@ const MobileDestinationPage = () => {
     if (qrId) {
       load();
     } else {
-      // Preview mode fallback
       setData({
         brand: 'AKKSYS', video: '', headline: 'Preview Mode', tagline: 'This is a preview',
         desc: 'Dynamic content will appear here when a real QR is scanned.',
@@ -162,6 +192,99 @@ const MobileDestinationPage = () => {
   if (loading) return <LoadingScreen />;
   if (error) return <ErrorScreen message={error} onRetry={() => window.location.reload()} />;
   if (!data) return <ErrorScreen message="Not found" />;
+
+  if (formEnabled && !formSubmitted && !formSkipped) {
+    return (
+      <div className="ld-page">
+        <div className="ld-glow ld-glow-1"></div>
+        <div className="ld-glow ld-glow-2"></div>
+        <div className="ld-card">
+          <div className="ld-hdr">
+            <div className="ld-brand">
+              <span className="ld-brand-dot">
+                <FaQrcode size={16} color="#fff" />
+              </span>
+              {data.brand}
+            </div>
+          </div>
+
+          <div className="ld-form-container">
+            <h2 className="ld-form-title">Welcome! Please fill in your details</h2>
+            <p className="ld-form-subtitle">This is optional — you can also skip</p>
+
+            <form onSubmit={handleLeadSubmit} className="ld-lead-form">
+              <div className="ld-form-group">
+                <FaUser className="ld-form-icon" />
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Your Name *"
+                  value={leadForm.name}
+                  onChange={handleLeadChange}
+                  required
+                  className="ld-form-input"
+                />
+              </div>
+              <div className="ld-form-group">
+                <FaPhone className="ld-form-icon" />
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone Number"
+                  value={leadForm.phone}
+                  onChange={handleLeadChange}
+                  className="ld-form-input"
+                />
+              </div>
+              <div className="ld-form-group">
+                <FaEnvelope className="ld-form-icon" />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={leadForm.email}
+                  onChange={handleLeadChange}
+                  className="ld-form-input"
+                />
+              </div>
+              <div className="ld-form-group">
+                <FaBuilding className="ld-form-icon" />
+                <input
+                  type="text"
+                  name="company"
+                  placeholder="Company / Business"
+                  value={leadForm.company}
+                  onChange={handleLeadChange}
+                  className="ld-form-input"
+                />
+              </div>
+              <div className="ld-form-group">
+                <FaMapMarkerAlt className="ld-form-icon" />
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="City"
+                  value={leadForm.city}
+                  onChange={handleLeadChange}
+                  className="ld-form-input"
+                />
+              </div>
+
+              <button type="submit" className="thm-btn ld-form-submit" disabled={formSubmitting || !leadForm.name.trim()}>
+                {formSubmitting ? 'Submitting...' : 'Submit'}
+              </button>
+            </form>
+
+            <button className="ld-form-skip" onClick={handleSkip}>
+              Skip — Continue to page
+            </button>
+          </div>
+
+          <div className="ld-footer">Powered by <strong>AKKSYS</strong></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="ld-page">

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaUpload, FaVideo, FaMousePointer, FaLink, FaArrowLeft, FaSpinner, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaUpload, FaVideo, FaMousePointer, FaLink, FaArrowLeft, FaSpinner, FaCheck, FaTimes, FaClipboardList } from 'react-icons/fa';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 import '../../styles/DynamicQR.css';
@@ -18,6 +18,7 @@ const CreateDynamicQR = () => {
   const [videoUrl, setVideoUrl] = useState('');
   const [ctaText, setCtaText] = useState('');
   const [ctaUrl, setCtaUrl] = useState('');
+  const [formEnabled, setFormEnabled] = useState(false);
   const [videos, setVideos] = useState([]);
   const [saving, setSaving] = useState(false);
 
@@ -38,6 +39,7 @@ const CreateDynamicQR = () => {
     if (editQR) {
       setQrName(editQR.name || '');
       setLogoPreview(editQR.logoUrl || '');
+      if (editQR.formEnabled !== undefined) setFormEnabled(editQR.formEnabled);
       if (editQR.ctaDestination && editQR.ctaDestination !== '—') setCtaUrl(editQR.ctaDestination);
       if (editQR.ctaText) setCtaText(editQR.ctaText);
       if (editQR.videoUrl) {
@@ -101,6 +103,7 @@ const CreateDynamicQR = () => {
         await api.put(`/qr/${editQR.id}`, {
           name: qrName.trim(),
           logo_url: logoPreview,
+          form_enabled: formEnabled,
         });
         if (editQR.campaignId) {
           await api.put(`/campaign/${editQR.campaignId}`, {
@@ -118,6 +121,7 @@ const CreateDynamicQR = () => {
         const qrRes = await api.post('/qr/create', {
           name: qrName.trim(),
           logo_url: logoPreview || null,
+          form_enabled: formEnabled,
         });
         const newQR = qrRes.data;
         const videoType = videoSource ? 'library' : (videoUrl.includes('youtube') ? 'youtube' : videoUrl.includes('vimeo') ? 'vimeo' : 'mp4');
@@ -231,7 +235,41 @@ const CreateDynamicQR = () => {
                   )}
                 </div>
               </div>
+
+              {/* <div className="custom-frm-bx mb-0">
+                <label className="dq-label"><FaClipboardList className="me-1" /> Lead Capture Form</label>
+                <div className="dq-toggle-row">
+                  <span className="dq-toggle-label">Show form after QR scan</span>
+                  <label className="dq-toggle-switch">
+                    <input type="checkbox" checked={formEnabled} onChange={(e) => setFormEnabled(e.target.checked)} />
+                    <span className="dq-toggle-slider"></span>
+                  </label>
+                </div>
+                <small className="dq-field-hint">When enabled, users will see an optional form before landing page. They can skip or submit.</small>
+              </div> */}
             </div>
+          </div>
+ 
+          <div className='dq-card mb-3'>
+            <div className='dq-card-header'>
+              <h6 className="dq-card-title">
+                <FaClipboardList className="me-1" /> Lead Capture Form
+              </h6>
+            </div>
+            <div className='dq-card-body'>
+               <div className="custom-frm-bx mb-0">
+                <div className="dq-toggle-row py-0">
+                  <span className="dq-toggle-label fz-16">Show form after QR scan</span>
+                  <label className="dq-toggle-switch">
+                    <input type="checkbox" checked={formEnabled} onChange={(e) => setFormEnabled(e.target.checked)} />
+                    <span className="dq-toggle-slider"></span>
+                  </label>
+                </div>
+                <small className="dq-field-hint">When enabled, users will see an optional form before landing page. They can skip or submit.</small>
+              </div>
+            </div>
+
+
           </div>
 
           {/* Video Card */}

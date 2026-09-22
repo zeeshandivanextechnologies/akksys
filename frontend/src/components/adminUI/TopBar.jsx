@@ -32,7 +32,6 @@ const TopBar = ({ _title, onToggleSidebar }) => {
   }, []);
 
   const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
 
   const getSeenIds = () => {
     try {
@@ -43,18 +42,15 @@ const TopBar = ({ _title, onToggleSidebar }) => {
   };
 
   const markAsSeen = (id) => {
-    const seen = getSeenIds();
-    if (!seen.includes(id)) {
-      seen.push(id);
-      localStorage.setItem('akksys_seen_notifs', JSON.stringify(seen));
-    }
+    setSeenIds(prev => {
+      if (prev.includes(id)) return prev;
+      const updated = [...prev, id];
+      localStorage.setItem('akksys_seen_notifs', JSON.stringify(updated));
+      return updated;
+    });
   };
 
-  const markAllAsSeen = () => {
-    const ids = notifications.map(n => n.id);
-    localStorage.setItem('akksys_seen_notifs', JSON.stringify(ids));
-    setUnreadCount(0);
-  };
+  const [seenIds, setSeenIds] = useState(() => getSeenIds());
 
   useEffect(() => {
     const fetchNotifs = async () => {
@@ -91,9 +87,6 @@ const TopBar = ({ _title, onToggleSidebar }) => {
           };
         });
         setNotifications(formatted);
-        const seenIds = getSeenIds();
-        const unread = formatted.filter(n => !seenIds.includes(n.id)).length;
-        setUnreadCount(unread);
       } catch (err) {
         console.error('Failed to load notifications', err);
       }
@@ -146,6 +139,9 @@ const TopBar = ({ _title, onToggleSidebar }) => {
     logout();
     navigate('/login');
   };
+
+  const visibleNotifications = notifications.filter(n => !seenIds.includes(n.id));
+  const unreadCount = visibleNotifications.length;
 
   return (
     <header className="admin-topbar d-flex justify-content-between align-items-center sticky-top topbar-header">
@@ -206,9 +202,6 @@ const TopBar = ({ _title, onToggleSidebar }) => {
           <div className="notif-bell-wrapper" ref={notifRef}>
             <div className="notif-bell" onClick={() => {
               setShowNotifications(!showNotifications);
-              if (!showNotifications) {
-                markAllAsSeen();
-              }
             }}>
               <FaBell size={18} className="text-white" />
               {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
@@ -221,20 +214,22 @@ const TopBar = ({ _title, onToggleSidebar }) => {
                   <span className="notif-dropdown-count">{unreadCount} New</span>
                 </div>
                 <div className="notif-dropdown-list">
-                  {notifications.map((notif) => (
-                    <div key={notif.id} className="notif-dropdown-item" onClick={() => {
-                      markAsSeen(notif.id);
-                      setUnreadCount(prev => Math.max(0, prev - 1));
-                    }}>
-                      <div className="notif-item-icon" style={{ background: `${notif.iconBg}15`, color: notif.iconBg }}>
-                        {notif.icon}
+                  {visibleNotifications.length === 0 ? (
+                    <div className="notif-dropdown-empty">No new notifications</div>
+                  ) : (
+                    visibleNotifications.map((notif) => (
+                      <div key={notif.id} className="notif-dropdown-item notif-dropdown-item-unread" onClick={() => markAsSeen(notif.id)}>
+                        <span className="notif-dropdown-unread-dot"></span>
+                        <div className="notif-item-icon" style={{ background: `${notif.iconBg}15`, color: notif.iconBg }}>
+                          {notif.icon}
+                        </div>
+                        <div className="notif-item-content">
+                          <p className="notif-item-text">{notif.text}</p>
+                          <span className="notif-item-time">{notif.time}</span>
+                        </div>
                       </div>
-                      <div className="notif-item-content">
-                        <p className="notif-item-text">{notif.text}</p>
-                        <span className="notif-item-time">{notif.time}</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
                 <div className="notif-dropdown-footer">
                   <button 

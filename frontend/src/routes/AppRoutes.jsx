@@ -27,6 +27,7 @@ import LandingContent from '../pages/dashboard/LandingContent';
 import Settings from '../pages/dashboard/Settings';
 import Notifications from '../pages/dashboard/Notifications';
 import ContactMessages from '../pages/dashboard/ContactMessages';
+import Leads from '../pages/dashboard/Leads';
 import PrivacyPolicy from '../pages/landing/PrivacyPolicy';
 import TermsAndConditions from '../pages/landing/TermsAndConditions';
 import ContactUs from '../pages/landing/ContactUs';
@@ -65,6 +66,7 @@ const AppRoutes = () => {
           <Route path="landing-content" element={<LandingContent />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="contact-messages" element={<ContactMessages />} />
+          <Route path="leads" element={<Leads />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
