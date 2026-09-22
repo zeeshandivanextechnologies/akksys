@@ -17,6 +17,7 @@ const CreateCategoryModal = ({ show, onClose, onSuccess, editItem = null }) => {
   }, [show, editItem]);
 
   const fetchFlatCategories = async () => {
+    // Left for compatibility if needed elsewhere, but no longer used in UI
     try {
       const res = await api.get('/categories');
       setFlatCategories(res.data.flat || []);
@@ -32,14 +33,17 @@ const CreateCategoryModal = ({ show, onClose, onSuccess, editItem = null }) => {
     }
     setSaving(true);
     try {
+      let savedCategory = null;
       if (editItem) {
-        await api.put(`/categories/${editItem.id}`, { name: name.trim(), parent_id: parentId });
+        const res = await api.put(`/categories/${editItem.id}`, { name: name.trim(), parent_id: parentId });
+        savedCategory = res.data;
         toast.success('Category updated');
       } else {
-        await api.post('/categories', { name: name.trim(), parent_id: parentId });
+        const res = await api.post('/categories', { name: name.trim(), parent_id: parentId });
+        savedCategory = res.data;
         toast.success('Category created');
       }
-      onSuccess();
+      onSuccess(savedCategory);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to save category');
     } finally {
@@ -71,22 +75,7 @@ const CreateCategoryModal = ({ show, onClose, onSuccess, editItem = null }) => {
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          <div className="custom-frm-bx mb-0">
-            <label className="dq-label">Parent Category (optional)</label>
-            <select
-              className="form-select"
-              value={parentId || ''}
-              onChange={(e) => setParentId(e.target.value ? Number(e.target.value) : null)}
-            >
-              <option value="">None (Root Level)</option>
-              {flatCategories
-                .filter(c => !editItem || c.id !== editItem.id)
-                .map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))
-              }
-            </select>
-          </div>
+          {/* Parent category dropdown removed as requested by client */}
         </div>
         <div className="qrd-modal-footer">
           <button className="thm-btn outline" onClick={onClose}>Cancel</button>

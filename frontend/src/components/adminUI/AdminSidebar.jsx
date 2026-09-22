@@ -96,9 +96,9 @@ const AdminSidebar = ({ isMobileOpen, onCloseMobileSidebar }) => {
           <FaBox className="sidebar-link-icon" /> <span className="link-text">Pack Mode</span>
         </NavLink>
 
-        <NavLink to="/admin/categories" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"} title="Categories" onClick={handleNavClick}>
+        {/* <NavLink to="/admin/categories" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"} title="Categories" onClick={handleNavClick}>
           <FaFolder className="sidebar-link-icon" /> <span className="link-text">Categories</span>
-        </NavLink>
+        </NavLink> */}
 
       </div>
 

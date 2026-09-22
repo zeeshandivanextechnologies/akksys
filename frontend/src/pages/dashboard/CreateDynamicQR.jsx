@@ -20,7 +20,7 @@ const CreateDynamicQR = () => {
   const [ctaText, setCtaText] = useState('');
   const [ctaUrl, setCtaUrl] = useState('');
   const [formEnabled, setFormEnabled] = useState(false);
-  const [categoryId, setCategoryId] = useState(editQR?.categoryId || null);
+  const [categoryId, setCategoryId] = useState(editQR?.categoryId || location.state?.categoryId || null);
   const [videos, setVideos] = useState([]);
   const [saving, setSaving] = useState(false);
 

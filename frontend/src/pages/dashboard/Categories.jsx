@@ -257,22 +257,7 @@ const Categories = () => {
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
-              <div className="custom-frm-bx mb-0">
-                <label className="dq-label">Parent Category (optional)</label>
-                <select
-                  className="form-select"
-                  value={parentId || ''}
-                  onChange={(e) => setParentId(e.target.value ? Number(e.target.value) : null)}
-                >
-                  <option value="">None (Root Level)</option>
-                  {flatCategories
-                    .filter(c => !editItem || c.id !== editItem.id)
-                    .map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))
-                  }
-                </select>
-              </div>
+              {/* Parent category dropdown removed as requested by client */}
             </div>
             <div className="qrd-modal-footer">
               <button className="thm-btn outline" onClick={() => setShowModal(false)}>Cancel</button>

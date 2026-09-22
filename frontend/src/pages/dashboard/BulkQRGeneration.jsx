@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaFileCsv, FaQrcode, FaDownload, FaTrash, FaCheckCircle, FaExclamationCircle, FaArrowLeft, FaSpinner, FaUpload, FaPrint } from 'react-icons/fa';
 import { BsQrCodeScan } from 'react-icons/bs';
 import { QRCodeCanvas, QRCodeSVG } from 'qrcode.react';
@@ -12,6 +12,7 @@ import '../../styles/DynamicQR.css';
 
 const BulkQRGeneration = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const fileInputRef = useRef(null);
   const customLogoInputRef = useRef(null);
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -27,7 +28,7 @@ const BulkQRGeneration = () => {
   const [brandLogo, setBrandLogo] = useState('No Logo');
   const [customLogo, setCustomLogo] = useState(null);
   const [printingA4, setPrintingA4] = useState(false);
-  const [categoryId, setCategoryId] = useState(null);
+  const [categoryId, setCategoryId] = useState(location.state?.categoryId || null);
 
   const getQrSizeValue = () => {
     if (qrSize.includes('200')) return 200;
