@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaUpload, FaVideo, FaMousePointer, FaLink, FaArrowLeft, FaSpinner, FaCheck, FaTimes, FaClipboardList } from 'react-icons/fa';
 import api from '../../services/api';
+import CategoryDropdown from '../../components/CategoryDropdown';
 import { toast } from 'react-toastify';
 import '../../styles/DynamicQR.css';
 
@@ -19,6 +20,7 @@ const CreateDynamicQR = () => {
   const [ctaText, setCtaText] = useState('');
   const [ctaUrl, setCtaUrl] = useState('');
   const [formEnabled, setFormEnabled] = useState(false);
+  const [categoryId, setCategoryId] = useState(editQR?.categoryId || null);
   const [videos, setVideos] = useState([]);
   const [saving, setSaving] = useState(false);
 
@@ -104,6 +106,7 @@ const CreateDynamicQR = () => {
           name: qrName.trim(),
           logo_url: logoPreview,
           form_enabled: formEnabled,
+          category_id: categoryId,
         });
         if (editQR.campaignId) {
           await api.put(`/campaign/${editQR.campaignId}`, {
@@ -122,6 +125,7 @@ const CreateDynamicQR = () => {
           name: qrName.trim(),
           logo_url: logoPreview || null,
           form_enabled: formEnabled,
+          category_id: categoryId,
         });
         const newQR = qrRes.data;
         const videoType = videoSource ? 'library' : (videoUrl.includes('youtube') ? 'youtube' : videoUrl.includes('vimeo') ? 'vimeo' : 'mp4');
@@ -198,6 +202,13 @@ const CreateDynamicQR = () => {
                   onChange={(e) => setQrName(e.target.value)}
                 />
               </div>
+              <div className="custom-frm-bx">
+                <label className="dq-label">Category / Folder</label>
+                <CategoryDropdown
+                  value={categoryId}
+                  onChange={(id) => setCategoryId(id)}
+                />
+              </div>
               <div className="custom-frm-bx mb-0">
                 <label className="dq-label">QR Logo Branding (Center Logo)</label>
                 <input
@@ -259,7 +270,7 @@ const CreateDynamicQR = () => {
             <div className='dq-card-body'>
                <div className="custom-frm-bx mb-0">
                 <div className="dq-toggle-row py-0">
-                  <lable className="">Show form after QR scan</lable>
+                  <lable className="dq-toggle-label">Show form after QR scan</lable>
                   <label className="dq-toggle-switch">
                     <input type="checkbox" checked={formEnabled} onChange={(e) => setFormEnabled(e.target.checked)} />
                     <span className="dq-toggle-slider"></span>

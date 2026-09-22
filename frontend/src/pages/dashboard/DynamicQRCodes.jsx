@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { FaDownload, FaEye, FaToggleOn, FaToggleOff, FaQrcode, FaChevronDown, FaTrash, FaPen } from 'react-icons/fa';
 import { QRCodeCanvas } from 'qrcode.react';
 import QRDownloadModal from '../../components/adminUI/QRDownloadModal';
+import CategoryDropdown from '../../components/CategoryDropdown';
+import CreateCategoryModal from '../../components/CreateCategoryModal';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 import Loader from './Loader';
@@ -16,6 +18,9 @@ const DynamicQRCodes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [lifecycleFilter, setLifecycleFilter] = useState('All');
+  const [categoryFilter, setCategoryFilter] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [qrList, setQrList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,6 +34,8 @@ const DynamicQRCodes = () => {
         qrId: qr.qr_id,
         qrSerialNumber: qr.qr_serial_number,
         name: qr.name,
+        categoryName: qr.category_name || null,
+        categoryId: qr.category_id || null,
         url: `${window.location.host}/r/${qr.qr_id}`,
         scans: parseInt(qr.total_scans) || 0,
         unique: parseInt(qr.unique_scans) || 0,
@@ -57,6 +64,13 @@ const DynamicQRCodes = () => {
 
   useEffect(() => {
     fetchQRs();
+    const fetchCategories = async () => {
+      try {
+        const res = await api.get('/categories');
+        setCategories(res.data.flat || []);
+      } catch { /* empty */ }
+    };
+    fetchCategories();
   }, [fetchQRs]);
 
   const toggleActive = async (id) => {
@@ -118,7 +132,9 @@ const DynamicQRCodes = () => {
                         (statusFilter === 'Paused' && !qr.active);
     const matchLifecycle = lifecycleFilter === 'All' ||
                           qr.lifecycleStatus === lifecycleFilter.toLowerCase();
-    return matchSearch && matchStatus && matchLifecycle;
+    const matchCategory = !categoryFilter ||
+                          String(qr.categoryId) === String(categoryFilter);
+    return matchSearch && matchStatus && matchLifecycle && matchCategory;
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -149,6 +165,13 @@ const DynamicQRCodes = () => {
               onClick={() => navigate('/admin/dynamic-qr/bulk')}
             >
               <FaQrcode className="me-2" /> Bulk Generate
+            </button>
+            <button
+              className="thm-btn outline"
+              style={{ marginLeft: '10px', marginRight: '10px' }}
+              onClick={() => setShowCategoryModal(true)}
+            >
+              + New Category
             </button>
             <button
               className="thm-btn"
@@ -203,6 +226,15 @@ const DynamicQRCodes = () => {
                 </select>
               </div>
             </div>
+            <div className="col-md-3 col-lg-2">
+              <div className="custom-frm-bx mb-3 mb-md-0">
+                <CategoryDropdown
+                  value={categoryFilter}
+                  onChange={setCategoryFilter}
+                  defaultOptionText="All Categories"
+                />
+              </div>
+            </div>
           </div>
         </div>
           </div>
@@ -215,6 +247,7 @@ const DynamicQRCodes = () => {
                 <tr>
                   <th className="dq-th">SR. No.</th>
                   <th className="dq-th">QR Code</th>
+                  <th className="dq-th">Category</th>
                   <th className="dq-th">QR Serial No.</th>
                   <th className="dq-th dq-col-scans">Scans</th>
                   <th className="dq-th dq-col-unique">Unique</th>
@@ -230,7 +263,7 @@ const DynamicQRCodes = () => {
               <tbody>
                 {currentItems.length === 0 ? (
                   <tr>
-                    <td colSpan="12" className="text-center" style={{ color: '#ddd', height : "250px" }}>
+                    <td colSpan="13" className="text-center" style={{ color: '#ddd', height : "250px" }}>
                       No QR codes found
                     </td>
                   </tr>
@@ -266,6 +299,9 @@ const DynamicQRCodes = () => {
                             </a>
                           </div>
                         </div>
+                      </td>
+                      <td >
+                        {qr.categoryName || <span style={{ color: '#ddd' }}>—</span>}
                       </td>
                       <td>{qr.qrSerialNumber || '—'}</td>
                       <td className="dq-col-scans">{qr.scans.toLocaleString()}</td>
@@ -397,6 +433,15 @@ const DynamicQRCodes = () => {
         qrUrl={selectedQR?.url}
         logoUrl={selectedQR?.logoUrl}
         qrSerialNumber={selectedQR?.qrSerialNumber}
+      />
+      <CreateCategoryModal 
+        show={showCategoryModal} 
+        onClose={() => setShowCategoryModal(false)} 
+        onSuccess={() => {
+          setShowCategoryModal(false);
+          // Re-fetch categories to update dropdowns
+          api.get('/categories').then(res => setCategories(res.data.tree || []));
+        }}
       />
     </>
   );

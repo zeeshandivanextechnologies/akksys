@@ -28,6 +28,7 @@ import Settings from '../pages/dashboard/Settings';
 import Notifications from '../pages/dashboard/Notifications';
 import ContactMessages from '../pages/dashboard/ContactMessages';
 import Leads from '../pages/dashboard/Leads';
+import Categories from '../pages/dashboard/Categories';
 import PrivacyPolicy from '../pages/landing/PrivacyPolicy';
 import TermsAndConditions from '../pages/landing/TermsAndConditions';
 import ContactUs from '../pages/landing/ContactUs';
@@ -50,8 +51,8 @@ const AppRoutes = () => {
           <Route path="dynamic-qr" element={<DynamicQRCodes />} />
           <Route path="dynamic-qr/create" element={<CreateDynamicQR />} />
           <Route path="dynamic-qr/bulk" element={<BulkQRGeneration />} />
-          <Route path="pack-mode" element={<PackMode />} />
           <Route path="dynamic-qr/:qrId" element={<QRDetail />} />
+          <Route path="pack-mode" element={<PackMode />} />
           <Route path="static-qr" element={<StaticQRCodes />} />
           <Route path="static-qr/create" element={<CreateStaticQR />} />
           <Route path="videos" element={<VideoLibrary />} />
@@ -67,6 +68,7 @@ const AppRoutes = () => {
           <Route path="notifications" element={<Notifications />} />
           <Route path="contact-messages" element={<ContactMessages />} />
           <Route path="leads" element={<Leads />} />
+          <Route path="categories" element={<Categories />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

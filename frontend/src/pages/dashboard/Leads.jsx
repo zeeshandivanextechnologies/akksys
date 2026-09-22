@@ -43,9 +43,9 @@ const Leads = () => {
 
   const exportCSV = () => {
     if (filteredLeads.length === 0) return;
-    const headers = ['Name', 'Phone', 'Email', 'Company', 'City', 'QR Code', 'QR Name', 'Device', 'Date'];
+    const headers = ['Name', 'Phone', 'QR Code', 'QR Name', 'Device', 'Date'];
     const rows = filteredLeads.map(l => [
-      l.name, l.phone || '', l.email || '', l.company || '', l.city || '',
+      l.name, l.phone || '',
       l.qr_code_id || '', l.qr_name || '', l.device_type || '',
       new Date(l.created_at).toLocaleString()
     ]);
@@ -63,9 +63,7 @@ const Leads = () => {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return (l.name && l.name.toLowerCase().includes(term)) ||
-           (l.email && l.email.toLowerCase().includes(term)) ||
            (l.phone && l.phone.toLowerCase().includes(term)) ||
-           (l.company && l.company.toLowerCase().includes(term)) ||
            (l.qr_name && l.qr_name.toLowerCase().includes(term));
   });
 
@@ -133,9 +131,6 @@ const Leads = () => {
                       <th className="dq-th">SR. No.</th>
                       <th className="dq-th">Name</th>
                       <th className="dq-th">Phone</th>
-                      <th className="dq-th">Email</th>
-                      <th className="dq-th">Company</th>
-                      <th className="dq-th">City</th>
                       <th className="dq-th">QR Code</th>
                       <th className="dq-th">Device</th>
                       <th className="dq-th">Date</th>
@@ -154,9 +149,6 @@ const Leads = () => {
                           </div>
                         </td>
                         <td className="dq-td">{lead.phone || '—'}</td>
-                        <td className="dq-td">{lead.email || '—'}</td>
-                        <td className="dq-td">{lead.company || '—'}</td>
-                        <td className="dq-td">{lead.city || '—'}</td>
                         <td className="dq-td">
                           <div className="dq-qr-cell">
                             <div className="dq-qr-info">

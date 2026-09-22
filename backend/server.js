@@ -18,6 +18,7 @@ import redirectPresetsRoutes from './routes/redirectPresets.routes.js';
 import searchRoutes from './routes/search.routes.js';
 import packRoutes from './routes/pack.routes.js';
 import leadRoutes from './routes/lead.routes.js';
+import categoryRoutes from './routes/category.routes.js';
 
 dotenv.config();
 
@@ -123,6 +124,7 @@ app.use('/api/static-qr', staticQrRoutes);
 app.use('/api/redirect-presets', redirectPresetsRoutes);
 app.use('/api/pack', packRoutes);
 app.use('/api/leads', leadRoutes);
+app.use('/api/categories', categoryRoutes);
 
 app.use(errorHandler);
 

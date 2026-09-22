@@ -4,7 +4,7 @@ import api, { BACKEND_URL } from '../../services/api';
 import {
   FaArrowRight, FaShareAlt, FaHeart, FaExclamationTriangle,
   FaRedo, FaCheckCircle, FaStar, FaFire, FaClock, FaPlay,
-  FaCheck, FaShieldAlt, FaQrcode, FaUser, FaPhone, FaEnvelope, FaBuilding, FaMapMarkerAlt
+  FaCheck, FaShieldAlt, FaQrcode, FaUser, FaPhone
 } from 'react-icons/fa';
 import './MobileDestinationPage.css';
 
@@ -91,7 +91,7 @@ const MobileDestinationPage = () => {
   const [formSkipped, setFormSkipped] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [leadForm, setLeadForm] = useState({ name: '', phone: '', email: '', company: '', city: '' });
+  const [leadForm, setLeadForm] = useState({ name: '', phone: '' });
 
   const handleLeadChange = (e) => {
     setLeadForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -200,7 +200,7 @@ const MobileDestinationPage = () => {
   if (error) return <ErrorScreen message={error} onRetry={() => window.location.reload()} />;
   if (!data) return <ErrorScreen message="Not found" />;
 
-  if (formEnabled && !formSubmitted && !formSkipped) {
+  if (!formEnabled && !formSubmitted && !formSkipped) {
     return (
       <div className="ld-page">
         <div className="ld-glow ld-glow-1"></div>
@@ -240,43 +240,6 @@ const MobileDestinationPage = () => {
                   name="phone"
                   placeholder="Phone Number"
                   value={leadForm.phone}
-                  onChange={handleLeadChange}
-                  className="form-control"
-                />
-              </div>
-
-              <div className="custom-frm-bx">
-               
-                 <label className=""><FaEnvelope className="me-1 ld-form-icon" /> Your Email </label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email Address"
-                  value={leadForm.email}
-                  onChange={handleLeadChange}
-                  className="form-control"
-                />
-              </div>
-
-              <div className="custom-frm-bx">
-                <label className=""><FaBuilding className="me-1 ld-form-icon" /> Your Company </label>
-                <input
-                  type="text"
-                  name="company"
-                  placeholder="Company / Business"
-                  value={leadForm.company}
-                  onChange={handleLeadChange}
-                  className="form-control"
-                />
-              </div>
-
-              <div className="custom-frm-bx">
-                <label className=""><FaMapMarkerAlt className="me-1 ld-form-icon" /> Your City </label>
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="City"
-                  value={leadForm.city}
                   onChange={handleLeadChange}
                   className="form-control"
                 />

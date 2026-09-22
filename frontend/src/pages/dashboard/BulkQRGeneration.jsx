@@ -6,6 +6,7 @@ import { QRCodeCanvas, QRCodeSVG } from 'qrcode.react';
 import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
 import api from '../../services/api';
+import CategoryDropdown from '../../components/CategoryDropdown';
 import { toast } from 'react-toastify';
 import '../../styles/DynamicQR.css';
 
@@ -26,6 +27,7 @@ const BulkQRGeneration = () => {
   const [brandLogo, setBrandLogo] = useState('No Logo');
   const [customLogo, setCustomLogo] = useState(null);
   const [printingA4, setPrintingA4] = useState(false);
+  const [categoryId, setCategoryId] = useState(null);
 
   const getQrSizeValue = () => {
     if (qrSize.includes('200')) return 200;
@@ -50,6 +52,7 @@ const BulkQRGeneration = () => {
     const header = lines[0].toLowerCase().replace(/"/g, '').split(',').map(h => h.trim());
     const nameIdx = header.findIndex(h => h === 'name');
     const urlIdx = header.findIndex(h => h === 'destination_url' || h === 'url');
+    const categoryIdx = header.findIndex(h => h === 'category');
     if (nameIdx === -1) {
       setParseError('CSV must have a "name" column');
       return [];
@@ -59,7 +62,8 @@ const BulkQRGeneration = () => {
       const cols = lines[i].split(',').map(c => c.trim().replace(/"/g, ''));
       const name = cols[nameIdx];
       const destination_url = urlIdx !== -1 ? cols[urlIdx] : '';
-      if (name) items.push({ name, destination_url: destination_url || '' });
+      const category_path = categoryIdx !== -1 ? cols[categoryIdx] : '';
+      if (name) items.push({ name, destination_url: destination_url || '', category_path });
     }
     return items;
   };
@@ -84,11 +88,11 @@ const BulkQRGeneration = () => {
     if (bulkData.length === 0) return;
     setGenerating(true);
     try {
-      const items = bulkData.map(d => ({ name: d.name, destination_url: d.destination_url }));
+      const items = bulkData.map(d => ({ name: d.name, destination_url: d.destination_url, category_path: d.category_path }));
       const logoUrl = brandLogo === 'AKKSYS Logo'
         ? 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="12" fill="#00C8FF"/><text x="50" y="62" font-family="Arial,sans-serif" font-size="36" font-weight="bold" fill="white" text-anchor="middle">AK</text></svg>')
         : brandLogo === 'Custom Logo' ? customLogo : null;
-      const res = await api.post('/qr/bulk', { items, logo_url: logoUrl });
+      const res = await api.post('/qr/bulk', { items, logo_url: logoUrl, category_id: categoryId });
       const created = res.data.qr_codes;
       setBulkData(prev => prev.map((item, i) => ({
         ...item,
@@ -322,12 +326,12 @@ const BulkQRGeneration = () => {
   };
 
   const handleDownloadSample = () => {
-    const csv = `name,destination_url
-Pro X1 Launch - Mumbai,https://amazon.in/dp/example1
-Pro X1 Launch - Delhi,https://amazon.in/dp/example2
-Summer Sale Campaign,https://flipkart.com/sale/example
-App Download - Play Store,https://play.google.com/store/apps/details?id=example
-Warranty Registration,https://akksys.in/warranty/register`;
+    const csv = `name,destination_url,category
+Pro X1 Launch - Mumbai,https://amazon.in/dp/example1,Marketing / Q3 / Pro X1
+Pro X1 Launch - Delhi,https://amazon.in/dp/example2,Marketing / Q3 / Pro X1
+Summer Sale Campaign,https://flipkart.com/sale/example,Sales / Seasonal
+App Download - Play Store,https://play.google.com/store/apps/details?id=example,App
+Warranty Registration,https://akksys.in/warranty/register,Support`;
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -399,7 +403,7 @@ Warranty Registration,https://akksys.in/warranty/register`;
             </div>
             <div className="dq-card-body">
               <p className="dq-field-hint mb-3">
-                Upload a CSV file with columns: <code>name, destination_url</code>. Each row will generate a unique QR code.
+                Upload a CSV file with columns: <code>name, destination_url, category</code>. Each row will generate a unique QR code.
               </p>
               <input type="file" ref={fileInputRef} accept=".csv" onChange={handleFileUpload} style={{ display: 'none' }} />
               {!uploadedFile ? (
@@ -479,6 +483,15 @@ Warranty Registration,https://akksys.in/warranty/register`;
                       <option>AKKSYS Logo</option>
                       <option>Custom Logo</option>
                     </select>
+                  </div>
+                </div>
+                <div className="col-md-12">
+                  <div className="custom-frm-bx">
+                    <label className="dq-label">Assign to Category / Folder</label>
+                    <CategoryDropdown
+                      value={categoryId}
+                      onChange={setCategoryId}
+                    />
                   </div>
                 </div>
                 {brandLogo === 'Custom Logo' && (
@@ -596,9 +609,9 @@ Warranty Registration,https://akksys.in/warranty/register`;
             <div className="dq-card-body">
               <div className="dq-code-box">
                 <code>
-                  name,destination_url<br />
-                  Product A - Store Mumbai,https://example.com/a<br />
-                  Product B - Store Delhi,https://example.com/b
+                  name,destination_url,category<br />
+                  Product A - Store Mumbai,https://example.com/a,Store Promos / Mumbai<br />
+                  Product B - Store Delhi,https://example.com/b,Store Promos / Delhi
                 </code>
               </div>
               <p className="dq-field-hint mt-3 mb-0">

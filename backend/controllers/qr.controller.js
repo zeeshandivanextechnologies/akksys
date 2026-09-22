@@ -1,10 +1,12 @@
 import { db } from '../config/db.js';
 import { generateQrId } from '../utils/generateQrId.js';
+import { findOrCreateCategory } from './category.controller.js';
 
 export const listQRCodes = async (req, res, next) => {
   try {
     const result = await db.query(
       `SELECT q.*, 
+        c.name as category_name,
         (SELECT COUNT(*) FROM scan_events WHERE qr_id = q.id) as total_scans,
         (SELECT COUNT(DISTINCT session_id) FROM scan_events WHERE qr_id = q.id) as unique_scans,
         (SELECT COUNT(*) FROM scan_events WHERE qr_id = q.id AND scanned_at >= NOW() - INTERVAL '7 days') as scans_last_7,
@@ -44,6 +46,7 @@ export const listQRCodes = async (req, res, next) => {
         b.box_number
        FROM qr_codes q 
        LEFT JOIN boxes b ON q.box_id = b.id
+       LEFT JOIN categories c ON q.category_id = c.id
        ORDER BY q.created_at DESC`
     );
     res.json(result.rows);
@@ -54,11 +57,11 @@ export const listQRCodes = async (req, res, next) => {
 
 export const createQR = async (req, res, next) => {
   try {
-    const { name, logo_url, form_enabled } = req.body;
+    const { name, logo_url, form_enabled, category_id } = req.body;
     const qrId = await generateQrId();
     const result = await db.query(
-      'INSERT INTO qr_codes (qr_id, name, logo_url, form_enabled, created_by) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [qrId, name, logo_url || null, form_enabled || false, req.user.id]
+      'INSERT INTO qr_codes (qr_id, name, logo_url, form_enabled, category_id, created_by) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [qrId, name, logo_url || null, form_enabled || false, category_id || null, req.user.id]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -82,14 +85,22 @@ export const getQRById = async (req, res, next) => {
 export const updateQR = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, form_enabled } = req.body;
+    const { name, form_enabled, category_id } = req.body;
     const hasLogo = Object.prototype.hasOwnProperty.call(req.body, 'logo_url');
     let logoVal = hasLogo ? req.body.logo_url : null;
     if (hasLogo && (!logoVal || logoVal === '')) logoVal = null;
 
     const hasFormEnabled = Object.prototype.hasOwnProperty.call(req.body, 'form_enabled');
+    const hasCategoryId = Object.prototype.hasOwnProperty.call(req.body, 'category_id');
 
-    if (hasLogo && hasFormEnabled) {
+    if (hasLogo && hasFormEnabled && hasCategoryId) {
+      const result = await db.query(
+        'UPDATE qr_codes SET name = COALESCE($1, name), logo_url = $2, form_enabled = $3, category_id = $4, updated_at = NOW() WHERE id = $5 RETURNING *',
+        [name, logoVal, form_enabled, category_id, id]
+      );
+      if (result.rows.length === 0) return res.status(404).json({ error: 'QR code not found' });
+      res.json(result.rows[0]);
+    } else if (hasLogo && hasFormEnabled) {
       const result = await db.query(
         'UPDATE qr_codes SET name = COALESCE($1, name), logo_url = $2, form_enabled = $3, updated_at = NOW() WHERE id = $4 RETURNING *',
         [name, logoVal, form_enabled, id]
@@ -107,6 +118,13 @@ export const updateQR = async (req, res, next) => {
       const result = await db.query(
         'UPDATE qr_codes SET name = COALESCE($1, name), form_enabled = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
         [name, form_enabled, id]
+      );
+      if (result.rows.length === 0) return res.status(404).json({ error: 'QR code not found' });
+      res.json(result.rows[0]);
+    } else if (hasCategoryId) {
+      const result = await db.query(
+        'UPDATE qr_codes SET name = COALESCE($1, name), category_id = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
+        [name, category_id, id]
       );
       if (result.rows.length === 0) return res.status(404).json({ error: 'QR code not found' });
       res.json(result.rows[0]);
@@ -154,13 +172,19 @@ export const deleteQR = async (req, res, next) => {
 
 export const bulkGenerate = async (req, res, next) => {
   try {
-    const { items, logo_url } = req.body; // [{ name, destination_url }], optional shared logo
+    const { items, logo_url, category_id } = req.body; 
     const results = [];
     for (const item of items) {
       const qrId = await generateQrId();
+      
+      let finalCategoryId = item.category_id || category_id || null;
+      if (item.category_path) {
+        finalCategoryId = await findOrCreateCategory(item.category_path, req.user.id);
+      }
+
       const qrResult = await db.query(
-        'INSERT INTO qr_codes (qr_id, name, logo_url, created_by) VALUES ($1, $2, $3, $4) RETURNING *',
-        [qrId, item.name, logo_url || null, req.user.id]
+        'INSERT INTO qr_codes (qr_id, name, logo_url, category_id, created_by) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+        [qrId, item.name, logo_url || null, finalCategoryId, req.user.id]
       );
       const qr = qrResult.rows[0];
 
