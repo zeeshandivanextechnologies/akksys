@@ -275,7 +275,7 @@ const MobileDestinationPage = () => {
               </button>
             </form>
 
-            <button className="ld-form-skip" onClick={handleSkip}>
+            <button className="thm-btn outline w-100" onClick={handleSkip}>
               Skip — Continue to page
             </button>
           </div>

@@ -638,7 +638,7 @@ border: 1px solid #1e2a40;
   font-weight: 500;
   color: #ddd;
   flex-shrink: 0;
-  margin-top: auto;
+  margin-top: 12px;
 }
 
 .ld-footer strong {
@@ -818,11 +818,11 @@ border: 1px solid #1e2a40;
   width: 100%;
   padding: 12px;
 }
-
+/* 
 .ld-form-submit:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
+} */
 
 .ld-form-skip {
   display: block;
